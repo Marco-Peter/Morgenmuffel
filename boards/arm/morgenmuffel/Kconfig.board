@@ -1,0 +1,10 @@
+# Morgenmuffel board configuration
+#
+# Copyright (c) 2019 Marco Peter
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config BOARD_MORGENMUFFEL
+	bool "Morgenmuffel Radio Clock Board"
+	depends on SOC_STM32F207XX

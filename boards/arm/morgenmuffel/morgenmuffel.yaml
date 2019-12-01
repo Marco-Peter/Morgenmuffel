@@ -1,0 +1,17 @@
+identifier: morgenmuffel
+name: MORGENMUFFEL
+type: mcu
+arch: arm
+ram: 128
+flash: 1024
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - usb_device
+  - watchdog
+  - i2c
+  - spi
+  - rtc

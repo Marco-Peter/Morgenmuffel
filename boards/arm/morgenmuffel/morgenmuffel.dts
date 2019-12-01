@@ -1,0 +1,99 @@
+/*
+ * Copyright (c) 2019 Marco Peter
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <st/f2/stm32f207Xg.dtsi>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	model = "Morgenmuffel Radioclock Board";
+	compatible = "mp,morgenmuffel", "st,stm32f207";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		power_led: led_1 {
+			gpios = <&gpiof 9 GPIO_INT_ACTIVE_LOW>;
+			label = "Power Fail LED";
+		};
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		btn_pwr: button_power {
+			label = "Power";
+			gpios = <&gpioe 14 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_sel: button_select {
+			label = "Select";
+			gpios = <&gpiog 9 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_bk: button_back {
+			label = "Back";
+			gpios = <&gpioc 0 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_fwd: button_forward {
+			label = "Forward";
+			gpios = <&gpioe 2 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_menu: button_menu {
+			label = "Menu";
+			gpios = <&gpiof 10 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_play: button_play {
+			label = "Play";
+			gpios = <&gpioc 13 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_alarm1: button_alarm1 {
+			label = "Alarm 1";
+			gpios = <&gpiod 8 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_alarm2: button_alarm2 {
+			label = "Alarm 2";
+			gpios = <&gpiod 12 GPIO_INT_ACTIVE_LOW>;
+		};
+		btn_alarm3: button_alarm3 {
+			label = "Alarm 3";
+			gpios = <&gpiod 13 GPIO_INT_ACTIVE_LOW>;
+		};
+	};
+
+	aliases {
+		led0 = &power_led;
+		sw0 = &btn_pwr;
+		sw1 = &btn_sel;
+		sw2 = &btn_bk;
+		sw3 = &btn_fwd;
+		sw4 = &btn_menu;
+		sw5 = &btn_play;
+		sw6 = &btn_alarm1;
+		sw7 = &btn_alarm2;
+		sw8 = &btn_alarm3;
+	};
+};
+
+&usart1 {
+	current-speed = <38400>;
+	status = "okay";
+};
+
+&usart2 {
+	current-speed = <38400>;
+	status = "okay";
+};
+
+&usart3 {
+	current-speed = <38400>;
+	status = "okay";
+};
+
+&usbotg_fs {
+	status = "okay";
+};

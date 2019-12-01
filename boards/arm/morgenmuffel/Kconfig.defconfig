@@ -1,0 +1,23 @@
+# Kconfig - Morgenmuffel board configuration
+#
+# Copyright (c) 2019 Marco Peter
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+if BOARD_MORGENMUFFEL
+
+config BOARD
+	default "Morgenmuffel"
+
+if NETWORKING
+
+config NET_L2_ETHERNET
+	default y
+
+config ETH_STM32_HAL
+	default y
+
+endif # NETWORKING
+
+endif # BOARD_MORGENMUFFEL
