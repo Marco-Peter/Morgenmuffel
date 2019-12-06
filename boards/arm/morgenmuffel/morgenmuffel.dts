@@ -97,3 +97,16 @@
 &usbotg_fs {
 	status = "okay";
 };
+
+&spi1 {
+	status = "okay";
+};
+
+&spi2 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
