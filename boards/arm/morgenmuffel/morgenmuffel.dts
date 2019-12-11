@@ -117,7 +117,6 @@
 		has-dpd;
 		t-enter-dpd = <3000>;
 		t-exit-dpd = <30000>;
-		status = "okay";
 	};
 };
 
