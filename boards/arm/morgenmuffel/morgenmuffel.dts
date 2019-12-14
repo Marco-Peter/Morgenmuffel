@@ -98,13 +98,7 @@
 	status = "okay";
 };
 
-&spi1 {
-	status = "okay";
-	clock-frequency = <5266285>;
-	cs-gpios = <&gpiof 6 0>, <&gpiof 10 0>, <&gpiod 9 0>;
-};
-
-&spi2 { /* Memory bus connecting M25P16 flash and SRAM */
+&spi1 { /* Memory bus connecting M25P16 (node 0) flash and SRAM (node 1) */
 	status = "okay";
 	cs-gpios = <&gpiof 13 0>, <&gpiof 12 0>;
 	m25p16: m25p16@0 {
@@ -118,6 +112,13 @@
 		t-enter-dpd = <3000>;
 		t-exit-dpd = <30000>;
 	};
+};
+
+&spi2 { /* Peripheral bus connecting display (node 0), VS1053 CS (node 1) and DCS (node 2) and SI4689 (node 3). */
+	status = "okay";
+	clock-frequency = <5266285>;
+	cs-gpios = <&gpiof 3 0>, <&gpiof 6 0>, <&gpiof 10 0>, <&gpiod 9 0>;
+	}
 };
 
 &i2c1 {
