@@ -1,0 +1,2552 @@
+/******************************************************************************
+* Font data for FreeSans 16px height.
+*
+* Automatically generated
+*
+******************************************************************************/
+
+#include "font.h"
+
+static const uint8_t glyphData[];
+static const Glyph glyphs[];
+
+const Font fontFreeSans16 = {
+	16,
+	glyphs
+};
+
+static const Glyph glyphs[] = {
+	L'Ę',					// character
+	{						// struct desc
+		glyphData + 0x0000,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'Į',					// character
+	{						// struct desc
+		glyphData + 0x0012,	// data --> offset against glyphData
+		4,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'Ų',					// character
+	{						// struct desc
+		glyphData + 0x001a,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'Ă',					// character
+	{						// struct desc
+		glyphData + 0x002c,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		0,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Ė',					// character
+	{						// struct desc
+		glyphData + 0x0040,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Ď',					// character
+	{						// struct desc
+		glyphData + 0x0050,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Ș',					// character
+	{						// struct desc
+		glyphData + 0x0062,	// data --> offset against glyphData
+		8,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Ț',					// character
+	{						// struct desc
+		glyphData + 0x0072,	// data --> offset against glyphData
+		9,					// width
+		17,					// height
+		0,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'Ċ',					// character
+	{						// struct desc
+		glyphData + 0x0084,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ġ',					// character
+	{						// struct desc
+		glyphData + 0x0096,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'Ĺ',					// character
+	{						// struct desc
+		glyphData + 0x00aa,	// data --> offset against glyphData
+		7,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		9					// advance
+	},
+	L'Ż',					// character
+	{						// struct desc
+		glyphData + 0x00b8,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Ń',					// character
+	{						// struct desc
+		glyphData + 0x00ca,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'ą',					// character
+	{						// struct desc
+		glyphData + 0x00dc,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'ę',					// character
+	{						// struct desc
+		glyphData + 0x00ee,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'į',					// character
+	{						// struct desc
+		glyphData + 0x00fe,	// data --> offset against glyphData
+		3,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'ų',					// character
+	{						// struct desc
+		glyphData + 0x0104,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'ă',					// character
+	{						// struct desc
+		glyphData + 0x0112,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ė',					// character
+	{						// struct desc
+		glyphData + 0x0122,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ď',					// character
+	{						// struct desc
+		glyphData + 0x0132,	// data --> offset against glyphData
+		11,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'ș',					// character
+	{						// struct desc
+		glyphData + 0x0148,	// data --> offset against glyphData
+		6,					// width
+		14,					// height
+		1,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'ț',					// character
+	{						// struct desc
+		glyphData + 0x0154,	// data --> offset against glyphData
+		3,					// width
+		16,					// height
+		0,					// bearingX
+		11,					// bearingY
+		4					// advance
+	},
+	L'ċ',					// character
+	{						// struct desc
+		glyphData + 0x015a,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'Ň',					// character
+	{						// struct desc
+		glyphData + 0x0168,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		12					// advance
+	},
+	L'Ě',					// character
+	{						// struct desc
+		glyphData + 0x017a,	// data --> offset against glyphData
+		8,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		10					// advance
+	},
+	L'ġ',					// character
+	{						// struct desc
+		glyphData + 0x018a,	// data --> offset against glyphData
+		7,					// width
+		14,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ĺ',					// character
+	{						// struct desc
+		glyphData + 0x0198,	// data --> offset against glyphData
+		3,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		4					// advance
+	},
+	L'ż',					// character
+	{						// struct desc
+		glyphData + 0x019e,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L' ',					// character
+	{						// struct desc
+		glyphData + 0x01ac,	// data --> offset against glyphData
+		0,					// width
+		0,					// height
+		0,					// bearingX
+		0,					// bearingY
+		4					// advance
+	},
+	L'!',					// character
+	{						// struct desc
+		glyphData + 0x01ac,	// data --> offset against glyphData
+		1,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		5					// advance
+	},
+	L'"',					// character
+	{						// struct desc
+		glyphData + 0x01ae,	// data --> offset against glyphData
+		3,					// width
+		4,					// height
+		1,					// bearingX
+		11,					// bearingY
+		5					// advance
+	},
+	L'#',					// character
+	{						// struct desc
+		glyphData + 0x01b4,	// data --> offset against glyphData
+		9,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'ł',					// character
+	{						// struct desc
+		glyphData + 0x01c6,	// data --> offset against glyphData
+		3,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'%',					// character
+	{						// struct desc
+		glyphData + 0x01cc,	// data --> offset against glyphData
+		14,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		14					// advance
+	},
+	L'&',					// character
+	{						// struct desc
+		glyphData + 0x01e8,	// data --> offset against glyphData
+		9,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		11					// advance
+	},
+	L'\'',					// character
+	{						// struct desc
+		glyphData + 0x01fa,	// data --> offset against glyphData
+		1,					// width
+		4,					// height
+		1,					// bearingX
+		11,					// bearingY
+		3					// advance
+	},
+	L'(',					// character
+	{						// struct desc
+		glyphData + 0x01fc,	// data --> offset against glyphData
+		3,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		5					// advance
+	},
+	L')',					// character
+	{						// struct desc
+		glyphData + 0x0202,	// data --> offset against glyphData
+		3,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		5					// advance
+	},
+	L'*',					// character
+	{						// struct desc
+		glyphData + 0x0208,	// data --> offset against glyphData
+		5,					// width
+		5,					// height
+		1,					// bearingX
+		12,					// bearingY
+		6					// advance
+	},
+	L'+',					// character
+	{						// struct desc
+		glyphData + 0x0212,	// data --> offset against glyphData
+		7,					// width
+		7,					// height
+		1,					// bearingX
+		7,					// bearingY
+		9					// advance
+	},
+	L',',					// character
+	{						// struct desc
+		glyphData + 0x0220,	// data --> offset against glyphData
+		1,					// width
+		3,					// height
+		1,					// bearingX
+		1,					// bearingY
+		4					// advance
+	},
+	L'-',					// character
+	{						// struct desc
+		glyphData + 0x0222,	// data --> offset against glyphData
+		4,					// width
+		1,					// height
+		1,					// bearingX
+		5,					// bearingY
+		5					// advance
+	},
+	L'.',					// character
+	{						// struct desc
+		glyphData + 0x022a,	// data --> offset against glyphData
+		1,					// width
+		1,					// height
+		1,					// bearingX
+		1,					// bearingY
+		4					// advance
+	},
+	L'/',					// character
+	{						// struct desc
+		glyphData + 0x022c,	// data --> offset against glyphData
+		4,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'0',					// character
+	{						// struct desc
+		glyphData + 0x0234,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'1',					// character
+	{						// struct desc
+		glyphData + 0x0242,	// data --> offset against glyphData
+		3,					// width
+		11,					// height
+		2,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'2',					// character
+	{						// struct desc
+		glyphData + 0x0248,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'3',					// character
+	{						// struct desc
+		glyphData + 0x0256,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'4',					// character
+	{						// struct desc
+		glyphData + 0x0264,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'5',					// character
+	{						// struct desc
+		glyphData + 0x0274,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'6',					// character
+	{						// struct desc
+		glyphData + 0x0282,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'7',					// character
+	{						// struct desc
+		glyphData + 0x0290,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'8',					// character
+	{						// struct desc
+		glyphData + 0x029e,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'9',					// character
+	{						// struct desc
+		glyphData + 0x02ac,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L':',					// character
+	{						// struct desc
+		glyphData + 0x02ba,	// data --> offset against glyphData
+		1,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		4					// advance
+	},
+	L';',					// character
+	{						// struct desc
+		glyphData + 0x02bc,	// data --> offset against glyphData
+		1,					// width
+		10,					// height
+		1,					// bearingX
+		8,					// bearingY
+		4					// advance
+	},
+	L'<',					// character
+	{						// struct desc
+		glyphData + 0x02be,	// data --> offset against glyphData
+		8,					// width
+		8,					// height
+		0,					// bearingX
+		8,					// bearingY
+		9					// advance
+	},
+	L'=',					// character
+	{						// struct desc
+		glyphData + 0x02ce,	// data --> offset against glyphData
+		8,					// width
+		4,					// height
+		0,					// bearingX
+		6,					// bearingY
+		9					// advance
+	},
+	L'>',					// character
+	{						// struct desc
+		glyphData + 0x02de,	// data --> offset against glyphData
+		8,					// width
+		8,					// height
+		0,					// bearingX
+		8,					// bearingY
+		9					// advance
+	},
+	L'?',					// character
+	{						// struct desc
+		glyphData + 0x02ee,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'@',					// character
+	{						// struct desc
+		glyphData + 0x02fc,	// data --> offset against glyphData
+		14,					// width
+		14,					// height
+		1,					// bearingX
+		12,					// bearingY
+		16					// advance
+	},
+	L'A',					// character
+	{						// struct desc
+		glyphData + 0x0318,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'B',					// character
+	{						// struct desc
+		glyphData + 0x032c,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'C',					// character
+	{						// struct desc
+		glyphData + 0x033e,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'D',					// character
+	{						// struct desc
+		glyphData + 0x0350,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'E',					// character
+	{						// struct desc
+		glyphData + 0x0362,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'F',					// character
+	{						// struct desc
+		glyphData + 0x0372,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'G',					// character
+	{						// struct desc
+		glyphData + 0x0380,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'H',					// character
+	{						// struct desc
+		glyphData + 0x0394,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'I',					// character
+	{						// struct desc
+		glyphData + 0x03a6,	// data --> offset against glyphData
+		1,					// width
+		12,					// height
+		2,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'J',					// character
+	{						// struct desc
+		glyphData + 0x03a8,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'K',					// character
+	{						// struct desc
+		glyphData + 0x03b4,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'L',					// character
+	{						// struct desc
+		glyphData + 0x03c6,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'M',					// character
+	{						// struct desc
+		glyphData + 0x03d4,	// data --> offset against glyphData
+		11,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		14					// advance
+	},
+	L'N',					// character
+	{						// struct desc
+		glyphData + 0x03ea,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'O',					// character
+	{						// struct desc
+		glyphData + 0x03fc,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		13					// advance
+	},
+	L'P',					// character
+	{						// struct desc
+		glyphData + 0x0410,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Q',					// character
+	{						// struct desc
+		glyphData + 0x0420,	// data --> offset against glyphData
+		10,					// width
+		13,					// height
+		1,					// bearingX
+		12,					// bearingY
+		13					// advance
+	},
+	L'R',					// character
+	{						// struct desc
+		glyphData + 0x0434,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'S',					// character
+	{						// struct desc
+		glyphData + 0x0448,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'T',					// character
+	{						// struct desc
+		glyphData + 0x0458,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'U',					// character
+	{						// struct desc
+		glyphData + 0x046a,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'V',					// character
+	{						// struct desc
+		glyphData + 0x047c,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'W',					// character
+	{						// struct desc
+		glyphData + 0x0490,	// data --> offset against glyphData
+		15,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		15					// advance
+	},
+	L'X',					// character
+	{						// struct desc
+		glyphData + 0x04ae,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Y',					// character
+	{						// struct desc
+		glyphData + 0x04c2,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Z',					// character
+	{						// struct desc
+		glyphData + 0x04d4,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'[',					// character
+	{						// struct desc
+		glyphData + 0x04e6,	// data --> offset against glyphData
+		3,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'Ů',					// character
+	{						// struct desc
+		glyphData + 0x04ec,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		16,					// bearingY
+		12					// advance
+	},
+	L']',					// character
+	{						// struct desc
+		glyphData + 0x04fe,	// data --> offset against glyphData
+		3,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'Ł',					// character
+	{						// struct desc
+		glyphData + 0x0504,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'_',					// character
+	{						// struct desc
+		glyphData + 0x0514,	// data --> offset against glyphData
+		9,					// width
+		1,					// height
+		-1,					// bearingX
+		-2,					// bearingY
+		9					// advance
+	},
+	L'Ą',					// character
+	{						// struct desc
+		glyphData + 0x0526,	// data --> offset against glyphData
+		11,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'a',					// character
+	{						// struct desc
+		glyphData + 0x053c,	// data --> offset against glyphData
+		8,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'b',					// character
+	{						// struct desc
+		glyphData + 0x054c,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'c',					// character
+	{						// struct desc
+		glyphData + 0x055a,	// data --> offset against glyphData
+		7,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'd',					// character
+	{						// struct desc
+		glyphData + 0x0568,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'e',					// character
+	{						// struct desc
+		glyphData + 0x0578,	// data --> offset against glyphData
+		8,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'f',					// character
+	{						// struct desc
+		glyphData + 0x0588,	// data --> offset against glyphData
+		3,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'g',					// character
+	{						// struct desc
+		glyphData + 0x058e,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'h',					// character
+	{						// struct desc
+		glyphData + 0x059c,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'i',					// character
+	{						// struct desc
+		glyphData + 0x05a8,	// data --> offset against glyphData
+		1,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'j',					// character
+	{						// struct desc
+		glyphData + 0x05aa,	// data --> offset against glyphData
+		2,					// width
+		15,					// height
+		-1,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'k',					// character
+	{						// struct desc
+		glyphData + 0x05ae,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'l',					// character
+	{						// struct desc
+		glyphData + 0x05bc,	// data --> offset against glyphData
+		1,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		3					// advance
+	},
+	L'm',					// character
+	{						// struct desc
+		glyphData + 0x05be,	// data --> offset against glyphData
+		11,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		13					// advance
+	},
+	L'n',					// character
+	{						// struct desc
+		glyphData + 0x05d4,	// data --> offset against glyphData
+		6,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'o',					// character
+	{						// struct desc
+		glyphData + 0x05e0,	// data --> offset against glyphData
+		8,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'p',					// character
+	{						// struct desc
+		glyphData + 0x05f0,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'q',					// character
+	{						// struct desc
+		glyphData + 0x05fe,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'r',					// character
+	{						// struct desc
+		glyphData + 0x060e,	// data --> offset against glyphData
+		4,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		5					// advance
+	},
+	L's',					// character
+	{						// struct desc
+		glyphData + 0x0616,	// data --> offset against glyphData
+		6,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L't',					// character
+	{						// struct desc
+		glyphData + 0x0622,	// data --> offset against glyphData
+		3,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		4					// advance
+	},
+	L'u',					// character
+	{						// struct desc
+		glyphData + 0x0628,	// data --> offset against glyphData
+		6,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'v',					// character
+	{						// struct desc
+		glyphData + 0x0634,	// data --> offset against glyphData
+		8,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'w',					// character
+	{						// struct desc
+		glyphData + 0x0644,	// data --> offset against glyphData
+		11,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		12					// advance
+	},
+	L'x',					// character
+	{						// struct desc
+		glyphData + 0x065a,	// data --> offset against glyphData
+		7,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'y',					// character
+	{						// struct desc
+		glyphData + 0x0668,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'z',					// character
+	{						// struct desc
+		glyphData + 0x0678,	// data --> offset against glyphData
+		7,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'«',					// character
+	{						// struct desc
+		glyphData + 0x0686,	// data --> offset against glyphData
+		6,					// width
+		5,					// height
+		1,					// bearingX
+		7,					// bearingY
+		8					// advance
+	},
+	L'ů',					// character
+	{						// struct desc
+		glyphData + 0x0692,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'»',					// character
+	{						// struct desc
+		glyphData + 0x069e,	// data --> offset against glyphData
+		6,					// width
+		5,					// height
+		1,					// bearingX
+		7,					// bearingY
+		8					// advance
+	},
+	L'Ľ',					// character
+	{						// struct desc
+		glyphData + 0x06aa,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Ħ',					// character
+	{						// struct desc
+		glyphData + 0x06b8,	// data --> offset against glyphData
+		11,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'á',					// character
+	{						// struct desc
+		glyphData + 0x06ce,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'à',					// character
+	{						// struct desc
+		glyphData + 0x06de,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'é',					// character
+	{						// struct desc
+		glyphData + 0x06ee,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'è',					// character
+	{						// struct desc
+		glyphData + 0x06fe,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'í',					// character
+	{						// struct desc
+		glyphData + 0x070e,	// data --> offset against glyphData
+		3,					// width
+		12,					// height
+		-1,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'ì',					// character
+	{						// struct desc
+		glyphData + 0x0714,	// data --> offset against glyphData
+		3,					// width
+		12,					// height
+		-1,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'ó',					// character
+	{						// struct desc
+		glyphData + 0x071a,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ò',					// character
+	{						// struct desc
+		glyphData + 0x072a,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ú',					// character
+	{						// struct desc
+		glyphData + 0x073a,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ù',					// character
+	{						// struct desc
+		glyphData + 0x0746,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Ñ',					// character
+	{						// struct desc
+		glyphData + 0x0752,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		15,					// bearingY
+		12					// advance
+	},
+	L'Ç',					// character
+	{						// struct desc
+		glyphData + 0x0764,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Ş',					// character
+	{						// struct desc
+		glyphData + 0x0776,	// data --> offset against glyphData
+		8,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'ß',					// character
+	{						// struct desc
+		glyphData + 0x0786,	// data --> offset against glyphData
+		7,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'¡',					// character
+	{						// struct desc
+		glyphData + 0x0794,	// data --> offset against glyphData
+		1,					// width
+		12,					// height
+		2,					// bearingX
+		8,					// bearingY
+		5					// advance
+	},
+	L'Ÿ',					// character
+	{						// struct desc
+		glyphData + 0x0796,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'â',					// character
+	{						// struct desc
+		glyphData + 0x07a8,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ä',					// character
+	{						// struct desc
+		glyphData + 0x07b8,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ê',					// character
+	{						// struct desc
+		glyphData + 0x07c8,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ë',					// character
+	{						// struct desc
+		glyphData + 0x07d8,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'î',					// character
+	{						// struct desc
+		glyphData + 0x07e8,	// data --> offset against glyphData
+		4,					// width
+		12,					// height
+		-1,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'ï',					// character
+	{						// struct desc
+		glyphData + 0x07f0,	// data --> offset against glyphData
+		3,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		4					// advance
+	},
+	L'ô',					// character
+	{						// struct desc
+		glyphData + 0x07f6,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ö',					// character
+	{						// struct desc
+		glyphData + 0x0806,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'û',					// character
+	{						// struct desc
+		glyphData + 0x0816,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ü',					// character
+	{						// struct desc
+		glyphData + 0x0822,	// data --> offset against glyphData
+		6,					// width
+		11,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ñ',					// character
+	{						// struct desc
+		glyphData + 0x082e,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ç',					// character
+	{						// struct desc
+		glyphData + 0x083a,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'ş',					// character
+	{						// struct desc
+		glyphData + 0x0848,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		9,					// bearingY
+		8					// advance
+	},
+	L'ğ',					// character
+	{						// struct desc
+		glyphData + 0x0854,	// data --> offset against glyphData
+		7,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ı',					// character
+	{						// struct desc
+		glyphData + 0x0862,	// data --> offset against glyphData
+		1,					// width
+		9,					// height
+		1,					// bearingX
+		9,					// bearingY
+		4					// advance
+	},
+	L'ÿ',					// character
+	{						// struct desc
+		glyphData + 0x0864,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'Ķ',					// character
+	{						// struct desc
+		glyphData + 0x0874,	// data --> offset against glyphData
+		9,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Ņ',					// character
+	{						// struct desc
+		glyphData + 0x0886,	// data --> offset against glyphData
+		9,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'©',					// character
+	{						// struct desc
+		glyphData + 0x0898,	// data --> offset against glyphData
+		11,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		13					// advance
+	},
+	L'Ģ',					// character
+	{						// struct desc
+		glyphData + 0x08ae,	// data --> offset against glyphData
+		10,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'Ğ',					// character
+	{						// struct desc
+		glyphData + 0x08c2,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		12					// advance
+	},
+	L'ě',					// character
+	{						// struct desc
+		glyphData + 0x08d6,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ň',					// character
+	{						// struct desc
+		glyphData + 0x08e6,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ő',					// character
+	{						// struct desc
+		glyphData + 0x08f2,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Ő',					// character
+	{						// struct desc
+		glyphData + 0x0902,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		13					// advance
+	},
+	L'€',					// character
+	{						// struct desc
+		glyphData + 0x0916,	// data --> offset against glyphData
+		9,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		10					// advance
+	},
+	L'£',					// character
+	{						// struct desc
+		glyphData + 0x0928,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'$',					// character
+	{						// struct desc
+		glyphData + 0x0938,	// data --> offset against glyphData
+		7,					// width
+		13,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Ā',					// character
+	{						// struct desc
+		glyphData + 0x0946,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ē',					// character
+	{						// struct desc
+		glyphData + 0x095a,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Ī',					// character
+	{						// struct desc
+		glyphData + 0x096a,	// data --> offset against glyphData
+		4,					// width
+		14,					// height
+		-1,					// bearingX
+		14,					// bearingY
+		4					// advance
+	},
+	L'Ū',					// character
+	{						// struct desc
+		glyphData + 0x0972,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'ķ',					// character
+	{						// struct desc
+		glyphData + 0x0984,	// data --> offset against glyphData
+		7,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'ņ',					// character
+	{						// struct desc
+		glyphData + 0x0992,	// data --> offset against glyphData
+		6,					// width
+		14,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'Ļ',					// character
+	{						// struct desc
+		glyphData + 0x099e,	// data --> offset against glyphData
+		7,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ģ',					// character
+	{						// struct desc
+		glyphData + 0x09ac,	// data --> offset against glyphData
+		7,					// width
+		15,					// height
+		0,					// bearingX
+		13,					// bearingY
+		9					// advance
+	},
+	L'ļ',					// character
+	{						// struct desc
+		glyphData + 0x09ba,	// data --> offset against glyphData
+		1,					// width
+		17,					// height
+		1,					// bearingX
+		12,					// bearingY
+		3					// advance
+	},
+	L'İ',					// character
+	{						// struct desc
+		glyphData + 0x09bc,	// data --> offset against glyphData
+		1,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		4					// advance
+	},
+	L'ń',					// character
+	{						// struct desc
+		glyphData + 0x09be,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ű',					// character
+	{						// struct desc
+		glyphData + 0x09ca,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Ű',					// character
+	{						// struct desc
+		glyphData + 0x09d6,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'¿',					// character
+	{						// struct desc
+		glyphData + 0x09e8,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		2,					// bearingX
+		8,					// bearingY
+		9					// advance
+	},
+	L'ľ',					// character
+	{						// struct desc
+		glyphData + 0x09f6,	// data --> offset against glyphData
+		4,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		6					// advance
+	},
+	L'°',					// character
+	{						// struct desc
+		glyphData + 0x09fe,	// data --> offset against glyphData
+		5,					// width
+		5,					// height
+		2,					// bearingX
+		11,					// bearingY
+		10					// advance
+	},
+	L'ā',					// character
+	{						// struct desc
+		glyphData + 0x0a08,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'ē',					// character
+	{						// struct desc
+		glyphData + 0x0a18,	// data --> offset against glyphData
+		8,					// width
+		11,					// height
+		0,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'ī',					// character
+	{						// struct desc
+		glyphData + 0x0a28,	// data --> offset against glyphData
+		4,					// width
+		11,					// height
+		-1,					// bearingX
+		11,					// bearingY
+		4					// advance
+	},
+	L'ū',					// character
+	{						// struct desc
+		glyphData + 0x0a30,	// data --> offset against glyphData
+		6,					// width
+		11,					// height
+		1,					// bearingX
+		11,					// bearingY
+		9					// advance
+	},
+	L'Á',					// character
+	{						// struct desc
+		glyphData + 0x0a3c,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'À',					// character
+	{						// struct desc
+		glyphData + 0x0a50,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'É',					// character
+	{						// struct desc
+		glyphData + 0x0a64,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'È',					// character
+	{						// struct desc
+		glyphData + 0x0a74,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Í',					// character
+	{						// struct desc
+		glyphData + 0x0a84,	// data --> offset against glyphData
+		3,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		4					// advance
+	},
+	L'Ì',					// character
+	{						// struct desc
+		glyphData + 0x0a8a,	// data --> offset against glyphData
+		3,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		4					// advance
+	},
+	L'Ó',					// character
+	{						// struct desc
+		glyphData + 0x0a90,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		13					// advance
+	},
+	L'Ò',					// character
+	{						// struct desc
+		glyphData + 0x0aa4,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		13					// advance
+	},
+	L'Ú',					// character
+	{						// struct desc
+		glyphData + 0x0ab8,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'Ù',					// character
+	{						// struct desc
+		glyphData + 0x0aca,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'Ř',					// character
+	{						// struct desc
+		glyphData + 0x0adc,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Č',					// character
+	{						// struct desc
+		glyphData + 0x0af0,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Š',					// character
+	{						// struct desc
+		glyphData + 0x0b02,	// data --> offset against glyphData
+		8,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Ž',					// character
+	{						// struct desc
+		glyphData + 0x0b12,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		0,					// bearingX
+		15,					// bearingY
+		10					// advance
+	},
+	L'Ð',					// character
+	{						// struct desc
+		glyphData + 0x0b24,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Ŀ',					// character
+	{						// struct desc
+		glyphData + 0x0b38,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'Â',					// character
+	{						// struct desc
+		glyphData + 0x0b46,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ä',					// character
+	{						// struct desc
+		glyphData + 0x0b5a,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ê',					// character
+	{						// struct desc
+		glyphData + 0x0b6e,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Ë',					// character
+	{						// struct desc
+		glyphData + 0x0b7e,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Î',					// character
+	{						// struct desc
+		glyphData + 0x0b8e,	// data --> offset against glyphData
+		4,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		5					// advance
+	},
+	L'Ï',					// character
+	{						// struct desc
+		glyphData + 0x0b96,	// data --> offset against glyphData
+		3,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		5					// advance
+	},
+	L'Ô',					// character
+	{						// struct desc
+		glyphData + 0x0b9c,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		13					// advance
+	},
+	L'Ö',					// character
+	{						// struct desc
+		glyphData + 0x0bb0,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		13					// advance
+	},
+	L'Û',					// character
+	{						// struct desc
+		glyphData + 0x0bc4,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'Ü',					// character
+	{						// struct desc
+		glyphData + 0x0bd6,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		12					// advance
+	},
+	L'ř',					// character
+	{						// struct desc
+		glyphData + 0x0be8,	// data --> offset against glyphData
+		5,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		5					// advance
+	},
+	L'č',					// character
+	{						// struct desc
+		glyphData + 0x0bf2,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'š',					// character
+	{						// struct desc
+		glyphData + 0x0c00,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'ž',					// character
+	{						// struct desc
+		glyphData + 0x0c0c,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'đ',					// character
+	{						// struct desc
+		glyphData + 0x0c1a,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ŀ',					// character
+	{						// struct desc
+		glyphData + 0x0c2c,	// data --> offset against glyphData
+		4,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		6					// advance
+	},
+	L'Ã',					// character
+	{						// struct desc
+		glyphData + 0x0c34,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		0,					// bearingX
+		15,					// bearingY
+		11					// advance
+	},
+	L'Å',					// character
+	{						// struct desc
+		glyphData + 0x0c48,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		0,					// bearingX
+		16,					// bearingY
+		11					// advance
+	},
+	L'Æ',					// character
+	{						// struct desc
+		glyphData + 0x0c5c,	// data --> offset against glyphData
+		14,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		16					// advance
+	},
+	L'Œ',					// character
+	{						// struct desc
+		glyphData + 0x0c78,	// data --> offset against glyphData
+		13,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		16					// advance
+	},
+	L'ŷ',					// character
+	{						// struct desc
+		glyphData + 0x0c92,	// data --> offset against glyphData
+		8,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'Ý',					// character
+	{						// struct desc
+		glyphData + 0x0ca2,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Õ',					// character
+	{						// struct desc
+		glyphData + 0x0cb4,	// data --> offset against glyphData
+		10,					// width
+		15,					// height
+		1,					// bearingX
+		15,					// bearingY
+		13					// advance
+	},
+	L'Ø',					// character
+	{						// struct desc
+		glyphData + 0x0cc8,	// data --> offset against glyphData
+		10,					// width
+		12,					// height
+		0,					// bearingX
+		13,					// bearingY
+		13					// advance
+	},
+	L'Þ',					// character
+	{						// struct desc
+		glyphData + 0x0cdc,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		10					// advance
+	},
+	L'Ŋ',					// character
+	{						// struct desc
+		glyphData + 0x0cec,	// data --> offset against glyphData
+		9,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		11					// advance
+	},
+	L'Ŕ',					// character
+	{						// struct desc
+		glyphData + 0x0cfe,	// data --> offset against glyphData
+		10,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ć',					// character
+	{						// struct desc
+		glyphData + 0x0d12,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ś',					// character
+	{						// struct desc
+		glyphData + 0x0d24,	// data --> offset against glyphData
+		8,					// width
+		14,					// height
+		1,					// bearingX
+		14,					// bearingY
+		11					// advance
+	},
+	L'Ź',					// character
+	{						// struct desc
+		glyphData + 0x0d34,	// data --> offset against glyphData
+		9,					// width
+		14,					// height
+		0,					// bearingX
+		14,					// bearingY
+		10					// advance
+	},
+	L'Ť',					// character
+	{						// struct desc
+		glyphData + 0x0d46,	// data --> offset against glyphData
+		9,					// width
+		15,					// height
+		0,					// bearingX
+		15,					// bearingY
+		10					// advance
+	},
+	L'ð',					// character
+	{						// struct desc
+		glyphData + 0x0d58,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		13,					// bearingY
+		9					// advance
+	},
+	L'ã',					// character
+	{						// struct desc
+		glyphData + 0x0d68,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'å',					// character
+	{						// struct desc
+		glyphData + 0x0d78,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'æ',					// character
+	{						// struct desc
+		glyphData + 0x0d88,	// data --> offset against glyphData
+		13,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		14					// advance
+	},
+	L'œ',					// character
+	{						// struct desc
+		glyphData + 0x0da2,	// data --> offset against glyphData
+		14,					// width
+		9,					// height
+		0,					// bearingX
+		9,					// bearingY
+		15					// advance
+	},
+	L'ŵ',					// character
+	{						// struct desc
+		glyphData + 0x0dbe,	// data --> offset against glyphData
+		11,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		12					// advance
+	},
+	L'ý',					// character
+	{						// struct desc
+		glyphData + 0x0dd4,	// data --> offset against glyphData
+		8,					// width
+		15,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'õ',					// character
+	{						// struct desc
+		glyphData + 0x0de4,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ø',					// character
+	{						// struct desc
+		glyphData + 0x0df4,	// data --> offset against glyphData
+		8,					// width
+		9,					// height
+		-1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'þ',					// character
+	{						// struct desc
+		glyphData + 0x0e04,	// data --> offset against glyphData
+		7,					// width
+		15,					// height
+		1,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	L'ŋ',					// character
+	{						// struct desc
+		glyphData + 0x0e12,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		9,					// bearingY
+		9					// advance
+	},
+	L'ŕ',					// character
+	{						// struct desc
+		glyphData + 0x0e1e,	// data --> offset against glyphData
+		4,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		5					// advance
+	},
+	L'ć',					// character
+	{						// struct desc
+		glyphData + 0x0e26,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'ś',					// character
+	{						// struct desc
+		glyphData + 0x0e34,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		1,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'ź',					// character
+	{						// struct desc
+		glyphData + 0x0e40,	// data --> offset against glyphData
+		7,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		8					// advance
+	},
+	L'ť',					// character
+	{						// struct desc
+		glyphData + 0x0e4e,	// data --> offset against glyphData
+		6,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		7					// advance
+	},
+	L'ħ',					// character
+	{						// struct desc
+		glyphData + 0x0e5a,	// data --> offset against glyphData
+		8,					// width
+		12,					// height
+		0,					// bearingX
+		12,					// bearingY
+		9					// advance
+	},
+	/* *** Array End Marker *** */
+	0,
+	{
+		0x0000,
+		0,
+		0,
+		0,
+		0,
+		0
+	}
+};
+static const uint8_t glyphData[] = {
+/* Ę */	0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0xf0, 0x90, 0x80,
+/* Į */	0x00, 0x00, 0xfe, 0x00, 0x60, 0x90, 0x9f, 0x80,
+/* Ų */	0xfe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfe, 0x07, 0x08, 0x10, 0x10, 0x10, 0x70, 0x90, 0x88, 0x87,
+/* Ă */	0x00, 0x00, 0x00, 0xc3, 0x7a, 0x1a, 0xf2, 0xc1, 0x00, 0x00, 0x40, 0x78, 0x1f, 0x07, 0x04, 0x04, 0x04, 0x07, 0x3e, 0x70,
+/* Ė */	0xfc, 0x04, 0x04, 0x04, 0x05, 0x04, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* Ď */	0xf8, 0x08, 0x08, 0x09, 0x0a, 0x0a, 0x19, 0x30, 0xc0, 0x7f, 0x40, 0x40, 0x40, 0x40, 0x40, 0x60, 0x30, 0x0f,
+/* Ș */	0x1e, 0x32, 0x21, 0x61, 0x61, 0x41, 0xc2, 0x86, 0x03, 0x04, 0x08, 0x08, 0xc8, 0x08, 0x04, 0x03,
+/* Ț */	0x01, 0x01, 0x01, 0x01, 0xff, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0xcf, 0x00, 0x00, 0x00, 0x00,
+/* Ċ */	0xe0, 0x18, 0x08, 0x04, 0x05, 0x04, 0x04, 0x08, 0x10, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0c,
+/* Ġ */	0xe0, 0x30, 0x08, 0x04, 0x05, 0x04, 0x04, 0x04, 0x08, 0x10, 0x07, 0x08, 0x10, 0x20, 0x20, 0x20, 0x21, 0x11, 0x19, 0x3f,
+/* Ĺ */	0xfc, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+/* Ż */	0x00, 0x04, 0x04, 0x04, 0x85, 0xc4, 0x74, 0x3c, 0x0c, 0x20, 0x30, 0x3c, 0x26, 0x23, 0x21, 0x20, 0x20, 0x20,
+/* Ń */	0xfc, 0x1c, 0x30, 0xe2, 0x81, 0x00, 0x00, 0x00, 0xfc, 0x3f, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0c, 0x38, 0x3f,
+/* ą */	0x20, 0x10, 0x10, 0x10, 0x10, 0x10, 0xe0, 0x00, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x7f, 0x90, 0x80,
+/* ę */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x30, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x71, 0x91, 0x89, 0x85,
+/* į */	0x00, 0xf2, 0x00, 0xe0, 0x9f, 0x80,
+/* ų */	0xf0, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x0f, 0x10, 0x10, 0x10, 0xe8, 0x9f, 0x80,
+/* ă */	0x20, 0x10, 0x16, 0x14, 0x14, 0x14, 0xe2, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* ė */	0xe0, 0x90, 0x88, 0x88, 0x8a, 0x88, 0x90, 0xe0, 0x03, 0x04, 0x08, 0x08, 0x08, 0x08, 0x0c, 0x04,
+/* ď */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xfe, 0x00, 0x04, 0x02, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x1f, 0x00, 0x00, 0x00,
+/* ș */	0x38, 0x4c, 0x44, 0x84, 0x84, 0x88, 0x02, 0x04, 0xe4, 0x04, 0x04, 0x03,
+/* ț */	0x04, 0xff, 0x04, 0x00, 0x07, 0xe4,
+/* ċ */	0xe0, 0x10, 0x08, 0x0a, 0x08, 0x18, 0x30, 0x03, 0x04, 0x08, 0x08, 0x08, 0x0c, 0x06,
+/* Ň */	0xf8, 0x38, 0x60, 0xc1, 0x02, 0x02, 0x01, 0x00, 0xf8, 0x7f, 0x00, 0x00, 0x01, 0x03, 0x0e, 0x18, 0x70, 0x7f,
+/* Ě */	0xf8, 0x08, 0x08, 0x09, 0x0a, 0x0a, 0x09, 0x08, 0x7f, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x40,
+/* ġ */	0xe0, 0x10, 0x08, 0x0a, 0x08, 0x10, 0xf8, 0x23, 0x44, 0x48, 0x48, 0x48, 0x64, 0x1f,
+/* ĺ */	0x02, 0xfd, 0x00, 0x00, 0x3f, 0x00,
+/* ż */	0x00, 0x08, 0x08, 0x8a, 0xe8, 0x38, 0x18, 0x08, 0x0c, 0x0b, 0x09, 0x08, 0x08, 0x08,
+/*   */	
+/* ! */	0xfe, 0x17,
+/* " */	0x3c, 0x00, 0x3c, 0x00, 0x00, 0x00,
+/* # */	0x00, 0x20, 0xe0, 0x7c, 0x20, 0x20, 0xfc, 0x24, 0x20, 0x02, 0x12, 0x1f, 0x02, 0x02, 0x1f, 0x03, 0x02, 0x00,
+/* ł */	0x80, 0xfe, 0x40, 0x00, 0x1f, 0x00,
+/* % */	0x78, 0xcc, 0x84, 0x84, 0xcc, 0x78, 0x80, 0xe0, 0x30, 0x0c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x06, 0x03, 0x00, 0x0e, 0x1b, 0x11, 0x11, 0x1b, 0x0e,
+/* & */	0x00, 0xb8, 0xe4, 0xc4, 0x64, 0x38, 0x00, 0x00, 0x00, 0x0f, 0x19, 0x10, 0x11, 0x1b, 0x0e, 0x0e, 0x1b, 0x10,
+/* ' */	0x3c, 0x00,
+/* ( */	0xe0, 0x1c, 0x02, 0x0f, 0x70, 0x80,
+/* ) */	0x02, 0x1c, 0xe0, 0x80, 0x70, 0x0f,
+/* * */	0x04, 0x38, 0x0e, 0x38, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
+/* + */	0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x1f, 0x02, 0x02, 0x02,
+/* , */	0x00, 0x70,
+/* - */	0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
+/* . */	0x00, 0x10,
+/* / */	0x00, 0x80, 0x78, 0x06, 0x18, 0x07, 0x00, 0x00,
+/* 0 */	0xf0, 0x08, 0x04, 0x04, 0x04, 0x08, 0xf0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* 1 */	0x10, 0x18, 0xfc, 0x00, 0x00, 0x1f,
+/* 2 */	0x18, 0x0c, 0x04, 0x04, 0x84, 0x8c, 0x78, 0x18, 0x16, 0x13, 0x11, 0x11, 0x10, 0x10,
+/* 3 */	0x18, 0x0c, 0x04, 0x84, 0x84, 0xcc, 0x78, 0x0c, 0x18, 0x10, 0x10, 0x10, 0x19, 0x0f,
+/* 4 */	0x00, 0x80, 0xc0, 0x30, 0x18, 0xfc, 0x00, 0x00, 0x03, 0x03, 0x02, 0x02, 0x02, 0x1f, 0x02, 0x02,
+/* 5 */	0xe0, 0xdc, 0x44, 0x44, 0x44, 0xc4, 0x84, 0x0c, 0x18, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* 6 */	0xf0, 0x88, 0x44, 0x44, 0x44, 0xc8, 0x90, 0x07, 0x08, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* 7 */	0x04, 0x04, 0x04, 0xc4, 0x24, 0x1c, 0x04, 0x00, 0x18, 0x07, 0x00, 0x00, 0x00, 0x00,
+/* 8 */	0x78, 0xcc, 0x84, 0x84, 0x84, 0xcc, 0x78, 0x0f, 0x19, 0x10, 0x10, 0x10, 0x19, 0x0f,
+/* 9 */	0xf0, 0x88, 0x04, 0x04, 0x04, 0x88, 0xf0, 0x08, 0x19, 0x11, 0x11, 0x11, 0x08, 0x07,
+/* : */	0x10, 0x10,
+/* ; */	0x20, 0x70,
+/* < */	0x00, 0x00, 0x80, 0x80, 0x80, 0x40, 0x40, 0x60, 0x03, 0x03, 0x05, 0x04, 0x0c, 0x08, 0x18, 0x10,
+/* = */	0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
+/* > */	0x40, 0x40, 0xc0, 0x80, 0x80, 0x00, 0x00, 0x00, 0x18, 0x08, 0x08, 0x04, 0x04, 0x07, 0x03, 0x02,
+/* ? */	0x0c, 0x06, 0x02, 0x82, 0xc2, 0x66, 0x3c, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00,
+/* @ */	0xc0, 0x30, 0x08, 0x84, 0x44, 0x22, 0x22, 0x22, 0xc2, 0xe6, 0x64, 0x0c, 0x18, 0xe0, 0x07, 0x18, 0x30, 0x27, 0x4c, 0x48, 0x48, 0x44, 0x4f, 0x49, 0x08, 0x0c, 0x06, 0x03,
+/* A */	0x00, 0x00, 0xc0, 0xf0, 0x1e, 0x06, 0x3c, 0xf0, 0x80, 0x00, 0x10, 0x1e, 0x07, 0x01, 0x01, 0x01, 0x01, 0x01, 0x0f, 0x1c,
+/* B */	0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0xc6, 0x7c, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x19, 0x0f,
+/* C */	0xf0, 0x0c, 0x04, 0x02, 0x02, 0x02, 0x02, 0x04, 0x08, 0x03, 0x0c, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x06,
+/* D */	0xfe, 0x02, 0x02, 0x02, 0x02, 0x02, 0x06, 0x0c, 0xf0, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x18, 0x0c, 0x03,
+/* E */	0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x02, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* F */	0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+/* G */	0xf0, 0x18, 0x04, 0x02, 0x02, 0x02, 0x82, 0x82, 0x84, 0x88, 0x03, 0x04, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x0c, 0x1f,
+/* H */	0xfe, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0xfe, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* I */	0xfe, 0x1f,
+/* J */	0x00, 0x00, 0x00, 0x00, 0x00, 0xfe, 0x0e, 0x18, 0x10, 0x10, 0x18, 0x0f,
+/* K */	0xfe, 0x80, 0x40, 0xf0, 0x98, 0x0c, 0x06, 0x02, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0c, 0x18, 0x00,
+/* L */	0xfe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* M */	0xfe, 0x0e, 0x78, 0xc0, 0x00, 0x00, 0x00, 0xc0, 0x78, 0x0e, 0xfe, 0x1f, 0x00, 0x00, 0x03, 0x1e, 0x18, 0x1e, 0x03, 0x00, 0x00, 0x1f,
+/* N */	0xfe, 0x0e, 0x18, 0x70, 0xc0, 0x80, 0x00, 0x00, 0xfe, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x03, 0x06, 0x1c, 0x1f,
+/* O */	0xf0, 0x0c, 0x04, 0x02, 0x02, 0x02, 0x02, 0x04, 0x08, 0xf0, 0x03, 0x0c, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x04, 0x03,
+/* P */	0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0xc6, 0x7c, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+/* Q */	0xf0, 0x0c, 0x04, 0x02, 0x02, 0x02, 0x02, 0x04, 0x08, 0xf0, 0x03, 0x0c, 0x08, 0x10, 0x10, 0x10, 0x14, 0x18, 0x1c, 0x23,
+/* R */	0xfe, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0xe6, 0xbc, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x10,
+/* S */	0x3c, 0x64, 0x42, 0xc2, 0xc2, 0x82, 0x84, 0x0c, 0x06, 0x08, 0x10, 0x10, 0x10, 0x10, 0x09, 0x07,
+/* T */	0x02, 0x02, 0x02, 0x02, 0xfe, 0x02, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00,
+/* U */	0xfe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfe, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* V */	0x02, 0x1e, 0x78, 0xc0, 0x00, 0x00, 0x80, 0xf0, 0x3e, 0x06, 0x00, 0x00, 0x00, 0x03, 0x1e, 0x1c, 0x0f, 0x01, 0x00, 0x00,
+/* W */	0x02, 0x3e, 0xf0, 0x00, 0x00, 0xe0, 0x3c, 0x0e, 0x7c, 0xc0, 0x00, 0x00, 0xf0, 0x3e, 0x02, 0x00, 0x00, 0x03, 0x1e, 0x1e, 0x01, 0x00, 0x00, 0x00, 0x07, 0x1e, 0x1f, 0x03, 0x00, 0x00,
+/* X */	0x00, 0x06, 0x0e, 0x38, 0xf0, 0xe0, 0xb0, 0x1c, 0x06, 0x02, 0x00, 0x18, 0x0c, 0x07, 0x01, 0x00, 0x03, 0x0e, 0x1c, 0x10,
+/* Y */	0x06, 0x0e, 0x38, 0x60, 0x80, 0x60, 0x38, 0x0e, 0x02, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00,
+/* Z */	0x00, 0x02, 0x02, 0x02, 0xc2, 0xe2, 0x3a, 0x1e, 0x06, 0x10, 0x18, 0x1e, 0x13, 0x11, 0x10, 0x10, 0x10, 0x10,
+/* [ */	0xfe, 0x02, 0x02, 0xff, 0x80, 0x80,
+/* Ů */	0xf8, 0x00, 0x00, 0x03, 0x05, 0x07, 0x00, 0x00, 0xf8, 0x1f, 0x20, 0x40, 0x40, 0x40, 0x40, 0x40, 0x20, 0x1f,
+/* ] */	0x02, 0x02, 0xfe, 0x80, 0x80, 0xff,
+/* Ł */	0x00, 0xfe, 0x40, 0x20, 0x30, 0x00, 0x00, 0x00, 0x01, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* _ */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+/* Ą */	0x00, 0x00, 0x80, 0xf0, 0x1e, 0x06, 0x3e, 0xf0, 0x80, 0x00, 0x00, 0x00, 0x1c, 0x07, 0x01, 0x01, 0x01, 0x01, 0x01, 0xef, 0xbc, 0x80,
+/* a */	0x20, 0x10, 0x10, 0x10, 0x10, 0x10, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* b */	0xfe, 0x20, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x1f, 0x08, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* c */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x30, 0x60, 0x07, 0x08, 0x10, 0x10, 0x10, 0x18, 0x0c,
+/* d */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xfe, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* e */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* f */	0x10, 0xfe, 0x12, 0x00, 0x1f, 0x00,
+/* g */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x20, 0xf0, 0x47, 0x88, 0x90, 0x90, 0x90, 0xc8, 0x3f,
+/* h */	0xfe, 0x20, 0x10, 0x10, 0x10, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* i */	0xf2, 0x1f,
+/* j */	0x00, 0xf2, 0x80, 0xff,
+/* k */	0xfe, 0x80, 0xc0, 0xe0, 0x30, 0x10, 0x00, 0x1f, 0x01, 0x00, 0x03, 0x0e, 0x18, 0x00,
+/* l */	0xfe, 0x1f,
+/* m */	0xf0, 0x20, 0x10, 0x10, 0x10, 0xe0, 0x20, 0x10, 0x10, 0x10, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* n */	0xf0, 0x20, 0x10, 0x10, 0x10, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* o */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* p */	0xf0, 0x20, 0x10, 0x10, 0x10, 0x20, 0xc0, 0xff, 0x08, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* q */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xf0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0xff,
+/* r */	0xf0, 0x20, 0x10, 0x10, 0x1f, 0x00, 0x00, 0x00,
+/* s */	0xe0, 0x30, 0x10, 0x10, 0x10, 0x20, 0x08, 0x11, 0x11, 0x12, 0x12, 0x0e,
+/* t */	0x10, 0xfc, 0x10, 0x00, 0x1f, 0x10,
+/* u */	0xf0, 0x00, 0x00, 0x00, 0x00, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* v */	0x10, 0xf0, 0x80, 0x00, 0x00, 0xc0, 0xf0, 0x10, 0x00, 0x00, 0x07, 0x1c, 0x1e, 0x03, 0x00, 0x00,
+/* w */	0x30, 0xf0, 0x00, 0x00, 0xc0, 0x70, 0xf0, 0x00, 0x00, 0xc0, 0x70, 0x00, 0x03, 0x1f, 0x1c, 0x07, 0x00, 0x01, 0x1f, 0x1c, 0x07, 0x00,
+/* x */	0x00, 0x30, 0x60, 0x80, 0xc0, 0x60, 0x10, 0x10, 0x18, 0x0e, 0x03, 0x07, 0x0c, 0x18,
+/* y */	0x10, 0xf0, 0x80, 0x00, 0x00, 0xc0, 0x70, 0x00, 0x00, 0x80, 0x87, 0x7c, 0x1e, 0x03, 0x00, 0x00,
+/* z */	0x00, 0x10, 0x10, 0x10, 0xd0, 0x70, 0x30, 0x10, 0x18, 0x16, 0x13, 0x11, 0x10, 0x10,
+/* « */	0x00, 0x80, 0x40, 0x00, 0x80, 0xc0, 0x01, 0x02, 0x04, 0x01, 0x02, 0x06,
+/* ů */	0xf0, 0x00, 0x0e, 0x0a, 0x04, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* » */	0xc0, 0x80, 0x00, 0x40, 0x80, 0x00, 0x06, 0x02, 0x01, 0x04, 0x02, 0x01,
+/* Ľ */	0xfe, 0x00, 0x00, 0x04, 0x02, 0x00, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* Ħ */	0x10, 0xfe, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xfe, 0x10, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x00,
+/* á */	0x20, 0x10, 0x10, 0x16, 0x12, 0x10, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* à */	0x20, 0x10, 0x12, 0x16, 0x10, 0x10, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* é */	0xc0, 0x20, 0x10, 0x14, 0x12, 0x10, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* è */	0xc0, 0x20, 0x12, 0x16, 0x10, 0x10, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* í */	0x04, 0xf2, 0x00, 0x00, 0x1f, 0x00,
+/* ì */	0x02, 0xf6, 0x00, 0x00, 0x1f, 0x00,
+/* ó */	0xc0, 0x20, 0x10, 0x14, 0x12, 0x10, 0x20, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ò */	0xc0, 0x20, 0x12, 0x16, 0x10, 0x10, 0x20, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ú */	0xf0, 0x00, 0x04, 0x02, 0x00, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* ù */	0xf0, 0x02, 0x06, 0x00, 0x00, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* Ñ */	0xfc, 0x1c, 0x33, 0xe1, 0x81, 0x02, 0x01, 0x00, 0xfc, 0x3f, 0x00, 0x00, 0x00, 0x01, 0x07, 0x0c, 0x38, 0x3f,
+/* Ç */	0xf0, 0x0c, 0x04, 0x02, 0x02, 0x02, 0x02, 0x04, 0x08, 0x03, 0x0c, 0x18, 0x90, 0xb0, 0xf0, 0x10, 0x08, 0x06,
+/* Ş */	0x38, 0x64, 0x42, 0xc2, 0xc2, 0x82, 0x86, 0x0c, 0x0e, 0x18, 0x90, 0xb0, 0xb0, 0xf0, 0x19, 0x0f,
+/* ß */	0xf8, 0x0c, 0x04, 0x44, 0x44, 0xf8, 0x80, 0x1f, 0x00, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ¡ */	0xd0, 0xff,
+/* Ÿ */	0x0c, 0x1c, 0x70, 0xc1, 0x00, 0xc1, 0x70, 0x1c, 0x04, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00,
+/* â */	0x20, 0x10, 0x14, 0x12, 0x16, 0x10, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* ä */	0x10, 0x08, 0x88, 0x8a, 0x88, 0x8a, 0xf0, 0x00, 0x07, 0x09, 0x09, 0x08, 0x08, 0x04, 0x0f, 0x08,
+/* ê */	0xc0, 0x20, 0x14, 0x12, 0x16, 0x10, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* ë */	0xe0, 0x90, 0x88, 0x8a, 0x88, 0x8a, 0x90, 0xe0, 0x03, 0x04, 0x08, 0x08, 0x08, 0x08, 0x0c, 0x04,
+/* î */	0x00, 0x04, 0xf2, 0x04, 0x00, 0x00, 0x1f, 0x00,
+/* ï */	0x02, 0xf8, 0x02, 0x00, 0x0f, 0x00,
+/* ô */	0xc0, 0x20, 0x14, 0x12, 0x14, 0x10, 0x20, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ö */	0xe0, 0x10, 0x08, 0x0a, 0x08, 0x0a, 0x10, 0xe0, 0x03, 0x04, 0x08, 0x08, 0x08, 0x08, 0x04, 0x03,
+/* û */	0xf0, 0x04, 0x02, 0x06, 0x00, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* ü */	0xf8, 0x00, 0x02, 0x00, 0x02, 0xf8, 0x07, 0x08, 0x08, 0x08, 0x04, 0x0f,
+/* ñ */	0xf0, 0x24, 0x12, 0x14, 0x14, 0xe2, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* ç */	0xc0, 0x60, 0x10, 0x10, 0x10, 0x30, 0x60, 0x07, 0x88, 0x90, 0xb0, 0xb0, 0x70, 0x0c,
+/* ş */	0xe0, 0x10, 0x10, 0x10, 0x10, 0x20, 0x0c, 0x89, 0xb1, 0xf2, 0x0a, 0x0e,
+/* ğ */	0xc0, 0x20, 0x16, 0x14, 0x14, 0x26, 0xf0, 0x47, 0x88, 0x90, 0x90, 0x90, 0xc8, 0x3f,
+/* ı */	0xf0, 0x1f,
+/* ÿ */	0x08, 0x78, 0xc2, 0x00, 0x02, 0xe0, 0x38, 0x00, 0x00, 0x40, 0x43, 0x3e, 0x0f, 0x01, 0x00, 0x00,
+/* Ķ */	0xff, 0x40, 0x20, 0x78, 0xcc, 0x86, 0x03, 0x01, 0x00, 0x0f, 0x00, 0x00, 0x00, 0xc0, 0x03, 0x06, 0x0c, 0x00,
+/* Ņ */	0xff, 0x07, 0x0c, 0x38, 0x60, 0xc0, 0x00, 0x00, 0xff, 0x0f, 0x00, 0x00, 0x00, 0xc0, 0x01, 0x03, 0x0e, 0x0f,
+/* © */	0xe0, 0x30, 0x08, 0xec, 0x14, 0x14, 0x14, 0x14, 0x08, 0x10, 0xe0, 0x03, 0x06, 0x08, 0x1b, 0x14, 0x14, 0x14, 0x16, 0x08, 0x04, 0x03,
+/* Ģ */	0xf8, 0x0c, 0x02, 0x01, 0x01, 0x01, 0x41, 0x41, 0x42, 0xc4, 0x01, 0x02, 0x04, 0x08, 0x08, 0xc8, 0x08, 0x04, 0x06, 0x0f,
+/* Ğ */	0xc0, 0x60, 0x10, 0x0b, 0x0a, 0x0a, 0x0a, 0x09, 0x10, 0x20, 0x0f, 0x10, 0x20, 0x40, 0x40, 0x40, 0x42, 0x22, 0x32, 0x7e,
+/* ě */	0xc0, 0x20, 0x12, 0x14, 0x14, 0x12, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* ň */	0xf0, 0x22, 0x14, 0x14, 0x12, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* ő */	0xc0, 0x20, 0x10, 0x16, 0x12, 0x14, 0x22, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* Ő */	0xe0, 0x18, 0x08, 0x06, 0x05, 0x04, 0x07, 0x09, 0x10, 0xe0, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x08, 0x07,
+/* € */	0x40, 0xe0, 0x58, 0x4c, 0x44, 0x44, 0x44, 0x0c, 0x00, 0x01, 0x07, 0x0d, 0x19, 0x11, 0x11, 0x10, 0x10, 0x00,
+/* £ */	0x80, 0xf8, 0xc4, 0x82, 0x82, 0x82, 0x06, 0x0c, 0x00, 0x18, 0x0c, 0x0b, 0x08, 0x10, 0x10, 0x18,
+/* $ */	0x78, 0x4c, 0x84, 0xfe, 0x84, 0x0c, 0x18, 0x0c, 0x18, 0x10, 0x3f, 0x10, 0x19, 0x0f,
+/* Ā */	0x00, 0x00, 0x80, 0xe1, 0x3d, 0x0d, 0x79, 0xe0, 0x00, 0x00, 0x20, 0x3c, 0x0f, 0x03, 0x02, 0x02, 0x02, 0x03, 0x1f, 0x38,
+/* Ē */	0xfc, 0x04, 0x05, 0x05, 0x05, 0x05, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* Ī */	0x01, 0x01, 0xfd, 0x01, 0x00, 0x00, 0x3f, 0x00,
+/* Ū */	0xfc, 0x00, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* ķ */	0xff, 0xc0, 0x60, 0xf0, 0x18, 0x08, 0x00, 0x0f, 0x00, 0x00, 0xc1, 0x07, 0x0c, 0x00,
+/* ņ */	0xfc, 0x08, 0x04, 0x04, 0x04, 0xf8, 0x07, 0x00, 0x00, 0xe0, 0x00, 0x07,
+/* Ļ */	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x08, 0x08, 0xc8, 0x08, 0x08, 0x08,
+/* ģ */	0xe0, 0x10, 0x08, 0x0f, 0x08, 0x10, 0xf8, 0x23, 0x44, 0x48, 0x48, 0x48, 0x64, 0x1f,
+/* ļ */	0xff, 0xcf,
+/* İ */	0xfd, 0x3f,
+/* ń */	0xf0, 0x20, 0x14, 0x12, 0x10, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x1f,
+/* ű */	0xf0, 0x04, 0x06, 0x00, 0x06, 0xf2, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* Ű */	0xfc, 0x00, 0x00, 0x02, 0x01, 0x00, 0x03, 0x01, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* ¿ */	0x00, 0x00, 0x00, 0x90, 0x00, 0x00, 0x00, 0x78, 0xcc, 0x86, 0x83, 0x80, 0xc0, 0x60,
+/* ľ */	0xfe, 0x00, 0x04, 0x02, 0x1f, 0x00, 0x00, 0x00,
+/* ° */	0x38, 0x44, 0x44, 0x44, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00,
+/* ā */	0x20, 0x10, 0x14, 0x14, 0x14, 0x14, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* ē */	0xc0, 0x20, 0x14, 0x14, 0x14, 0x14, 0x20, 0xc0, 0x07, 0x09, 0x11, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* ī */	0x04, 0x04, 0xf4, 0x04, 0x00, 0x00, 0x1f, 0x00,
+/* ū */	0xf0, 0x04, 0x04, 0x04, 0x04, 0xf0, 0x0f, 0x10, 0x10, 0x10, 0x08, 0x1f,
+/* Á */	0x00, 0x00, 0x80, 0xe0, 0x3e, 0x0d, 0x78, 0xe0, 0x00, 0x00, 0x20, 0x3c, 0x0f, 0x03, 0x02, 0x02, 0x02, 0x03, 0x1f, 0x38,
+/* À */	0x00, 0x00, 0x80, 0xe0, 0x3d, 0x0e, 0x78, 0xe0, 0x00, 0x00, 0x20, 0x3c, 0x0f, 0x03, 0x02, 0x02, 0x02, 0x03, 0x1f, 0x38,
+/* É */	0xfc, 0x04, 0x04, 0x06, 0x05, 0x04, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* È */	0xfc, 0x04, 0x04, 0x05, 0x06, 0x04, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* Í */	0x02, 0xfd, 0x00, 0x00, 0x3f, 0x00,
+/* Ì */	0x00, 0x01, 0xfe, 0x00, 0x00, 0x3f,
+/* Ó */	0xe0, 0x18, 0x08, 0x04, 0x06, 0x05, 0x04, 0x08, 0x10, 0xe0, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x08, 0x07,
+/* Ò */	0xe0, 0x18, 0x08, 0x04, 0x05, 0x06, 0x04, 0x08, 0x10, 0xe0, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x08, 0x07,
+/* Ú */	0xfc, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* Ù */	0xfc, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* Ř */	0xf8, 0x08, 0x08, 0x09, 0x0a, 0x0a, 0x09, 0x98, 0xf0, 0x00, 0x7f, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x7e, 0x40,
+/* Č */	0xc0, 0x30, 0x10, 0x09, 0x0a, 0x0a, 0x09, 0x10, 0x20, 0x0f, 0x30, 0x20, 0x40, 0x40, 0x40, 0x40, 0x20, 0x18,
+/* Š */	0xf0, 0x90, 0x08, 0x09, 0x0a, 0x0a, 0x11, 0x30, 0x18, 0x21, 0x41, 0x43, 0x43, 0x42, 0x26, 0x1c,
+/* Ž */	0x00, 0x08, 0x08, 0x08, 0x09, 0x8a, 0xea, 0x79, 0x18, 0x40, 0x60, 0x78, 0x4c, 0x47, 0x43, 0x40, 0x40, 0x40,
+/* Ð */	0x40, 0xfe, 0x42, 0x42, 0x42, 0x02, 0x02, 0x06, 0x0c, 0xf0, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x18, 0x0c, 0x03,
+/* Ŀ */	0xfe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x11,
+/* Â */	0x00, 0x00, 0x80, 0xe2, 0x3d, 0x0d, 0x7a, 0xe0, 0x00, 0x00, 0x20, 0x3c, 0x0f, 0x03, 0x02, 0x02, 0x02, 0x03, 0x1f, 0x38,
+/* Ä */	0x00, 0x00, 0x80, 0xe0, 0x3d, 0x0c, 0x79, 0xe0, 0x00, 0x00, 0x20, 0x3c, 0x0f, 0x03, 0x02, 0x02, 0x02, 0x03, 0x1f, 0x38,
+/* Ê */	0xfc, 0x04, 0x06, 0x05, 0x05, 0x06, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* Ë */	0xfc, 0x04, 0x04, 0x05, 0x04, 0x05, 0x04, 0x04, 0x3f, 0x21, 0x21, 0x21, 0x21, 0x21, 0x21, 0x20,
+/* Î */	0x02, 0x01, 0xfd, 0x02, 0x00, 0x00, 0x3f, 0x00,
+/* Ï */	0x01, 0xfc, 0x01, 0x00, 0x3f, 0x00,
+/* Ô */	0xe0, 0x18, 0x08, 0x06, 0x05, 0x05, 0x06, 0x08, 0x10, 0xe0, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x08, 0x07,
+/* Ö */	0xe0, 0x18, 0x08, 0x04, 0x05, 0x04, 0x05, 0x08, 0x10, 0xe0, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x08, 0x07,
+/* Û */	0xfc, 0x00, 0x02, 0x01, 0x01, 0x02, 0x00, 0x00, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* Ü */	0xfc, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0xfc, 0x0f, 0x10, 0x20, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0f,
+/* ř */	0x00, 0xf6, 0x24, 0x12, 0x10, 0x00, 0x1f, 0x00, 0x00, 0x00,
+/* č */	0xc0, 0x20, 0x12, 0x14, 0x16, 0x30, 0x60, 0x07, 0x08, 0x10, 0x10, 0x10, 0x18, 0x0c,
+/* š */	0xe0, 0x36, 0x14, 0x12, 0x10, 0x20, 0x08, 0x11, 0x11, 0x12, 0x12, 0x0e,
+/* ž */	0x00, 0x10, 0x16, 0x14, 0xd2, 0x70, 0x30, 0x10, 0x18, 0x16, 0x13, 0x11, 0x10, 0x10,
+/* đ */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x14, 0x24, 0xfe, 0x04, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x1f, 0x00,
+/* ŀ */	0xfe, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x01,
+/* Ã */	0x00, 0x00, 0x00, 0xc2, 0x79, 0x1a, 0xf2, 0xc1, 0x00, 0x00, 0x40, 0x78, 0x1f, 0x07, 0x04, 0x04, 0x04, 0x07, 0x3e, 0x70,
+/* Å */	0x00, 0x00, 0x00, 0xc0, 0x7f, 0x1d, 0xf2, 0xc0, 0x00, 0x00, 0x40, 0x78, 0x1f, 0x07, 0x04, 0x04, 0x04, 0x07, 0x3e, 0x70,
+/* Æ */	0x00, 0x00, 0xc0, 0x78, 0x0e, 0x02, 0x02, 0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0x82, 0x18, 0x1f, 0x03, 0x01, 0x01, 0x01, 0x01, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* Œ */	0xf0, 0x0c, 0x02, 0x02, 0x02, 0x02, 0x04, 0xfe, 0x82, 0x82, 0x82, 0x82, 0x82, 0x07, 0x0c, 0x10, 0x10, 0x10, 0x10, 0x08, 0x1f, 0x10, 0x10, 0x10, 0x10, 0x10,
+/* ŷ */	0x10, 0xf0, 0x84, 0x02, 0x04, 0xc0, 0x70, 0x00, 0x00, 0x80, 0x87, 0x7c, 0x1e, 0x03, 0x00, 0x00,
+/* Ý */	0x0c, 0x1c, 0x70, 0xc2, 0x01, 0xc0, 0x70, 0x1c, 0x04, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00,
+/* Õ */	0xc0, 0x30, 0x10, 0x0b, 0x0a, 0x0a, 0x0a, 0x11, 0x20, 0xc0, 0x0f, 0x30, 0x20, 0x40, 0x40, 0x40, 0x40, 0x20, 0x10, 0x0f,
+/* Ø */	0xf8, 0x04, 0x02, 0x81, 0x41, 0x21, 0x19, 0x0f, 0x06, 0xf9, 0x09, 0x06, 0x0d, 0x08, 0x08, 0x08, 0x08, 0x04, 0x02, 0x01,
+/* Þ */	0xfe, 0x08, 0x08, 0x08, 0x08, 0x08, 0x10, 0xe0, 0x1f, 0x02, 0x02, 0x02, 0x02, 0x02, 0x03, 0x00,
+/* Ŋ */	0xfe, 0x04, 0x02, 0x02, 0x02, 0x02, 0x06, 0x0c, 0xf0, 0x1f, 0x00, 0x00, 0x10, 0x10, 0x10, 0x18, 0x0c, 0x03,
+/* Ŕ */	0xfc, 0x84, 0x84, 0x86, 0x85, 0x84, 0x84, 0xcc, 0x78, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x3f, 0x20,
+/* Ć */	0xe0, 0x18, 0x08, 0x06, 0x05, 0x04, 0x04, 0x08, 0x10, 0x07, 0x18, 0x10, 0x20, 0x20, 0x20, 0x20, 0x10, 0x0c,
+/* Ś */	0x78, 0xc8, 0x84, 0x86, 0x85, 0x04, 0x08, 0x18, 0x0c, 0x10, 0x20, 0x21, 0x21, 0x21, 0x13, 0x0e,
+/* Ź */	0x00, 0x04, 0x04, 0x04, 0x86, 0xc5, 0x74, 0x3c, 0x0c, 0x20, 0x30, 0x3c, 0x26, 0x23, 0x21, 0x20, 0x20, 0x20,
+/* Ť */	0x08, 0x08, 0x08, 0x09, 0xfa, 0x0a, 0x09, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x00, 0x00, 0x00, 0x00,
+/* ð */	0xe0, 0x13, 0x0b, 0x0a, 0x0f, 0x0d, 0x18, 0xe0, 0x03, 0x04, 0x08, 0x08, 0x08, 0x08, 0x04, 0x03,
+/* ã */	0x20, 0x10, 0x16, 0x12, 0x14, 0x14, 0xe2, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* å */	0x20, 0x10, 0x10, 0x1e, 0x1a, 0x14, 0xe0, 0x00, 0x0e, 0x12, 0x13, 0x11, 0x11, 0x09, 0x1f, 0x10,
+/* æ */	0x20, 0x10, 0x10, 0x10, 0x10, 0x10, 0xe0, 0x20, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x0e, 0x12, 0x11, 0x11, 0x11, 0x09, 0x07, 0x09, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* œ */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x20, 0x10, 0x10, 0x10, 0x20, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x0f, 0x19, 0x11, 0x11, 0x11, 0x19, 0x09,
+/* ŵ */	0x30, 0xf0, 0x00, 0x00, 0xc6, 0x72, 0xf4, 0x00, 0x00, 0xc0, 0x70, 0x00, 0x03, 0x1f, 0x1c, 0x07, 0x00, 0x01, 0x1f, 0x1c, 0x07, 0x00,
+/* ý */	0x10, 0xf0, 0x80, 0x06, 0x02, 0xc0, 0x70, 0x00, 0x00, 0x80, 0x87, 0x7c, 0x1e, 0x03, 0x00, 0x00,
+/* õ */	0xc0, 0x20, 0x16, 0x12, 0x14, 0x14, 0x22, 0xc0, 0x07, 0x08, 0x10, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ø */	0xc0, 0x20, 0x10, 0x10, 0x10, 0x90, 0x70, 0xf0, 0x1f, 0x1c, 0x16, 0x13, 0x11, 0x10, 0x08, 0x07,
+/* þ */	0xfe, 0x20, 0x10, 0x10, 0x10, 0x20, 0xc0, 0xff, 0x08, 0x10, 0x10, 0x10, 0x08, 0x07,
+/* ŋ */	0xf0, 0x20, 0x10, 0x10, 0x10, 0xe0, 0x1f, 0x00, 0x00, 0x00, 0x80, 0xff,
+/* ŕ */	0xf0, 0x24, 0x12, 0x10, 0x1f, 0x00, 0x00, 0x00,
+/* ć */	0xc0, 0x20, 0x10, 0x14, 0x12, 0x30, 0x60, 0x07, 0x08, 0x10, 0x10, 0x10, 0x18, 0x0c,
+/* ś */	0xe0, 0x30, 0x16, 0x12, 0x10, 0x20, 0x08, 0x11, 0x11, 0x12, 0x12, 0x0e,
+/* ź */	0x00, 0x10, 0x10, 0x14, 0xd2, 0x70, 0x30, 0x10, 0x18, 0x16, 0x13, 0x11, 0x10, 0x10,
+/* ť */	0x10, 0xfc, 0x10, 0x00, 0x04, 0x02, 0x00, 0x1f, 0x10, 0x00, 0x00, 0x00,
+/* ħ */	0x04, 0xfe, 0x24, 0x14, 0x10, 0x10, 0x30, 0xe0, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f
+};
+
