@@ -13,6 +13,11 @@
 #include "gpio_pins.h"
 #include "power.h"
 
+void powerInit(void)
+{
+    struct device* gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+}
+
 /**************************************************************************/ /**
  * Switches the 1.8V power supply on or off.
  *
@@ -22,8 +27,8 @@
  *****************************************************************************/
 void powerSet1v8(bool on)
 {
-    struct device* gpioPort = device_get_binding(DT_GPIO_)
-        HAL_GPIO_WritePin(pInst->en1v8Port, pInst->en1v8Pin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    struct device* gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+    HAL_GPIO_WritePin(pInst->en1v8Port, pInst->en1v8Pin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 /**************************************************************************/ /**
