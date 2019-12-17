@@ -21,46 +21,46 @@
 		compatible = "gpio-leds";
 		power_led: led_1 {
 			gpios = <&gpiof 9 GPIO_DIR_OUT>;
-			label = "Power Fail LED";
+			label = "LedPowerFail";
 		};
 	};
 
 	gpio_keys {
 		compatible = "gpio-keys";
 		btn_pwr: button_power {
-			label = "Power";
+			label = "BtnPower";
 			gpios = <&gpioe 14 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_sel: button_select {
-			label = "Select";
+			label = "BtnSelect";
 			gpios = <&gpiog 9 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_bk: button_back {
-			label = "Back";
+			label = "BtnBack";
 			gpios = <&gpioc 0 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_fwd: button_forward {
-			label = "Forward";
+			label = "BtnForward";
 			gpios = <&gpioe 2 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_menu: button_menu {
-			label = "Menu";
+			label = "BtnMenu";
 			gpios = <&gpiof 10 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_play: button_play {
-			label = "Play";
+			label = "BtnPlay";
 			gpios = <&gpioc 13 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_alarm1: button_alarm1 {
-			label = "Alarm 1";
+			label = "BtnAlarm1";
 			gpios = <&gpiod 8 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_alarm2: button_alarm2 {
-			label = "Alarm 2";
+			label = "BtnAlarm2";
 			gpios = <&gpiod 12 GPIO_INT_ACTIVE_LOW>;
 		};
 		btn_alarm3: button_alarm3 {
-			label = "Alarm 3";
+			label = "BtnAlarm3";
 			gpios = <&gpiod 13 GPIO_INT_ACTIVE_LOW>;
 		};
 	};
@@ -118,7 +118,6 @@
 	status = "okay";
 	clock-frequency = <5266285>;
 	cs-gpios = <&gpiof 3 0>, <&gpiof 6 0>, <&gpiof 10 0>, <&gpiod 9 0>;
-	}
 };
 
 &i2c1 {

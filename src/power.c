@@ -7,19 +7,11 @@
  *      Author: marco
  */
 
-#include "power.h"
-#include "gpio_handler.h"
+#include <zephyr.h>
+#include <device.h>
 
-Power power = {
-    DISABLE_3V3_GPIO_Port,
-    ENABLE_BKFD_GPIO_Port,
-    ENABLE_1V8_GPIO_Port,
-    ENABLE_5V_GPIO_Port,
-    DISABLE_3V3_Pin,
-    ENABLE_BKFD_Pin,
-    ENABLE_1V8_Pin,
-    ENABLE_5V_Pin
-};
+#include "gpio_pins.h"
+#include "power.h"
 
 /**************************************************************************/ /**
  * Switches the 1.8V power supply on or off.
@@ -28,9 +20,10 @@ Power power = {
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-void powerSet1v8(Power* pInst, int on)
+void powerSet1v8(bool on)
 {
-    HAL_GPIO_WritePin(pInst->en1v8Port, pInst->en1v8Pin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    struct device* gpioPort = device_get_binding(DT_GPIO_)
+        HAL_GPIO_WritePin(pInst->en1v8Port, pInst->en1v8Pin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 /**************************************************************************/ /**

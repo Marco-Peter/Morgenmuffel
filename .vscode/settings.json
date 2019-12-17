@@ -2,6 +2,7 @@
     "C_Cpp.default.configurationProvider": "go2sh.cmake-integration",
     "files.associations": {
         "device.h": "c",
-        "generated_dts_board.h": "c"
+        "generated_dts_board.h": "c",
+        "zephyr.h": "c"
     }
 }
