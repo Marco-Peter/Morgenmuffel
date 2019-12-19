@@ -9,60 +9,180 @@
 
 #include <zephyr.h>
 #include <device.h>
+#include <drivers/gpio.h>
 
-#include "gpio_pins.h"
+#include "hardwareconfig.h"
 #include "power.h"
 
-void powerInit(void)
+/***************************************************************************/ /**
+Initialise GPIO related to the power supply control pins.
+
+*******************************************************************************/
+int powerInit(void)
 {
-    struct device* gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+    int rc;
+    struct device* gpioPort;
+
+    gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+    rc = gpio_pin_configure(gpioPort, POWER_1V8_Pin, GPIO_DIR_OUT);
+    if (rc != 0) {
+        return rc;
+    }
+
+    gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+    rc = gpio_pin_configure(gpioPort, POWER_3V3_Pin, GPIO_DIR_OUT);
+    if (rc != 0) {
+        return rc;
+    }
+
+    gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+    rc = gpio_pin_configure(gpioPort, POWER_5V_Pin, GPIO_DIR_OUT);
+    if (rc != 0) {
+        return rc;
+    }
+
+    gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+    rc = gpio_pin_configure(gpioPort, POWER_BKFD_Pin, GPIO_DIR_OUT);
+
+    return rc;
 }
 
 /**************************************************************************/ /**
  * Switches the 1.8V power supply on or off.
  *
- * @param pInst	Pointer to the power supply instance.
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-void powerSet1v8(bool on)
+int powerSet1v8(bool on)
 {
-    struct device* gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
-    HAL_GPIO_WritePin(pInst->en1v8Port, pInst->en1v8Pin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    struct device* gpioPort;
+    int rc;
+
+    gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+    rc = gpio_pin_write(gpioPort, POWER_1V8_Pin, 1);
+
+    return rc;
+}
+
+/**************************************************************************/ /**
+ * Switches the 3.3V power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
+int powerSet3v3(bool on)
+{
+    struct device* gpioPort;
+    int rc;
+
+    gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+    rc = gpio_pin_write(gpioPort, POWER_3V3_Pin, 1);
+
+    return rc;
 }
 
 /**************************************************************************/ /**
  * Switches the 5V power supply on or off.
  *
- * @param pInst	Pointer to the power supply instance.
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-void powerSet5v(Power* pInst, int on)
+int powerSet5v(bool on)
 {
-    HAL_GPIO_WritePin(pInst->en5vPort, pInst->en5vPin, on ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    struct device* gpioPort;
+    int rc;
+
+    gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+    rc = gpio_pin_write(gpioPort, POWER_5V_Pin, 1);
+
+    return rc;
+}
+
+/**************************************************************************/ /**
+ * Switches the backfeed power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
+int powerSetBackfeed(bool on)
+{
+    struct device* gpioPort;
+    int rc;
+
+    gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+    rc = gpio_pin_write(gpioPort, POWER_BKFD_Pin, 1);
+
+    return rc;
 }
 
 /**************************************************************************/ /**
  * Returns the current state of the 1.8V power supply.
  *
- * @param pInst	Pointer to the power supply instance.
  * @return	The on state of the 1.8V power supply.
  *
  *****************************************************************************/
-int powerGet1v8(Power* pInst)
+int powerGet1v8(void)
 {
-    return HAL_GPIO_ReadPin(pInst->en1v8Port, pInst->en1v8Pin);
+    struct device* gpioPort;
+    int rc;
+    u32_t pinState;
+
+    gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+    rc = gpio_pin_read(gpioPort, POWER_1V8_Pin, &pinState);
+
+    return pinState;
+}
+
+/**************************************************************************/ /**
+ * Returns the current state of the 3.3V power supply.
+ *
+ * @return	The on state of the 3.3V power supply.
+ *
+ *****************************************************************************/
+int powerGet3v3(void)
+{
+    struct device* gpioPort;
+    int rc;
+    u32_t pinState;
+
+    gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+    rc = gpio_pin_read(gpioPort, POWER_3V3_Pin, &pinState);
+
+    return pinState;
 }
 
 /**************************************************************************/ /**
  * Returns the current state of the 5V power supply.
  *
- * @param pInst	Pointer to the power supply instance.
  * @return	The on state of the 5V power supply.
  *
  *****************************************************************************/
-int powerGet5v(Power* pInst)
+int powerGet5v(void)
 {
-    return HAL_GPIO_ReadPin(pInst->en5vPort, pInst->en5vPin);
+    struct device* gpioPort;
+    int rc;
+    u32_t pinState;
+
+    gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+    rc = gpio_pin_read(gpioPort, POWER_5V_Pin, &pinState);
+
+    return pinState;
+}
+
+/**************************************************************************/ /**
+ * Returns the current state of the backfeed power supply.
+ *
+ * @return	The on state of the backfeed power supply.
+ *
+ *****************************************************************************/
+int powerGetBackfeed(void)
+{
+    struct device* gpioPort;
+    int rc;
+    u32_t pinState;
+
+    gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+    rc = gpio_pin_read(gpioPort, POWER_BKFD_Pin, &pinState);
+
+    return pinState;
 }

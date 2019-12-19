@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <zephyr.h>
 #include <device.h>
 #include <drivers/flash.h>
 #include <fs/nvs.h>
 #include <spi.h>
 #include <sys/printk.h>
-#include <zephyr.h>
 //#include <include/generated_dts_board.h>
 
 #define FLASH_AREA_STORAGE_OFFSET 0;

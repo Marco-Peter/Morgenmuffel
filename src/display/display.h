@@ -40,12 +40,12 @@ typedef struct Display {
     uint8_t contrast;
 } Display;
 
-int displayInit(Display* pInst);
-int displayOn(Display* pInst);
-int displayOff(Display* pInst);
-int displaySetContrast(Display* pInst, uint8_t contrast);
-int displaySetPos(Display* pInst, uint8_t posX, uint8_t posY);
-int displayMemset(Display* pInst, uint8_t value, uint8_t len);
-int displayClear(Display* pInst);
+int displayInit(void);
+int displayOn(void);
+int displayOff(void);
+int displaySetContrast(uint8_t contrast);
+int displaySetPos(uint8_t posX, uint8_t posY);
+int displayMemset(uint8_t value, uint8_t len);
+int displayClear(void);
 
 #endif /* INC_DISPLAY_H_ */

@@ -1,7 +1,7 @@
 /**************************************************************************/ /**
- * gpio_handler.h
+ * hardwareconfig.h
  *
- * Handling of general purpose I/O
+ * Hardware configuration of the project
  *
  * 2019 by M. Peter
  *
@@ -113,3 +113,9 @@
 
 #define INT_BRIGHTNESS_Pin 0
 #define INT_BRIGHTNESS_GPIO_Port "GPIOE"
+
+#define SPI_PERIPH "SPI_2"
+#define SPI_MEMORY "SPI_1"
+
+#define DISPLAY_MIRROR_HORIZONTAL 1
+#define DISPLAY_MIRROR_VERTICAL 0
