@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <drivers/spi.h>
 #include <drivers/gpio.h>
+#include "parameters.h"
 #include "hardwareconfig.h"
 #include "display.h"
 
@@ -22,20 +23,20 @@
 #define DISP_LOCK 0xFD // second byte = 0x12: Unlock, second byte = 0x16: lock
 
 // Scrolling display commands not implemented at the moment
-#define DISP_SCRL_HORIZ 0x26 // LSB defines right/left (0x26: right, 0x27: left) \
-    // second byte: 0x00 (dummy byte)                                            \
-    // third byte: start page address (0..7)                                     \
-    // fourth byte: scroll frequency (in frames)
-#define DISP_SCRL_VERT 0x29 // LSB defines right/left (0x29: right, 0x2A: left) \
-    // second byte: 0x00: No horizontal scroll, 0x01 horizontal scroll          \
-    // third byte: start page address (0..7)                                    \
-    // fourth byte: scroll frequency (in frames)                                \
-    // fifth byte: end page address (0..7)                                      \
-    // sixth byte: vertical scrolling offset (0.63 rows)                        \
-    // seventh byte: start column (0..256)                                      \
-    // eighth byte: end column (0..256)
-#define DISP_SCRL_ACTIV 0x2E // Activate scrolling: 2F, stop scrolling: 2E \
-    // (RAM needs to be rewritten after scrolling)
+#define DISP_SCRL_HORIZ 0x26 // LSB defines right/left (0x26: right, 0x27: left)
+// second byte: 0x00 (dummy byte)
+// third byte: start page address (0..7)
+// fourth byte: scroll frequency (in frames)
+#define DISP_SCRL_VERT 0x29 // LSB defines right/left (0x29: right, 0x2A: left)
+// second byte: 0x00: No horizontal scroll, 0x01 horizontal scroll
+// third byte: start page address (0..7)
+// fourth byte: scroll frequency (in frames)
+// fifth byte: end page address (0..7)
+// sixth byte: vertical scrolling offset (0.63 rows)
+// seventh byte: start column (0..256)
+// eighth byte: end column (0..256)
+#define DISP_SCRL_ACTIV 0x2E // Activate scrolling: 2F, stop scrolling: 2E
+// (RAM needs to be rewritten after scrolling)
 
 #define DISP_SCRL_SPD_1FRM 0x7 // scrolling at every frame
 #define DISP_SCRL_SPD_4FRM 0x6 // scrolling at every 4th frame
@@ -46,17 +47,17 @@
 #define DISP_SCRL_SPD_64FRM 0x1 // scrolling at every 64th frame
 #define DISP_SCRL_SPD_5FRM 0x0 // scrolling at every 5th frame
 
-#define DISP_SET_VERT_SCRL_AREA 0xA3 // Set vertical scroll area \
-    // 2nd byte: Number of rows in top fixed area (0..63)        \
-    // 3rd byte: Number of rows used for scrolling (0..64)
-#define DISP_SCRL_CONT 0x2C // 0x2C: right, 0x2D: left \
-    // 2nd byte: 0x00 (dummy byte)                     \
-    // 3rd byte: start page address (0..7)             \
-    // 4th byte: 0x00 (dummy byte)                     \
-    // 5th byte: end page address (0..7)               \
-    // 6th byte: 0x00 (dummy byte)                     \
-    // 7th byte: start column (0..128)                 \
-    // 8th byte: end column (0..128)
+#define DISP_SET_VERT_SCRL_AREA 0xA3 // Set vertical scroll area
+// 2nd byte: Number of rows in top fixed area (0..63)
+// 3rd byte: Number of rows used for scrolling (0..64)
+#define DISP_SCRL_CONT 0x2C // 0x2C: right, 0x2D: left
+// 2nd byte: 0x00 (dummy byte)
+// 3rd byte: start page address (0..7)
+// 4th byte: 0x00 (dummy byte)
+// 5th byte: end page address (0..7)
+// 6th byte: 0x00 (dummy byte)
+// 7th byte: start column (0..128)
+// 8th byte: end column (0..128)
 
 // Addressing commands
 #define DISP_ADDR_LOW_COL 0x00 // Set lower column start address (0x00..0x0F)
@@ -68,8 +69,8 @@
 #define DISP_ADDR_VERT 0x01 // vertical addressing mode
 #define DISP_ADDR_PAGE 0x10 // page addressing mode
 
-#define DISP_COL_ADDR 0x21 // Set column address \
-    // 2nd byte: column address (0..127)
+#define DISP_COL_ADDR 0x21 // Set column address
+// 2nd byte: column address (0..127)
 
 #define DISP_PAGE_ADDR 0xB0 // Set page address (0..7, B0 = 0, B7 = 7)
 
@@ -79,19 +80,19 @@
 #define DISP_START_LINE 0x40 // Set display start line register from 0..63
 #define DISP_CMD_MIRROR_VERT ((u8_t)0xA1) // Mirror vertically
 #define DISP_CMD_NO_MIRROR_VERT ((u8_t)0xA0) // Do not mirror vertically
-#define DISP_MUX_RATIO 0xA8 // Set multiplex ratio \
-    // 2nd byte: Multiplex ration(16..64, Mux ratio = N + 1)
+#define DISP_MUX_RATIO 0xA8 // Set multiplex ratio
+// 2nd byte: Multiplex ration(16..64, Mux ratio = N + 1)
 
 #define DISP_CMD_MIRROR_HORIZ ((u8_t)0xC8) // Mirror horizontally
 #define DISP_CMD_NO_MIRROR_HORIZ ((u8_t)0xC0) // Do not mirror horizontally
-#define DISP_OFFSET 0xD3 // Set display offset \
-    // 2nd byte: vertical shift (0..63)
+#define DISP_OFFSET 0xD3 // Set display offset
+// 2nd byte: vertical shift (0..63)
 
-#define DISP_T_PRCHRG 0xD9 // Set precharge period \
-    // 2nd byte: Low nibble: Phase 1 period, high nibble: Phase 2 period
+#define DISP_T_PRCHRG 0xD9 // Set precharge period
+// 2nd byte: Low nibble: Phase 1 period, high nibble: Phase 2 period
 
-#define DISP_LVL_DESELECT 0xDB // Set Vcomh deselect level \
-    // 2nd byte: Deselect level
+#define DISP_LVL_DESELECT 0xDB // Set Vcomh deselect level
+// 2nd byte: Deselect level
 
 static int writeCmd(uint8_t* cmd, size_t len);
 
@@ -104,13 +105,12 @@ static int writeCmd(uint8_t* cmd, size_t len);
     return rc
 
 static struct device* spiDevice = NULL;
-static struct spi_config = {
+static struct spi_config displayConfig = {
     .frequency = 10000000,
-    .operation = {
-        spi_word_size(8),
-
-    }
-}
+    .operation = SPI_WORD_SIZE_GET(8) | SPI_LINES_SINGLE,
+    .slave = 0,
+    NULL
+};
 
 /**************************************************************************/ /**
  * Initialises the display
@@ -118,8 +118,7 @@ static struct spi_config = {
  * @return 0 if successful, otherwise an error code
  *
  *****************************************************************************/
-int
-displayInit(void)
+int displayInit(void)
 {
     struct device* rstPort;
     struct device* dcPort;
@@ -144,7 +143,7 @@ displayInit(void)
 
     /* Take the display controller into reset for 50 ms*/
     rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, 1);
-    sleep(50);
+    k_sleep(50);
     rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, 0);
     checkRc();
 
@@ -182,7 +181,7 @@ int displayOn(void)
     rc = gpio_pin_write(powerPort, POWER_13V_Pin, 1);
     checkRc();
 
-    sleep(10);
+    k_sleep(10);
 
     /* Switch on the display driver */
     cmd = DISP_CMD_ON;
@@ -240,8 +239,7 @@ int displaySetContrast(uint8_t contrast)
  *
  * @param value		Value to be preset
  * @param len		Number of columns to fill
- * @param height	Number of rows to fill. Must be a multiple of DISPLAY_PAGE_SIZE
- * @return			DISPLAY_OK if successful, otherwise an error code.
+ * @return			An error code
  *
  *****************************************************************************/
 int displayMemset(uint8_t value, size_t len)
@@ -253,7 +251,7 @@ int displayMemset(uint8_t value, size_t len)
     }
 
     if (len > 128) {
-        return EBADRQC;
+        return -EINVAL;
     }
 
     struct spi_buf spiBuf = {
@@ -265,7 +263,7 @@ int displayMemset(uint8_t value, size_t len)
         .count = 1
     };
 
-    rc = spiWrite(spiDevice, &spiConfig, &spiBufSet);
+    rc = spi_write(spiDevice, &displayConfig, &spiBufSet);
 
     return rc;
 }
@@ -273,60 +271,51 @@ int displayMemset(uint8_t value, size_t len)
 /**************************************************************************/ /**
  * Set a position to draw on the display.
  *
- * @param pInst Display instance.
- * @param posX	Horizontal position.
+  * @param posX	Horizontal position.
  * @param posY	Vertical position.
  * @return The actual Y position rounded to a page or an error code.
  *
  *****************************************************************************/
-int displaySetPos(Display* pInst, uint8_t posX, uint8_t posY)
+int displaySetPos(uint8_t posX, uint8_t posY)
 {
-    int res;
-    uint8_t cmd;
-
+    int rc;
     uint8_t page = posY / DISPLAY_PAGESIZE;
-    cmd = DISP_PAGE_ADDR | page;
-    res = writeCmd(pInst, &cmd, sizeof(cmd));
-    if (res != DISPLAY_OK) {
-        return res;
-    }
+    uint8_t cmd = DISP_PAGE_ADDR | page;
+
+    rc = writeCmd(&cmd, sizeof(cmd));
+    checkRc();
+
     cmd = DISP_ADDR_LOW_COL | (posX % 16);
-    res = writeCmd(pInst, &cmd, sizeof(cmd));
-    if (res != DISPLAY_OK) {
-        return res;
-    }
+    rc = writeCmd(&cmd, sizeof(cmd));
+    checkRc();
+
     cmd = DISP_ADDR_HIGH_COL | (posX / 16);
-    res = writeCmd(pInst, &cmd, sizeof(cmd));
-    if (res != DISPLAY_OK) {
-        return res;
-    }
+    rc = writeCmd(&cmd, sizeof(cmd));
+    checkRc();
+
     return page * DISPLAY_PAGESIZE;
 }
 
 /**************************************************************************/ /**
  * Clears the complete display
  *
- * @param pInst Display instance
  * @return DISPLAY_OK if successful, otherwise an error code
  *
  *****************************************************************************/
 int displayClear(void)
 {
-    int i, res;
+    int i, rc;
     uint8_t cmd;
 
     for (i = 0; i < 8; ++i) {
         cmd = DISP_PAGE_ADDR | i;
-        res = writeCmd(pInst, &cmd, sizeof(cmd));
-        if (res != DISPLAY_OK) {
-            return res;
-        }
-        res = displayMemset(pInst, 0x00, 128);
-        if (res != DISPLAY_OK) {
-            return res;
-        }
+        rc = writeCmd(&cmd, sizeof(cmd));
+        checkRc();
+
+        rc = displayMemset(0x00, 128);
+        checkRc();
     }
-    return DISPLAY_OK;
+    return 0;
 }
 
 /**************************************************************************/ /**
@@ -340,19 +329,29 @@ int displayClear(void)
  *****************************************************************************/
 static int writeCmd(uint8_t* cmd, size_t len)
 {
-    int res;
+    int rc;
+    struct device* dcPort = device_get_binding(DISPLAY_DC_GPIO_Port);
 
     // Pull D/C line to 0 to indicate a command
-    HAL_GPIO_WritePin(pInst->cmdPort, pInst->cmdPin, GPIO_PIN_RESET);
+    rc = gpio_pin_write(dcPort, DISPLAY_DC_Pin, 0);
+    checkRc();
 
     // Write the data to the SPI interface
-    res = spiWrite(&spiPeri, &pInst->spi, cmd, len, 1);
-    if (res != SPICOMM_OK) {
-        return DISPLAY_ERR_SPI;
-    }
+    struct spi_buf spiBuf = {
+        .buf = cmd,
+        .len = len
+    };
+    struct spi_buf_set spiBufSet = {
+        .buffers = &spiBuf,
+        .count = 1
+    };
+
+    rc = spi_write(spiDevice, &displayConfig, &spiBufSet);
+    checkRc();
 
     // Pull D/C line back to 1
-    HAL_GPIO_WritePin(pInst->cmdPort, pInst->cmdPin, GPIO_PIN_SET);
+    rc = gpio_pin_write(dcPort, DISPLAY_DC_Pin, 1);
+    checkRc();
 
-    return DISPLAY_OK;
+    return 0;
 }
