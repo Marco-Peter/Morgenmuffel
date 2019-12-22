@@ -162,9 +162,8 @@ if __name__ == '__main__':
                 # Unicode code point mode
                 characters = characters + (chr(int(line[2:], 16)))
             elif line != "":
-                # Read given character directly
-                characters = characters + \
-                    line.decode(sys.getfilesystemencoding())
+                # Read given characters directly
+                characters = characters + line
 
     print("Characters: " + characters)
     fr = FontRender(sys.argv[1], int(sys.argv[2]))
@@ -211,14 +210,16 @@ if __name__ == '__main__':
         print(u" * Pitch {:d}".format(fr.pitch()))
 
         outFile.write(
-            u"\tL\'" + ('\\' if character == '\'' else '') + character + u"\',\t\t\t\t\t// character\n" +
-            u"\t{\t\t\t\t\t\t// struct desc\n" +
-            u"\t\tglyphData + 0x{:04x},\t// data --> offset against glyphData\n".format(glyphDataPos) +
-            u"\t\t{:d},\t\t\t\t\t// width\n".format(fr.bitmapWidth()) +
-            u"\t\t{:d},\t\t\t\t\t// height\n".format(fr.bitmapRows()) +
-            u"\t\t{:d},\t\t\t\t\t// bearingX\n".format(fr.bearingX()) +
-            u"\t\t{:d},\t\t\t\t\t// bearingY\n".format(fr.bearingY()) +
-            u"\t\t{:d}\t\t\t\t\t// advance\n".format(fr.advance()) +
+            u"\t{\n" +
+            u"\t\tL\'" + ('\\' if character == '\'' else '') + character + u"\',\t\t\t\t\t// character\n" +
+            u"\t\t{\t\t\t\t\t\t// struct desc\n" +
+            u"\t\t\tglyphData + 0x{:04x},\t// data --> offset against glyphData\n".format(glyphDataPos) +
+            u"\t\t\t{:d},\t\t\t\t\t// width\n".format(fr.bitmapWidth()) +
+            u"\t\t\t{:d},\t\t\t\t\t// height\n".format(fr.bitmapRows()) +
+            u"\t\t\t{:d},\t\t\t\t\t// bearingX\n".format(fr.bearingX()) +
+            u"\t\t\t{:d},\t\t\t\t\t// bearingY\n".format(fr.bearingY()) +
+            u"\t\t\t{:d}\t\t\t\t\t// advance\n".format(fr.advance()) +
+            u"\t\t}\n" +
             u"\t},\n")
 
         fr.drawGlyph()
@@ -235,16 +236,18 @@ if __name__ == '__main__':
     # Append a last one with zero values
     outFile.write(
         u"\t/* *** Array End Marker *** */\n" +
-        u"\t0,\n" +
         u"\t{\n" +
-        u"\t\t0x0000,\n" +
         u"\t\t0,\n" +
-        u"\t\t0,\n" +
-        u"\t\t0,\n" +
-        u"\t\t0,\n" +
-        u"\t\t0\n" +
+        u"\t\t{\n" +
+        u"\t\t\t0x0000,\n" +
+        u"\t\t\t0,\n" +
+        u"\t\t\t0,\n" +
+        u"\t\t\t0,\n" +
+        u"\t\t\t0,\n" +
+        u"\t\t\t0\n" +
+        u"\t\t}\n" +
         u"\t}\n" +
-        u"};\n")
+        u"};\n\n")
 
     # Write the glyph data container
     outFile.write(
