@@ -13,6 +13,12 @@
 #include "hardwareconfig.h"
 #include "display.h"
 
+// Pin states of reset and D/#C lines
+#define DISP_PIN_STATE_RESET 0
+#define DISP_PIN_STATE_NORESET 1
+#define DISP_PIN_STATE_DATA 1
+#define DISP_PIN_STATE_COMMAND 0
+
 // Fundamental display commands
 #define DISP_CMD_SET_CONTRAST 0x81 // second byte defines contrast
 #define DISP_FULL_ON 0xA4 // LSB defines on/off (0xA4: normal display, 0xA5: full on)
@@ -94,17 +100,28 @@
 #define DISP_LVL_DESELECT 0xDB // Set Vcomh deselect level
 // 2nd byte: Deselect level
 
+/******************************************************************************
+ * Private function declarations
+ *****************************************************************************/
 static int writeCmd(uint8_t* cmd, size_t len);
 
-/**************************************************************************/ /**
+/**
  * Check the return code variable rc and return it if it is not zero
  *
  *****************************************************************************/
-#define checkRc() \
-    if (rc != 0)  \
-    return rc
+#define checkRc(__unlock)               \
+    if (rc != 0) {                      \
+        if (__unlock) {                 \
+            k_mutex_unlock(&dispMutex); \
+        }                               \
+        return rc;                      \
+    }
 
-static struct device* spiDevice = NULL;
+/**
+ * Private variable definitions
+ *****************************************************************************/
+static struct device* spiDevice
+    = NULL;
 static struct spi_config displayConfig = {
     .frequency = 10000000,
     .operation = SPI_WORD_SIZE_GET(8) | SPI_LINES_SINGLE,
@@ -112,7 +129,9 @@ static struct spi_config displayConfig = {
     NULL
 };
 
-/**************************************************************************/ /**
+static K_MUTEX_DEFINE(dispMutex);
+
+/**
  * Initialises the display
  *
  * @return 0 if successful, otherwise an error code
@@ -126,41 +145,50 @@ int displayInit(void)
     uint32_t rc;
     uint8_t cmd;
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     spiDevice = device_get_binding(SPI_PERIPH);
 
     /* Initialise the used GPIO pins */
     rstPort = device_get_binding(DISPLAY_RST_GPIO_Port);
-    rc = gpio_pin_configure(rstPort, DISPLAY_RST_Pin, GPIO_DIR_OUT | GPIO_POL_INV);
-    checkRc();
+    // set the pin state first to omit switching of the output
+    rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, DISP_PIN_STATE_RESET);
+    checkRc(true);
+    rc = gpio_pin_configure(rstPort, DISPLAY_RST_Pin, GPIO_DIR_OUT);
+    checkRc(true);
 
     dcPort = device_get_binding(DISPLAY_DC_GPIO_Port);
+    // set the pin state first to omit switching of the output
+    rc = gpio_pin_write(dcPort, DISPLAY_DC_Pin, DISP_PIN_STATE_DATA);
+    checkRc(true);
     rc = gpio_pin_configure(dcPort, DISPLAY_DC_Pin, GPIO_DIR_OUT);
-    checkRc();
+    checkRc(true);
 
     powerPort = device_get_binding(POWER_13V_GPIO_Port);
+    // set the pin state first to omit switching of the output
+    rc = gpio_pin_write(powerPort, POWER_13V_Pin, 0);
+    checkRc(true);
     rc = gpio_pin_configure(powerPort, POWER_13V_Pin, GPIO_DIR_OUT);
-    checkRc();
+    checkRc(true);
 
-    /* Take the display controller into reset for 50 ms*/
-    rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, 1);
+    /* Keep the display controller in reset for 50 ms*/
     k_sleep(50);
-    rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, 0);
-    checkRc();
+    rc = gpio_pin_write(rstPort, DISPLAY_RST_Pin, DISP_PIN_STATE_NORESET);
+    checkRc(true);
 
     /* Set up the display configuration */
     cmd = DISPLAY_MIRROR_HORIZONTAL ? DISP_CMD_MIRROR_HORIZ : DISP_CMD_NO_MIRROR_HORIZ;
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+    checkRc(true);
 
     cmd = DISPLAY_MIRROR_VERTICAL ? DISP_CMD_MIRROR_VERT : DISP_CMD_NO_MIRROR_VERT;
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+    checkRc(true);
 
     // Clear the display memory
     rc = displayClear();
-    checkRc();
 
-    // The display is now ready to be powered on
+    k_mutex_unlock(&dispMutex);
     return 0;
 }
 
@@ -176,10 +204,12 @@ int displayOn(void)
     int rc;
     uint8_t cmd;
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     // switch on the high voltage power supply and wait a short moment
     powerPort = device_get_binding(POWER_13V_GPIO_Port);
     rc = gpio_pin_write(powerPort, POWER_13V_Pin, 1);
-    checkRc();
+    checkRc(true);
 
     k_sleep(10);
 
@@ -187,6 +217,7 @@ int displayOn(void)
     cmd = DISP_CMD_ON;
     rc = writeCmd(&cmd, sizeof(cmd));
 
+    k_mutex_unlock(&dispMutex);
     return rc;
 }
 
@@ -202,14 +233,18 @@ int displayOff(void)
     uint32_t rc;
     uint8_t cmd;
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     // switch off the display drivers and wait a short moment
     cmd = DISP_CMD_OFF;
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+    checkRc(true);
 
     // switch off the high voltage power supply
     powerPort = device_get_binding(POWER_13V_GPIO_Port);
     rc = gpio_pin_write(powerPort, POWER_13V_Pin, 0);
+
+    k_mutex_unlock(&dispMutex);
 
     return rc;
 }
@@ -234,7 +269,39 @@ int displaySetContrast(uint8_t contrast)
     return rc;
 }
 
-/**************************************************************************/ /**
+/**
+ * Write data to the display
+ * 
+ * @param data      The data of the character to be rendered
+ * @param len       The data length of the character to be rendered
+ * @return          An error code
+ * 
+ *****************************************************************************/
+int displayWriteData(u8_t data, size_t len)
+{
+    int rc;
+
+    struct spi_buf buf[] = {
+        {
+            .buf = data,
+            .len = len,
+        },
+    };
+    struct spi_buf_set bufSet = {
+        .buffers = buf,
+        .count = sizeof(buf) / sizeof(buf[0]),
+    };
+
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
+    rc = spi_write(spiDevice, &displayConfig, &bufSet);
+
+    k_mutex_unlock(&dispMutex);
+
+    return rc;
+}
+
+/**
  * Set a number of display memory bytes on the current page to a certain value.
  *
  * @param value		Value to be preset
@@ -263,7 +330,11 @@ int displayMemset(uint8_t value, size_t len)
         .count = 1
     };
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     rc = spi_write(spiDevice, &displayConfig, &spiBufSet);
+
+    k_mutex_unlock(&dispMutex);
 
     return rc;
 }
@@ -282,16 +353,19 @@ int displaySetPos(uint8_t posX, uint8_t posY)
     uint8_t page = posY / DISPLAY_PAGESIZE;
     uint8_t cmd = DISP_PAGE_ADDR | page;
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+    checkRc(true);
 
     cmd = DISP_ADDR_LOW_COL | (posX % 16);
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+    checkRc(true);
 
     cmd = DISP_ADDR_HIGH_COL | (posX / 16);
     rc = writeCmd(&cmd, sizeof(cmd));
-    checkRc();
+
+    k_mutex_unlock(&dispMutex);
 
     return page * DISPLAY_PAGESIZE;
 }
@@ -307,14 +381,19 @@ int displayClear(void)
     int i, rc;
     uint8_t cmd;
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     for (i = 0; i < 8; ++i) {
         cmd = DISP_PAGE_ADDR | i;
         rc = writeCmd(&cmd, sizeof(cmd));
-        checkRc();
+        checkRc(true);
 
         rc = displayMemset(0x00, 128);
-        checkRc();
+        checkRc(true);
     }
+
+    k_mutex_unlock(&dispMutex);
+
     return 0;
 }
 
@@ -332,9 +411,11 @@ static int writeCmd(uint8_t* cmd, size_t len)
     int rc;
     struct device* dcPort = device_get_binding(DISPLAY_DC_GPIO_Port);
 
+    k_mutex_lock(&dispMutex, K_FOREVER);
+
     // Pull D/C line to 0 to indicate a command
     rc = gpio_pin_write(dcPort, DISPLAY_DC_Pin, 0);
-    checkRc();
+    checkRc(true);
 
     // Write the data to the SPI interface
     struct spi_buf spiBuf = {
@@ -347,11 +428,12 @@ static int writeCmd(uint8_t* cmd, size_t len)
     };
 
     rc = spi_write(spiDevice, &displayConfig, &spiBufSet);
-    checkRc();
+    checkRc(true);
 
     // Pull D/C line back to 1
     rc = gpio_pin_write(dcPort, DISPLAY_DC_Pin, 1);
-    checkRc();
 
-    return 0;
+    k_mutex_unlock(&dispMutex);
+
+    return rc;
 }

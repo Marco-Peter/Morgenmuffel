@@ -12,9 +12,11 @@
 #include "system_handler.h"
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
 */
-// internal definitions
+#include <zephyr.h>
+#include <wchar.h>
+#include "display.h"
+#include "display_handler.h"
 
 /// Redraw a display page completely
 #define DISPEVENT_REDRAW ((uint32_t)0x01)
@@ -25,6 +27,15 @@
 // Internal functions
 static void dispTask(void const* argument);
 static int dispWriteTextField(TextField* field);
+
+/**
+ * Check the return code variable rc and return it if it is not zero
+ *
+ *****************************************************************************/
+#define checkRc()  \
+    if (rc != 0) { \
+        return rc; \
+    }
 
 // Internal variables
 
@@ -43,60 +54,12 @@ static DisplayPage* _curPage = 0;
 /// This mutex protects the current page variable against concurrent accesses.
 static SemaphoreHandle_t pageMutex;
 
-/// The display handler instance
-static DisplayHandler _dispHandler = {
-    {
-        // .disp
-        {
-            // .spi
-            SPI_BAUDRATEPRESCALER_4, // .baudRatePrescaler
-            DISPLAY_CS_GPIO_Port, // nssPort
-            DISPLAY_CS_Pin // nssPin
-        },
-        DISPLAY_RST_GPIO_Port, // .rstPort
-        DISPLAY_DC_GPIO_Port, // .cmdPort
-        ENABLE_13V_GPIO_Port, // .pwrPort
-        DISPLAY_RST_Pin, // .rstPin
-        DISPLAY_DC_Pin, // .cmdPin
-        ENABLE_13V_Pin, // .pwrPin
-        0, // .mirror_horiz
-        0, // .mirror_vert
-        127 // .contrast
-    },
-};
-/// Pointer to displayhandler instance to simplify access
-DisplayHandler* dispHandler = &_dispHandler;
-
 /**************************************************************************/ /**
 * Display initialisation
 *
 ******************************************************************************/
 void dispInit()
 {
-    GPIO_InitTypeDef gpioInit;
-
-    // Pull the chip select line high
-    HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, GPIO_PIN_SET);
-    // Pull the reset line low
-    HAL_GPIO_WritePin(DISPLAY_RST_GPIO_Port, DISPLAY_RST_Pin, GPIO_PIN_RESET);
-    // pull the data/command line high (data mode)
-    HAL_GPIO_WritePin(DISPLAY_DC_GPIO_Port, DISPLAY_DC_Pin, GPIO_PIN_SET);
-    // pull the 13V enable line low (off)
-    HAL_GPIO_WritePin(ENABLE_13V_GPIO_Port, ENABLE_13V_Pin, GPIO_PIN_RESET);
-
-    // Initialise the used GPIO
-    gpioInit.Mode = GPIO_MODE_OUTPUT_PP;
-    gpioInit.Pull = GPIO_NOPULL;
-    gpioInit.Speed = GPIO_SPEED_FREQ_LOW;
-    gpioInit.Alternate = 0;
-    gpioInit.Pin = DISPLAY_RST_Pin | DISPLAY_CS_Pin | DISPLAY_DC_Pin;
-    HAL_GPIO_Init(GPIOF, &gpioInit);
-
-    gpioInit.Pin = ENABLE_13V_Pin;
-    HAL_GPIO_Init(ENABLE_13V_GPIO_Port, &gpioInit);
-
-    pageMutex = xSemaphoreCreateMutex();
-
     displayTask = xTaskCreateStatic(
         (TaskFunction_t)dispTask,
         "Display Task",
@@ -301,7 +264,7 @@ void dispSetInversion(TextField* field, uint8_t inversion)
 ******************************************************************************/
 static int dispWriteTextField(TextField* field)
 {
-    int res;
+    int rc;
     uint8_t curPage;
 
     // Take the mutex, so that no other task can interfere
@@ -447,15 +410,14 @@ static int dispWriteTextField(TextField* field)
                                 glyphData[curByte] = ~glyphData[curByte];
                             }
                         } // for
-                        spiRes = spiWrite(&spiPeri, &dispHandler->disp.spi, glyphData, remCols, 1);
+                        rc = displayWriteData(glyphData, remCols);
                     } else {
                         const uint8_t* glyphData;
                         glyphData = curGlyph->desc.data + (curPage * curGlyph->desc.width) + curCol - curGlyph->desc.bearingX;
-                        spiRes = spiWrite(&spiPeri, &dispHandler->disp.spi, glyphData, remCols, 1);
+                        rc = displayWriteData(glyphData, remCols);
                     }
-                    if (spiRes != SPICOMM_OK) {
-                        return -1;
-                    }
+                    checkRc();
+
                     // update the number of rendered columns
                     renderedCols += remCols;
 
