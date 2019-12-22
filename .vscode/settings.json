@@ -6,6 +6,7 @@
         "zephyr.h": "c",
         "gpio.h": "c",
         "errno.h": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "font.h": "c"
     }
 }

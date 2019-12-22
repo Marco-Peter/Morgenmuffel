@@ -14,5 +14,13 @@ project(MorgenMuffel)
 
 # Add your source file to the "app" target. This must come after
 # the boilerplate code, which defines the target.
-target_sources(app PRIVATE src/main.c src/display/display.c)
+target_sources(app PRIVATE
+    src/main.c
+    src/include/display.h
+    src/display/display.c
+    src/include/font.h
+    src/display/font.c
+    src/display/font_FreeSans_16.c
+    src/display/font_FreeSans_32.c
+)
 target_include_directories( app PRIVATE src/include)
