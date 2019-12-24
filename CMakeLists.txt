@@ -22,5 +22,7 @@ target_sources(app PRIVATE
     src/display/font.c
     src/display/font_FreeSans_16.c
     src/display/font_FreeSans_32.c
+    src/include/display_handler.h
+    src/display/display_handler.c
 )
 target_include_directories( app PRIVATE src/include)

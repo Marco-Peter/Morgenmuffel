@@ -12,13 +12,3 @@
 
 #define PARAM_PLAYLIST_CURRENT_ENTRY 1000
 #define PARAM_PLAYLIST_START 1001
-
-/// Define the display properties
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 64
-#define DISPLAY_PAGES 8
-#define DISPLAY_PAGESIZE 8
-#define DISPLAY_COMPLETE (DISPLAY_WIDTH * DISPLAY_PAGES)
-
-#define DISPLAY_MIN_CHARWIDTH 5 // minimum character width
-#define DISPLAY_MAX_CHARWIDTH 5 // maximum character width

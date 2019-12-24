@@ -18,6 +18,8 @@
 #include "display.h"
 #include "display_handler.h"
 
+#define STACKSIZE_DISPLAYTASK 2560
+
 /// Redraw a display page completely
 #define DISPEVENT_REDRAW ((uint32_t)0x01)
 
@@ -39,36 +41,20 @@ static int dispWriteTextField(TextField* field);
 
 // Internal variables
 
-/// stack for the display task
-static StackType_t xStack[STACKSIZE_DISPLAYTASK];
-
-/// task instance data
-static StaticTask_t xTaskBuffer;
-
-/// Task handle
-static TaskHandle_t displayTask;
+/// Thread handle
+K_THREAD_DEFINE(displayThread, STACKSIZE_DISPLAYTASK, dispTask, NULL, NULL, NULL, 3, 0, K_NO_WAIT);
 
 /// The currently shown display page
 static DisplayPage* _curPage = 0;
 
 /// This mutex protects the current page variable against concurrent accesses.
-static SemaphoreHandle_t pageMutex;
+static K_MUTEX_DEFINE(pageMutex);
 
-/**************************************************************************/ /**
-* Display initialisation
-*
-******************************************************************************/
-void dispInit()
-{
-    displayTask = xTaskCreateStatic(
-        (TaskFunction_t)dispTask,
-        "Display Task",
-        STACKSIZE_DISPLAYTASK,
-        dispHandler,
-        3,
-        xStack,
-        &xTaskBuffer);
-}
+/// Signals to the thread, when the page should be redrawn
+static struct k_poll_signal displaySignalRedraw = K_POLL_SIGNAL_INITIALIZER(displaySignalRedraw);
+
+/// Signals to the thread, when an item should be refreshed
+static struct k_poll_signal displaySignalRefresh = K_POLL_SIGNAL_INITIALIZER(displaySignalRefresh);
 
 /**************************************************************************/ /**
 * Initialise a new text field
@@ -91,17 +77,11 @@ void dispInit()
 * @return         The initialised textfield instance, which can be used within another function.
 *
 ******************************************************************************/
-TextField* dispInitTextField(TextField* field, const wchar_t* text, const Font* font,
-    uint8_t posX, uint8_t posY, uint16_t fLength, char align,
-    bool inverted, bool blinking, uint8_t frame)
+TextField* dispInitTextField(TextField* field, const wchar_t* text, const Font* font, uint8_t posX, uint8_t posY, uint16_t fLength, char align, bool inverted, bool blinking, uint8_t frame)
 {
     // determine the text length in pixels
     uint32_t tLength = textLength(text, font);
 
-    field->mutex = xSemaphoreCreateMutex();
-    if (field->mutex == 0) {
-        return 0;
-    }
     field->text = text;
     field->font = font;
     field->posX = posX;
@@ -142,23 +122,6 @@ TextField* dispInitTextField(TextField* field, const wchar_t* text, const Font* 
 }
 
 /**************************************************************************/ /**
-* Destroy a text field after use
-* The caller must ensure, that the text field is not accessed anymore, when
-* this function is called.
-*
-* @param field	The text field to initialise
-* @return		A pointer to the used text object which must be handled by
-*			    the application.
-*
-******************************************************************************/
-const wchar_t* dispDestroyTextField(TextField* field)
-{
-    xSemaphoreTake(field->mutex, portMAX_DELAY);
-    vSemaphoreDelete(field->mutex);
-    return field->text;
-}
-
-/**************************************************************************/ /**
 * Display a new page
 * 
 * @param page	The new page to be displayed, set to NULL for a blank screen
@@ -178,13 +141,13 @@ DisplayPage* dispShowPage(DisplayPage* page)
     }
 
     // Exchange displayed page on display
-    xSemaphoreTake(pageMutex, portMAX_DELAY);
+    k_mutex_lock(&pageMutex, K_FOREVER);
     prevPage = _curPage;
     _curPage = page;
-    xSemaphoreGive(pageMutex);
+    k_mutex_unlock(&pageMutex);
 
     // Notify the display task that there is a new page to be displayed
-    xTaskNotify(displayTask, DISPEVENT_REDRAW, eSetBits);
+    k_poll_signal_raise(&displaySignalRedraw, 0);
 
     // Return the previously displayed page
     return prevPage;
@@ -210,7 +173,6 @@ DisplayPage* dispClearPage(void)
 ******************************************************************************/
 const wchar_t* dispSetText(TextField* field, const wchar_t* text)
 {
-    xSemaphoreTake(field->mutex, portMAX_DELAY);
     const wchar_t* oldText = field->text;
     field->text = text;
 
@@ -228,10 +190,9 @@ const wchar_t* dispSetText(TextField* field, const wchar_t* text)
         field->offset = 0;
     }
     field->updated = true;
-    xSemaphoreGive(field->mutex);
 
     // Notify the display task that there is an updated field to be displayed
-    xTaskNotify(displayTask, DISPEVENT_REFRESH, eSetBits);
+    k_poll_signal_raise(&displaySignalRefresh, 0);
 
     // Return the previously displayed text
     return oldText;
@@ -247,13 +208,11 @@ const wchar_t* dispSetText(TextField* field, const wchar_t* text)
 void dispSetInversion(TextField* field, uint8_t inversion)
 {
     // Update the inversion state of the text field
-    xSemaphoreTake(field->mutex, portMAX_DELAY);
     field->inverted = inversion;
     field->updated = true;
-    xSemaphoreGive(field->mutex);
 
     // Notify the display task that there is an updated field to be displayed
-    xTaskNotify(displayTask, DISPEVENT_REFRESH, eSetBits);
+    k_poll_signal_raise(&displaySignalRefresh, 0);
 }
 
 /**************************************************************************/ /**
@@ -268,7 +227,6 @@ static int dispWriteTextField(TextField* field)
     uint8_t curPage;
 
     // Take the mutex, so that no other task can interfere
-    xSemaphoreTake(field->mutex, portMAX_DELAY);
 
     // Get the actual string length
     uint32_t tLength = textLength(field->text, field->font);
@@ -303,25 +261,18 @@ static int dispWriteTextField(TextField* field)
                 framePattern = 0x00;
 
             // Position the cursor on the display
-            posY = displaySetPos(&(dispHandler->disp), field->posX,
-                field->posY + curPage * DISPLAY_PAGESIZE);
+            posY = displaySetPos(field->posX, field->posY + curPage * DISPLAY_PAGESIZE);
             if ((posY < 0) || (posY != (field->posY + curPage * DISPLAY_PAGESIZE))) {
-                printf("Setting position on display failed with error code 0x%x\n",
-                    (int)posY);
+                return rc;
             }
 
             // Render the left frame line and the empty space after the frame line
             if (field->frame & DISP_FRAME_LEFT) {
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? 0x00 : 0xFF, 1);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? ~framePattern : framePattern, 1);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
+                rc = displayMemset(field->inverted ? 0x00 : 0xFF, 1);
+                checkRc();
+
+                rc = displayMemset(field->inverted ? ~framePattern : framePattern, 1);
+                checkRc();
             }
 
             if (tLength <= fLength) {
@@ -334,13 +285,12 @@ static int dispWriteTextField(TextField* field)
                 } else if (!field->alignLeft && !field->alignRight) {
                     offset = (fLength - tLength) / 2;
                 }
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? ~framePattern : framePattern, offset - renderedCols);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
+                rc = displayMemset(field->inverted ? ~framePattern : framePattern, offset - renderedCols);
+                checkRc();
+
                 // update the number of rendered columns within the field
                 renderedCols += offset;
+
             } else if (tLength > fLength) {
                 // text is longer than the field length, depending on the
                 // offset it is shifted to the left.
@@ -358,7 +308,6 @@ static int dispWriteTextField(TextField* field)
             }
             // render as much text as possible within the field borders
             while (curChar != NULL && *curChar != 0 && renderedCols < fLength) {
-                SpiCommError spiRes;
                 uint8_t remCols;
 
                 // Get the glyph to be rendered
@@ -372,11 +321,9 @@ static int dispWriteTextField(TextField* field)
                     if ((renderedCols + remCols) > fLength) {
                         remCols = fLength - renderedCols;
                     }
-                    res = displayMemset(&(dispHandler->disp),
-                        field->inverted ? ~framePattern : framePattern, remCols);
-                    if (res != DISPLAY_OK) {
-                        return res;
-                    }
+                    rc = displayMemset(field->inverted ? ~framePattern : framePattern, remCols);
+                    checkRc();
+
                     // update the number of rendered columns
                     renderedCols += remCols;
                     curCol += remCols;
@@ -396,6 +343,7 @@ static int dispWriteTextField(TextField* field)
                     if ((renderedCols + remCols) > fLength) {
                         remCols = fLength - renderedCols;
                     }
+
                     // if the glyph is to be rendered inversed, we need to copy and
                     // invert the data to a temporary buffer.
                     // Also if we apply a frame, we will need to copy the data
@@ -411,6 +359,7 @@ static int dispWriteTextField(TextField* field)
                             }
                         } // for
                         rc = displayWriteData(glyphData, remCols);
+
                     } else {
                         const uint8_t* glyphData;
                         glyphData = curGlyph->desc.data + (curPage * curGlyph->desc.width) + curCol - curGlyph->desc.bearingX;
@@ -434,11 +383,9 @@ static int dispWriteTextField(TextField* field)
                 if ((renderedCols + remCols) > fLength) {
                     remCols = fLength - renderedCols;
                 }
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? ~framePattern : framePattern, remCols);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
+                rc = displayMemset(field->inverted ? ~framePattern : framePattern, remCols);
+                checkRc();
+
                 // update the number of rendered columns
                 renderedCols += remCols;
 
@@ -454,23 +401,17 @@ static int dispWriteTextField(TextField* field)
 
             // Clear the part after the characters until the field end
             if (renderedCols < fLength) {
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? ~framePattern : framePattern,
-                    fLength - renderedCols);
+                rc = displayMemset(field->inverted ? ~framePattern : framePattern, fLength - renderedCols);
+                checkRc()
             }
 
             // Render the right frame line and the empty space before the frame line
             if (field->frame & DISP_FRAME_RIGHT) {
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? ~framePattern : framePattern, 1);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
-                res = displayMemset(&(dispHandler->disp),
-                    field->inverted ? 0x00 : 0xFF, 1);
-                if (res != DISPLAY_OK) {
-                    return res;
-                }
+                rc = displayMemset(field->inverted ? ~framePattern : framePattern, 1);
+                checkRc();
+
+                rc = displayMemset(field->inverted ? 0x00 : 0xFF, 1);
+                checkRc();
             }
 
         } // for(curPage...
@@ -487,8 +428,8 @@ static int dispWriteTextField(TextField* field)
             field->updated = false;
         }
     } // if((field->updated == true) || (tLength > fLength))
-    xSemaphoreGive(field->mutex);
-    return DISPLAY_OK;
+
+    return 0;
 }
 
 /**************************************************************************/ /**
@@ -497,29 +438,43 @@ static int dispWriteTextField(TextField* field)
 ******************************************************************************/
 static void dispTask(void const* argument)
 {
-    uint32_t res;
-    uint32_t event = 0;
-    TextField* resTf;
+    uint32_t rc;
 
-    displayInit(&(dispHandler->disp));
-    displayOn(&(dispHandler->disp));
+    static struct k_poll_event events[2] = {
+        K_POLL_EVENT_STATIC_INITIALIZER(
+            K_POLL_TYPE_SIGNAL,
+            K_POLL_MODE_NOTIFY_ONLY,
+            &displaySignalRedraw, 0),
+        K_POLL_EVENT_STATIC_INITIALIZER(
+            K_POLL_TYPE_SIGNAL,
+            K_POLL_MODE_NOTIFY_ONLY,
+            &displaySignalRefresh, 0)
+    };
+
+    displayInit();
+    displayOn();
 
     for (;;) {
         int curField;
 
         // Wait for a repaint command or the refresh time
-        event = 0;
-        xTaskNotifyWait(0, UINT32_MAX, &event, DISP_SCROLL_CYCLE / portTICK_PERIOD_MS);
-        if (event & DISPEVENT_REDRAW) {
+        rc = k_poll(events, 2, K_MSEC(DISP_SCROLL_CYCLE));
+
+        if (events[0].signal->signaled) {
             // On a redraw event, the complete display needs to be repainted, therefore we clear it first
-            displayClear(&dispHandler->disp);
+            displayClear();
+            events[0].signal->signaled = 0;
+            events[0].state = K_POLL_STATE_NOT_READY;
+        }
+
+        if (events[1].signal->signaled) {
+            // No specific action yet on the refresh signal.
+            events[1].signal->signaled = 0;
+            events[1].state = K_POLL_STATE_NOT_READY;
         }
 
         // Reserve the display for exclusive use
-        if (xSemaphoreTake(pageMutex, DISP_SCROLL_CYCLE / portTICK_PERIOD_MS) != pdTRUE) {
-            printf("Could not get the page mutex!\n");
-            continue;
-        }
+        k_mutex_lock(&pageMutex, K_FOREVER);
 
         // Display the current page
         if (_curPage != NULL) {
@@ -528,7 +483,7 @@ static void dispTask(void const* argument)
             } // for(curField = 0; curField < _cur...)
         }
 
-        xSemaphoreGive(pageMutex);
+        k_mutex_unlock(&pageMutex);
 
         /* TODO: Move to better place
 		displaySetContrast(&dispHandler->disp, brightness > 127 ? 127 : brightness);

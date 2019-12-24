@@ -13,6 +13,18 @@
 #include "hardwareconfig.h"
 #include "display.h"
 
+// Display Configuration
+#define DISPLAY_MIRROR_HORIZONTAL 1
+#define DISPLAY_MIRROR_VERTICAL 0
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+#define DISPLAY_PAGES 8
+#define DISPLAY_PAGESIZE 8
+#define DISPLAY_COMPLETE (DISPLAY_WIDTH * DISPLAY_PAGES)
+
+#define DISPLAY_MIN_CHARWIDTH 5 // minimum character width
+#define DISPLAY_MAX_CHARWIDTH 5 // maximum character width
+
 // Pin states of reset and D/#C lines
 #define DISP_PIN_STATE_RESET 0
 #define DISP_PIN_STATE_NORESET 1
@@ -277,17 +289,17 @@ int displaySetContrast(uint8_t contrast)
  * @return          An error code
  * 
  *****************************************************************************/
-int displayWriteData(u8_t data, size_t len)
+int displayWriteData(const uint8_t* data, size_t len)
 {
     int rc;
 
-    struct spi_buf buf[] = {
+    const struct spi_buf buf[] = {
         {
-            .buf = data,
+            .buf = (uint8_t*)data,
             .len = len,
         },
     };
-    struct spi_buf_set bufSet = {
+    const struct spi_buf_set bufSet = {
         .buffers = buf,
         .count = sizeof(buf) / sizeof(buf[0]),
     };
