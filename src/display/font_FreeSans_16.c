@@ -1,9 +1,10 @@
 /******************************************************************************
-* Font data for FreeSans 16px height.
-*
-* Automatically generated
-*
-******************************************************************************/
+ * Font data for FreeSans 16px height.
+ *
+ * Automatically generated
+ *
+ ******************************************************************************/
+// clang-format off
 
 #include "font.h"
 

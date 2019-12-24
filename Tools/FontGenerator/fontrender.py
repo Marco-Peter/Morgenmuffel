@@ -181,6 +181,7 @@ if __name__ == '__main__':
         "* Automatically generated\n" +
         "*\n" +
         "******************************************************************************/\n" +
+        "// clang-format off" +
         "\n" +
         "#include \"font.h\"\n" +
         "\n" +
