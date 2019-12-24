@@ -6,12 +6,9 @@
 
 #pragma once
 
-#include <zephyr.h>
-//#include <time.h>
-//#include <stdint.h>
-//#include <stdbool.h>
+#include "display.h"
 #include "font.h"
-//#include "display.h"
+#include <zephyr.h>
 
 // scroll/refresh cycle in ms
 #define DISP_SCROLL_CYCLE 200
@@ -38,40 +35,33 @@ The Text field instance. This contains all information to draw and handle
 a text field.
 */
 typedef struct TextField {
-    const Font* font;
-    const wchar_t* text;
-    uint16_t length;
-    uint16_t offset;
-    uint8_t posX;
-    uint8_t posY;
-    uint8_t
-        alignLeft : 1,
-        alignRight : 1,
-        inverted : 1,
-        blinking : 1,
-        frame : 4;
-    bool updated;
+  const Font *font;
+  const wchar_t *text;
+  uint16_t length;
+  uint16_t offset;
+  uint8_t posX;
+  uint8_t posY;
+  uint8_t alignLeft : 1, alignRight : 1, inverted : 1, blinking : 1, frame : 4;
+  bool updated;
 } TextField;
 
 /**
 The instance of a complete display page.
 */
 typedef struct DisplayPage {
-    uint32_t nFields; /// number of text field objects
-    TextField* fields; /// Pointer to text field objects
+  uint32_t nFields;  /// number of text field objects
+  TextField *fields; /// Pointer to text field objects
 } DisplayPage;
 
 // Menu display functions
-DisplayPage* dispShowPage(DisplayPage* page);
-DisplayPage* dispClearPage(void);
+DisplayPage *dispShowPage(DisplayPage *page);
+DisplayPage *dispClearPage(void);
 
 // Handling functions for text fields
-TextField* dispInitTextField(
-    TextField* field,
-    const wchar_t* text,
-    const Font* font,
-    uint8_t posX, uint8_t posY, uint16_t fLength,
-    char align, bool inverted, bool blinking, uint8_t frame);
+TextField *dispInitTextField(TextField *field, const wchar_t *text,
+                             const Font *font, uint8_t posX, uint8_t posY,
+                             uint16_t fLength, char align, bool inverted,
+                             bool blinking, uint8_t frame);
 
-const wchar_t* dispSetText(TextField* field, const wchar_t* text);
-void dispSetInversion(TextField* field, uint8_t inversion);
+const wchar_t *dispSetText(TextField *field, const wchar_t *text);
+void dispSetInversion(TextField *field, uint8_t inversion);
