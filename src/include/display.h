@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+
 int displayInit(void);
 int displayOn(void);
 int displayOff(void);

@@ -8,7 +8,7 @@
 
 #include "display.h"
 #include "font.h"
-#include <zephyr.h>
+#include <stdbool.h>
 
 // scroll/refresh cycle in ms
 #define DISP_SCROLL_CYCLE 200
