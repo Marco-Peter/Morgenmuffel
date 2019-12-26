@@ -24,5 +24,6 @@ target_sources(app PRIVATE
     src/display/font_FreeSans_32.c
     src/include/display_handler.h
     src/display/display_handler.c
+    src/power.c
 )
 target_include_directories( app PRIVATE src/include)
