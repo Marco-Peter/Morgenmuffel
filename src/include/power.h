@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 int powerInit(void);
 
 int powerSet1v8(bool on);
@@ -21,4 +23,4 @@ int powerSetBackfeed(bool on);
 int powerGet1v8(void);
 int powerGet3v3(void);
 int powerGet5v(void);
-int powerGetBackfeed(void)
+int powerGetBackfeed(void);
