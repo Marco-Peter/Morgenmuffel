@@ -7,14 +7,13 @@
  *      Author: marco
  */
 
+#include "power.h"
 #include <device.h>
 #include <drivers/gpio.h>
-#include <zephyr.h>
 
 #include "hardwareconfig.h"
-#include "power.h"
 
-/***************************************************************************/ /**
+/**
 Initialise GPIO related to the power supply control pins.
 
 *******************************************************************************/
@@ -46,12 +45,12 @@ int powerInit(void) {
   return rc;
 }
 
-/**************************************************************************/ /**
-                                                                              * Switches the 1.8V power supply on or off.
-                                                                              *
-                                                                              * @param on	On-state of the power supply (0: off, else: on)
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Switches the 1.8V power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
 int powerSet1v8(bool on) {
   struct device *gpioPort;
   int rc;
@@ -62,12 +61,12 @@ int powerSet1v8(bool on) {
   return rc;
 }
 
-/**************************************************************************/ /**
-                                                                              * Switches the 3.3V power supply on or off.
-                                                                              *
-                                                                              * @param on	On-state of the power supply (0: off, else: on)
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Switches the 3.3V power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
 int powerSet3v3(bool on) {
   struct device *gpioPort;
   int rc;
@@ -78,12 +77,12 @@ int powerSet3v3(bool on) {
   return rc;
 }
 
-/**************************************************************************/ /**
-                                                                              * Switches the 5V power supply on or off.
-                                                                              *
-                                                                              * @param on	On-state of the power supply (0: off, else: on)
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Switches the 5V power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
 int powerSet5v(bool on) {
   struct device *gpioPort;
   int rc;
@@ -94,12 +93,12 @@ int powerSet5v(bool on) {
   return rc;
 }
 
-/**************************************************************************/ /**
-                                                                              * Switches the backfeed power supply on or off.
-                                                                              *
-                                                                              * @param on	On-state of the power supply (0: off, else: on)
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Switches the backfeed power supply on or off.
+ *
+ * @param on	On-state of the power supply (0: off, else: on)
+ *
+ *****************************************************************************/
 int powerSetBackfeed(bool on) {
   struct device *gpioPort;
   int rc;
@@ -110,12 +109,12 @@ int powerSetBackfeed(bool on) {
   return rc;
 }
 
-/**************************************************************************/ /**
-                                                                              * Returns the current state of the 1.8V power supply.
-                                                                              *
-                                                                              * @return	The on state of the 1.8V power supply.
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Returns the current state of the 1.8V power supply.
+ *
+ * @return	The on state of the 1.8V power supply.
+ *
+ *****************************************************************************/
 int powerGet1v8(void) {
   struct device *gpioPort;
   int rc;
@@ -127,12 +126,12 @@ int powerGet1v8(void) {
   return pinState;
 }
 
-/**************************************************************************/ /**
-                                                                              * Returns the current state of the 3.3V power supply.
-                                                                              *
-                                                                              * @return	The on state of the 3.3V power supply.
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Returns the current state of the 3.3V power supply.
+ *
+ * @return	The on state of the 3.3V power supply.
+ *
+ *****************************************************************************/
 int powerGet3v3(void) {
   struct device *gpioPort;
   int rc;
@@ -144,12 +143,12 @@ int powerGet3v3(void) {
   return pinState;
 }
 
-/**************************************************************************/ /**
-                                                                              * Returns the current state of the 5V power supply.
-                                                                              *
-                                                                              * @return	The on state of the 5V power supply.
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Returns the current state of the 5V power supply.
+ *
+ * @return	The on state of the 5V power supply.
+ *
+ *****************************************************************************/
 int powerGet5v(void) {
   struct device *gpioPort;
   int rc;
@@ -161,12 +160,12 @@ int powerGet5v(void) {
   return pinState;
 }
 
-/**************************************************************************/ /**
-                                                                              * Returns the current state of the backfeed power supply.
-                                                                              *
-                                                                              * @return	The on state of the backfeed power supply.
-                                                                              *
-                                                                              *****************************************************************************/
+/**
+ * Returns the current state of the backfeed power supply.
+ *
+ * @return	The on state of the backfeed power supply.
+ *
+ *****************************************************************************/
 int powerGetBackfeed(void) {
   struct device *gpioPort;
   int rc;
