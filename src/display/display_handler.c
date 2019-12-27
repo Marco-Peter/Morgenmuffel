@@ -49,27 +49,29 @@ static struct k_poll_signal displaySignalRedraw =
 static struct k_poll_signal displaySignalRefresh =
     K_POLL_SIGNAL_INITIALIZER(displaySignalRefresh);
 
-/**************************************************************************/ /**
-                                                                              * Initialise a new text field
-                                                                              *
-                                                                              * @param field    Text field to initialise
-                                                                              * @param text     Text to write into the field
-                                                                              * @param font     Font to use for rendering
-                                                                              * @param posX     Text field location X-position
-                                                                              * @param posY     Text field location Y-position
-                                                                              * @param fLength  Field length
-                                                                              * @param align    Text alignment within the field. Allowed values: 'l', 'c', 'r'
-                                                                              * @param inverted Inverted text rendering (black text on white background)
-                                                                              * @param blinking Text should be blinking (not yet implemented)
-                                                                              * @param frame    Frame to draw around text field. Combination of values:
-                                                                              *                 - DISP_FRAME_BOTTOM
-                                                                              *                 - DISP_FRAME_TOP
-                                                                              *                 - DISP_FRAME_LEFT
-                                                                              *                 - DISP_FRAME_RIGHT
-                                                                              *
-                                                                              * @return         The initialised textfield instance, which can be used within another function.
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * Initialise a new text field
+ *
+ * @param field    Text field to initialise
+ * @param text     Text to write into the field
+ * @param font     Font to use for rendering
+ * @param posX     Text field location X-position
+ * @param posY     Text field location Y-position
+ * @param fLength  Field length
+ * @param align    Text alignment within the field. Allowed values: 'l', 'c',
+ *'r'
+ * @param inverted Inverted text rendering (black text on white background)
+ * @param blinking Text should be blinking (not yet implemented)
+ * @param frame    Frame to draw around text field. Combination of values:
+ *                 - DISP_FRAME_BOTTOM
+ *                 - DISP_FRAME_TOP
+ *                 - DISP_FRAME_LEFT
+ *                 - DISP_FRAME_RIGHT
+ *
+ * @return         The initialised textfield instance, which can be used within
+ *another function.
+ *
+ ******************************************************************************/
 TextField *dispInitTextField(TextField *field, const wchar_t *text,
                              const Font *font, uint8_t posX, uint8_t posY,
                              uint16_t fLength, char align, bool inverted,
@@ -116,13 +118,13 @@ TextField *dispInitTextField(TextField *field, const wchar_t *text,
   return field;
 }
 
-/**************************************************************************/ /**
-                                                                              * Display a new page
-                                                                              *
-                                                                              * @param page	The new page to be displayed, set to NULL for a blank screen
-                                                                              * @return		The previously displayed page
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * Display a new page
+ *
+ * @param page	The new page to be displayed, set to NULL for a blank screen
+ * @return		The previously displayed page
+ *
+ ******************************************************************************/
 DisplayPage *dispShowPage(DisplayPage *page) {
   DisplayPage *prevPage;
   uint32_t i;
@@ -147,21 +149,21 @@ DisplayPage *dispShowPage(DisplayPage *page) {
   return prevPage;
 }
 
-/**************************************************************************/ /**
-                                                                              * Simple command for dispShowPage which just clears the display.
-                                                                              *
-                                                                              * @return		The previously displayed page
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * Simple command for dispShowPage which just clears the display.
+ *
+ * @return		The previously displayed page
+ *
+ ******************************************************************************/
 DisplayPage *dispClearPage(void) { return dispShowPage(NULL); }
 
-/**************************************************************************/ /**
-                                                                              * Define a new text to be displayed, but keep the current settings
-                                                                              *
-                                                                              * @param field	The text field to assign the text to.
-                                                                              * @return		The A pointer to the previous text object.
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * Define a new text to be displayed, but keep the current settings
+ *
+ * @param field	The text field to assign the text to.
+ * @return		The A pointer to the previous text object.
+ *
+ ******************************************************************************/
 const wchar_t *dispSetText(TextField *field, const wchar_t *text) {
   const wchar_t *oldText = field->text;
   field->text = text;
@@ -188,13 +190,13 @@ const wchar_t *dispSetText(TextField *field, const wchar_t *text) {
   return oldText;
 }
 
-/**************************************************************************/ /**
-                                                                              * Set the inversion state of the given text field
-                                                                              *
-                                                                              * @param inversion	False: White text on black background
-                                                                              *					True: Black text on white background
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * Set the inversion state of the given text field
+ *
+ * @param inversion	False: White text on black background
+ *					True: Black text on white background
+ *
+ ******************************************************************************/
 void dispSetInversion(TextField *field, uint8_t inversion) {
   // Update the inversion state of the text field
   field->inverted = inversion;
@@ -204,12 +206,12 @@ void dispSetInversion(TextField *field, uint8_t inversion) {
   k_poll_signal_raise(&displaySignalRefresh, 0);
 }
 
-/**************************************************************************/ /**
-                                                                              * (Re-)Write a text field on the display
-                                                                              *
-                                                                              * @param field	The textfield to be written.
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * (Re-)Write a text field on the display
+ *
+ * @param field	The textfield to be written.
+ *
+ ******************************************************************************/
 static int dispWriteTextField(TextField *field) {
   int rc;
   uint8_t curPage;
@@ -437,10 +439,10 @@ static int dispWriteTextField(TextField *field) {
   return 0;
 }
 
-/**************************************************************************/ /**
-                                                                              * The actual display task, which refreshes the display all DISP_SCROLL_CYCLE ms
-                                                                              *
-                                                                              ******************************************************************************/
+/**
+ * The actual display task, which refreshes the display all DISP_SCROLL_CYCLE ms
+ *
+ ******************************************************************************/
 static void dispTask(void const *argument) {
   uint32_t rc;
 

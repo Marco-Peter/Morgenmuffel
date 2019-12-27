@@ -24,8 +24,6 @@ static struct nvs_fs nvs;
 void main(void) {
   int rc = 0;
 
-  printk("Hello World! %s\n", CONFIG_BOARD);
-
   rc = initFlash();
   if (rc) {
     printk("Failed initialisation!\n");

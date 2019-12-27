@@ -4,7 +4,8 @@
  *      Author: marco
  */
 
-#pragma once
+#ifndef __DISPLAY_HANDLER_H__
+#define __DISPLAY_HANDLER_H__
 
 #include "display.h"
 #include "font.h"
@@ -65,3 +66,5 @@ TextField *dispInitTextField(TextField *field, const wchar_t *text,
 
 const wchar_t *dispSetText(TextField *field, const wchar_t *text);
 void dispSetInversion(TextField *field, uint8_t inversion);
+
+#endif // __DISPLAY_HANDLER_H__
