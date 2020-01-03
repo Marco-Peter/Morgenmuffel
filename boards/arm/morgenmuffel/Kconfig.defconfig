@@ -10,6 +10,9 @@ if BOARD_MORGENMUFFEL
 config BOARD
 	default "Morgenmuffel"
 
+config FLASH_HAS_PAGE_LAYOUT
+	default y
+
 if NETWORKING
 
 config NET_L2_ETHERNET
