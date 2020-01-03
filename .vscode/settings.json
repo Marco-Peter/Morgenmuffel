@@ -10,6 +10,7 @@
         "display.h": "c",
         "display_handler.h": "c",
         "stdint.h": "c",
-        "power.h": "c"
+        "power.h": "c",
+        "errno-base.h": "c"
     }
 }
