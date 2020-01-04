@@ -7,8 +7,11 @@
 
 #pragma once
 
-#define PARAM_SYSTEM_VOLUME 0
-#define PARAM_SYSTERM_POWERSTATE 1
+#include <stdint.h>
 
-#define PARAM_PLAYLIST_CURRENT_ENTRY 1000
-#define PARAM_PLAYLIST_START 1001
+typedef struct parameters_t {
+  uint16_t currentPlaylistItem;
+  uint8_t volume;
+} parameters_t;
+
+extern parameters_t parameters;
