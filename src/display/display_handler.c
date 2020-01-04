@@ -5,8 +5,11 @@
  */
 
 #include "display_handler.h"
+#include <logging/log.h>
 #include <wchar.h>
 #include <zephyr.h>
+
+LOG_MODULE_REGISTER(display_hander);
 
 #define STACKSIZE_DISPLAYTASK 2560
 
@@ -33,7 +36,7 @@ static int dispWriteTextField(TextField *field);
 
 /// Thread handle
 K_THREAD_DEFINE(displayThread, STACKSIZE_DISPLAYTASK, dispTask, NULL, NULL,
-                NULL, 3, 0, K_NO_WAIT);
+                NULL, 1, 0, K_NO_WAIT);
 
 /// The currently shown display page
 static DisplayPage *_curPage = 0;
@@ -258,7 +261,7 @@ static int dispWriteTextField(TextField *field) {
       posY =
           displaySetPos(field->posX, field->posY + curPage * DISPLAY_PAGESIZE);
       if ((posY < 0) || (posY != (field->posY + curPage * DISPLAY_PAGESIZE))) {
-        return rc;
+        return -EINVAL;
       }
 
       // Render the left frame line and the empty space after the frame line
@@ -463,6 +466,7 @@ static void dispTask(void const *argument) {
     rc = k_poll(events, 2, K_MSEC(DISP_SCROLL_CYCLE));
 
     if (events[0].signal->signaled) {
+      LOG_INF("Received redraw event");
       // On a redraw event, the complete display needs to be repainted,
       // therefore we clear it first
       displayClear();
@@ -471,6 +475,7 @@ static void dispTask(void const *argument) {
     }
 
     if (events[1].signal->signaled) {
+      LOG_INF("Received refresh event");
       // No specific action yet on the refresh signal.
       events[1].signal->signaled = 0;
       events[1].state = K_POLL_STATE_NOT_READY;
