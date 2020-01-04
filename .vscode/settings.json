@@ -11,6 +11,7 @@
         "display_handler.h": "c",
         "stdint.h": "c",
         "power.h": "c",
-        "errno-base.h": "c"
+        "errno-base.h": "c",
+        "littlefs.h": "c"
     }
 }
