@@ -16,6 +16,8 @@ project(MorgenMuffel)
 # the boilerplate code, which defines the target.
 target_sources(app PRIVATE
     src/main.c
+    src/include/storage.h
+    src/storage.c
     src/include/display.h
     src/display/display.c
     src/include/font.h

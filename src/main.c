@@ -4,19 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "display_handler.h"
+#include "storage.h"
 #include <device.h>
 #include <drivers/flash.h>
-#include <fs/nvs.h>
+#include <errno.h>
+#include <fs/fs.h>
+#include <fs/littlefs.h>
+#include <logging/log.h>
 #include <spi.h>
+#include <storage/flash_map.h>
 #include <sys/printk.h>
 #include <zephyr.h>
-//#include <include/generated_dts_board.h>
 
-#define FLASH_AREA_STORAGE_OFFSET 0;
+#define MAX_PATH_LEN 255
 
-static int initFlash(void);
-
-static struct nvs_fs nvs;
+FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(storage);
 
 /**
  * Application entry point
@@ -24,43 +27,28 @@ static struct nvs_fs nvs;
 void main(void) {
   int rc = 0;
 
-  rc = initFlash();
+  TextField initField;
+  wchar_t initTitle[] = L"Morgenmuffel";
+  DisplayPage initPage = {1, &initField};
+
+  rc = storage_init();
   if (rc) {
-    printk("Failed initialisation!\n");
-  }
-}
-
-/**
- * Initialise all flash memory related functions, including nvs and file system.
- *
- * @return -ERRNO if something wrong happened.
- */
-
-static int initFlash(void) {
-  struct flash_pages_info info;
-  struct device *spiflash;
-  int rc;
-
-  spiflash = device_get_binding("M25P16");
-  printk("SPI FLASH address: 0x%x\n", (uint32_t)spiflash);
-
-  nvs.offset = FLASH_AREA_STORAGE_OFFSET;
-  rc = flash_get_page_info_by_offs(spiflash, nvs.offset, &info);
-
-  if (rc) {
-    printk("Unable to get page info\n");
-    return rc;
+    printk("Failed initialisation with errno %d!\n", rc);
   }
 
-  nvs.sector_size = info.size;
-  nvs.sector_count = 3U;
+  dispInitTextField(&initField, initTitle, &fontFreeSans16, 0, 16, 128, 'c',
+                    false, false, DISP_FRAME_NONE);
 
-  rc = nvs_init(&nvs, "M25P16");
+  dispShowPage(&initPage);
+
+  k_sleep(K_SECONDS(5));
+
+  displayOff();
+
+  rc = storage_deinit();
   if (rc) {
-    printk("Flash initialisation failed\n");
-    return rc;
+    printk("Failed deinitialisation with errno %d!\n", rc);
   }
 
   printk("Finished, all good!\n");
-  return 0;
 }

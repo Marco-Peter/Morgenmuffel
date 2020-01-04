@@ -111,6 +111,17 @@
 		has-dpd;
 		t-enter-dpd = <3000>;
 		t-exit-dpd = <30000>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			storage_partition: partition@0 {
+				label = "storage";
+				reg = <0x00000000 0x00200000>;
+			};
+		};
 	};
 };
 
