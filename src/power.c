@@ -81,12 +81,12 @@ int powerSet3v3(bool on)
 }
 
 /**
- * Switches the 5V power supply on or off.
+ * Switches the 5V LED power supply on or off.
  *
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-int powerSet5v(bool on)
+int powerSetLed(bool on)
 {
 	struct device *gpioPort;
 	int rc;
@@ -149,12 +149,12 @@ int powerGet3v3(void)
 }
 
 /**
- * Returns the current state of the 5V power supply.
+ * Returns the current state of the 5V LED power supply.
  *
  * @return	The on state of the 5V power supply.
  *
  *****************************************************************************/
-int powerGet5v(void)
+int powerGetLed(void)
 {
 	struct device *gpioPort;
 	int pinState;

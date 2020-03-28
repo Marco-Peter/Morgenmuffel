@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <zephyr/types.h>
 
 typedef struct parameters_t {
-  uint16_t currentPlaylistItem;
-  uint8_t volume;
+	u16_t currentPlaylistItem;
+	u8_t volume;
 } parameters_t;
 
 extern parameters_t parameters;
