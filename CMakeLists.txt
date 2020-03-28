@@ -7,10 +7,9 @@ set(BOARD_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(BOARD morgenmuffel)
 set(ZEPHYR_BOARD_FLASH_RUNNER jlink)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(MorgenMuffel)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add your source file to the "app" target. This must come after
 # the boilerplate code, which defines the target.

@@ -17,32 +17,33 @@
 Initialise GPIO related to the power supply control pins.
 
 *******************************************************************************/
-int powerInit(void) {
-  int rc;
-  struct device *gpioPort;
+int powerInit(void)
+{
+	int rc;
+	struct device *gpioPort;
 
-  gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
-  rc = gpio_pin_configure(gpioPort, POWER_1V8_Pin, GPIO_DIR_OUT);
-  if (rc != 0) {
-    return rc;
-  }
+	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+	rc = gpio_pin_configure(gpioPort, POWER_1V8_Pin, GPIO_OUTPUT);
+	if (rc != 0) {
+		return rc;
+	}
 
-  gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
-  rc = gpio_pin_configure(gpioPort, POWER_3V3_Pin, GPIO_DIR_OUT);
-  if (rc != 0) {
-    return rc;
-  }
+	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+	rc = gpio_pin_configure(gpioPort, POWER_3V3_Pin, GPIO_OUTPUT);
+	if (rc != 0) {
+		return rc;
+	}
 
-  gpioPort = device_get_binding(POWER_5V_GPIO_Port);
-  rc = gpio_pin_configure(gpioPort, POWER_5V_Pin, GPIO_DIR_OUT);
-  if (rc != 0) {
-    return rc;
-  }
+	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+	rc = gpio_pin_configure(gpioPort, POWER_5V_Pin, GPIO_OUTPUT);
+	if (rc != 0) {
+		return rc;
+	}
 
-  gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
-  rc = gpio_pin_configure(gpioPort, POWER_BKFD_Pin, GPIO_DIR_OUT);
+	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+	rc = gpio_pin_configure(gpioPort, POWER_BKFD_Pin, GPIO_OUTPUT);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -51,14 +52,15 @@ int powerInit(void) {
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-int powerSet1v8(bool on) {
-  struct device *gpioPort;
-  int rc;
+int powerSet1v8(bool on)
+{
+	struct device *gpioPort;
+	int rc;
 
-  gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
-  rc = gpio_pin_write(gpioPort, POWER_1V8_Pin, 1);
+	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+	rc = gpio_pin_set(gpioPort, POWER_1V8_Pin, 1);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -67,14 +69,15 @@ int powerSet1v8(bool on) {
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-int powerSet3v3(bool on) {
-  struct device *gpioPort;
-  int rc;
+int powerSet3v3(bool on)
+{
+	struct device *gpioPort;
+	int rc;
 
-  gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
-  rc = gpio_pin_write(gpioPort, POWER_3V3_Pin, 1);
+	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+	rc = gpio_pin_set(gpioPort, POWER_3V3_Pin, 1);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -83,14 +86,15 @@ int powerSet3v3(bool on) {
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-int powerSet5v(bool on) {
-  struct device *gpioPort;
-  int rc;
+int powerSet5v(bool on)
+{
+	struct device *gpioPort;
+	int rc;
 
-  gpioPort = device_get_binding(POWER_5V_GPIO_Port);
-  rc = gpio_pin_write(gpioPort, POWER_5V_Pin, 1);
+	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+	rc = gpio_pin_set(gpioPort, POWER_5V_Pin, 1);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -99,14 +103,15 @@ int powerSet5v(bool on) {
  * @param on	On-state of the power supply (0: off, else: on)
  *
  *****************************************************************************/
-int powerSetBackfeed(bool on) {
-  struct device *gpioPort;
-  int rc;
+int powerSetBackfeed(bool on)
+{
+	struct device *gpioPort;
+	int rc;
 
-  gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
-  rc = gpio_pin_write(gpioPort, POWER_BKFD_Pin, 1);
+	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+	rc = gpio_pin_set(gpioPort, POWER_BKFD_Pin, 1);
 
-  return rc;
+	return rc;
 }
 
 /**
@@ -115,15 +120,15 @@ int powerSetBackfeed(bool on) {
  * @return	The on state of the 1.8V power supply.
  *
  *****************************************************************************/
-int powerGet1v8(void) {
-  struct device *gpioPort;
-  int rc;
-  u32_t pinState;
+int powerGet1v8(void)
+{
+	struct device *gpioPort;
+	int pinState;
 
-  gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
-  rc = gpio_pin_read(gpioPort, POWER_1V8_Pin, &pinState);
+	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
+	pinState = gpio_pin_get(gpioPort, POWER_1V8_Pin);
 
-  return pinState;
+	return pinState;
 }
 
 /**
@@ -132,15 +137,15 @@ int powerGet1v8(void) {
  * @return	The on state of the 3.3V power supply.
  *
  *****************************************************************************/
-int powerGet3v3(void) {
-  struct device *gpioPort;
-  int rc;
-  u32_t pinState;
+int powerGet3v3(void)
+{
+	struct device *gpioPort;
+	int pinState;
 
-  gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
-  rc = gpio_pin_read(gpioPort, POWER_3V3_Pin, &pinState);
+	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
+	pinState = gpio_pin_get(gpioPort, POWER_3V3_Pin);
 
-  return pinState;
+	return pinState;
 }
 
 /**
@@ -149,15 +154,15 @@ int powerGet3v3(void) {
  * @return	The on state of the 5V power supply.
  *
  *****************************************************************************/
-int powerGet5v(void) {
-  struct device *gpioPort;
-  int rc;
-  u32_t pinState;
+int powerGet5v(void)
+{
+	struct device *gpioPort;
+	int pinState;
 
-  gpioPort = device_get_binding(POWER_5V_GPIO_Port);
-  rc = gpio_pin_read(gpioPort, POWER_5V_Pin, &pinState);
+	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
+	pinState = gpio_pin_get(gpioPort, POWER_5V_Pin);
 
-  return pinState;
+	return pinState;
 }
 
 /**
@@ -166,13 +171,13 @@ int powerGet5v(void) {
  * @return	The on state of the backfeed power supply.
  *
  *****************************************************************************/
-int powerGetBackfeed(void) {
-  struct device *gpioPort;
-  int rc;
-  u32_t pinState;
+int powerGetBackfeed(void)
+{
+	struct device *gpioPort;
+	int pinState;
 
-  gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
-  rc = gpio_pin_read(gpioPort, POWER_BKFD_Pin, &pinState);
+	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
+	pinState = gpio_pin_get(gpioPort, POWER_BKFD_Pin);
 
-  return pinState;
+	return pinState;
 }
