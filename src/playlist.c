@@ -16,135 +16,95 @@
  *****************************************************************************/
 
 #include "playlist.h"
-#include "error_handler.h"
 #include "storage.h"
 #include <stdio.h>
 #include <string.h>
-
-/* Local Function declarations */
-static Error_t playlistCheckItems(void);
-static Error_t playlistItemReadOffset(void *buf, int32_t len, int32_t offset);
+#include <errno.h>
+#include "parameters.h"
 
 /**
- * Create a new playlist
- *
- * Any existing file with the same name will be destroyed on storage.
- *
- * @param fileName	The filename of the list to be created.
- * @return Error_None, if ok, Error_Memory otherwise
- *
- ******************************************************************************/
-Error_t playlistCreate(const char *fileName)
+ * Playlist basic information
+ */
+struct Playlist_PermanentData {
+	/// Currently selected playlist item
+	u16_t currentElement;
+};
+
+/**
+ * Internal header information of a playlist information
+ */
+struct Playlist_ItemHeader_t {
+	/// Label string including the string delimiter.
+	wchar_t label[PLAYLIST_MAX_NAME_LENGTH];
+	/// The identifier of the playlist item
+	u16_t id;
+	/// Identifier of the next entry
+	u16_t next;
+	/// Identifier of the previous entry
+	u16_t previous;
+	/// Provides information about the source type
+	enum Playlist_ProtocolType_t;
+};
+
+struct {
+	u16_t currentElement;
+} playlist;
+
+/**
+ * Initialisation of the playlist handler
+ * 
+ * @return An error state, hopefully 0
+ */
+int playlistInit(void)
 {
-	Error_t err;
-	char fullName[SPIFFS_OBJ_NAME_LEN] = PLAYLIST_FILEPREFIX;
-	strncat(fullName, fileName,
-		SPIFFS_OBJ_NAME_LEN - sizeof(PLAYLIST_FILEPREFIX));
+	int rc;
 
-	/* Close a previously opened file */
-	err = playlistClose();
-	if (err != Error_None) {
-		return err;
+	struct Playlist_PermanentData data;
+	rc = storage_read_parameter(PARAMETERS_BASE_PLAYLIST, &data,
+				    sizeof(data));
+	if (rc != sizeof(data)) {
+		return -EIO;
 	}
 
-	// (Re-) Create the file for the playlist
-	currentList.file =
-		SPIFFS_open(&spiFileSys, fullName,
-			    SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
-	if (currentList.file < 0) {
-		debugPrint(ERROR, "Failed to create the file with error %ld",
-			   SPIFFS_errno(&spiFileSys));
-		return Error_Memory;
-	}
+	playlist.currentElement = data.currentElement;
 
-	currentList.nextId = 0;
-	currentList.curItem = 0;
-	currentList.totItems = 0;
+	return 0;
+}
 
-	return Error_None;
+static int readParameter(u16_t id, void *data, size_t len)
+{
 }
 
 /**
- * Open an existing playlist
- *
- * Any currently opened playlist will be closed first.
- * If the playlist does not exist, it will be created automatically.
- *
- * @param fileName	The filename of the list to be opened.
- * @return Error_None, if ok, Error_Memory otherwise
- *
- ******************************************************************************/
-Error_t playlistOpen(const char *fileName)
+ * Get the selected playlist item
+ * 
+ * @param selection	Return the current, the next or previous item.
+ * @return The The item belonging to the selected playlist item.
+ */
+int playlistGetItem(enum Playlist_ItemSelection_t selection)
 {
-	Error_t err;
-	char fullName[SPIFFS_OBJ_NAME_LEN] = PLAYLIST_FILEPREFIX;
-	strncat(fullName, fileName,
-		SPIFFS_OBJ_NAME_LEN - sizeof(PLAYLIST_FILEPREFIX));
+	struct Playlist_ItemHeader_t data;
+	int rc;
 
-	/* Close a previously opened file */
-	err = playlistClose();
-	if (err != Error_None) {
-		return err;
+	rc = storage_read_parameter(playlist.currentElement, &data,
+				    sizeof(data));
+	if (rc != sizeof(data)) {
+		return rc;
 	}
 
-	// Open (or create) the playlist file
-	currentList.file = SPIFFS_open(&spiFileSys, fullName,
-				       SPIFFS_CREAT | SPIFFS_RDWR, 0);
-	if (currentList.file < 0) {
-		debugPrint(ERROR, "Failed to open the file with error %d", err);
-		return Error_Memory;
+	switch (selection) {
+	case Playlist_CurrentItem:
+		break;
+
+	case Playlist_NextItem:
+		rc = storage_read_parameter(data.next, &data, sizeof(data));
+		break;
+
+	case Playlist_PreviousItem:
+		rc = storage_read_parameter(data.previous, &data, sizeof(data));
+		break;
 	}
-
-	err = playlistCheckItems();
-
-	return err;
-}
-
-/**
- * Close the currently used playlist
- *
- * @return Error_None, if ok, Error_Memory otherwise
- *
- ******************************************************************************/
-Error_t playlistClose(void)
-{
-	// Close a previously opened file
-	int16_t err = SPIFFS_close(&spiFileSys, currentList.file);
-	if (err < 0) {
-		debugPrint(ERROR, "Failed to close the file with error %d",
-			   err);
-		return Error_Memory;
-	}
-
-	currentList.file = 0;
-	currentList.nextId = 0;
-	currentList.curItem = 0;
-	currentList.totItems = 0;
-
-	return Error_None;
-}
-
-/**
- * Destroys the currently opened playlist including all its contents
- *
- * @return     The newly created playlist item or zero if an error occured.
- *
- ******************************************************************************/
-Error_t playlistDestroy(void)
-{
-	int16_t err = SPIFFS_fremove(&spiFileSys, currentList.file);
-	if (err < 0) {
-		debugPrint(ERROR, "Failed do remove the file with error %d",
-			   err);
-		return Error_Memory;
-	}
-
-	currentList.file = 0;
-	currentList.nextId = 0;
-	currentList.curItem = 0;
-	currentList.totItems = 0;
-
-	return Error_None;
+	return data.id;
 }
 
 /**
@@ -166,18 +126,18 @@ Error_t playlistDestroy(void)
  * @return	An error state
  *
  *****************************************************************************/
-Error_t playlistItemCreate(ProtocolType_t type, const wchar_t *label,
-			   const void *payload, size_t payloadLen)
+int playlistItemCreate(ProtocolType_t type, const wchar_t *label,
+		       const void *payload, size_t payloadLen)
 {
-	Error_t err;
+	int rc;
 	int32_t retVal;
 
 	uint8_t labelLen = wcslen(label) * sizeof(*label);
 	uint16_t len = PL_ITEM_LENGTH_HEADER + labelLen + payloadLen;
 
 	/* Just open the target area within the file, without writing anything yet */
-	err = storageInsertBytes(currentList.file, NULL, len);
-	if (err != Error_None) {
+	rc = storageInsertBytes(currentList.file, NULL, len);
+	if (rc != Error_None) {
 		return Error_Memory;
 	}
 
@@ -227,11 +187,11 @@ Error_t playlistItemCreate(ProtocolType_t type, const wchar_t *label,
  ******************************************************************************/
 uint16_t playlistItemReadSize(void)
 {
-	Error_t err;
+	int rc;
 	uint16_t size;
 
-	err = playlistItemReadOffset(&size, sizeof(size), 0);
-	if (err == Error_None) {
+	rc = playlistItemReadOffset(&size, sizeof(size), 0);
+	if (rc == Error_None) {
 		return size;
 	} else {
 		return 0;
@@ -247,11 +207,11 @@ uint16_t playlistItemReadSize(void)
  ******************************************************************************/
 uint32_t playlistItemReadId(void)
 {
-	Error_t err;
+	int rc;
 	uint32_t crc;
 
-	err = playlistItemReadOffset(&crc, sizeof(crc), PL_ITEM_LENGTH_LEN);
-	if (err == Error_None) {
+	rc = playlistItemReadOffset(&crc, sizeof(crc), PL_ITEM_LENGTH_LEN);
+	if (rc == Error_None) {
 		return crc;
 	} else {
 		return 0;
@@ -267,12 +227,12 @@ uint32_t playlistItemReadId(void)
  ******************************************************************************/
 ProtocolType_t playlistItemReadProtocolType(void)
 {
-	Error_t err;
+	int rc;
 	ProtocolType_t protocolType;
 
-	err = playlistItemReadOffset(&protocolType, sizeof(protocolType),
-				     PL_ITEM_LENGTH_LEN + PL_ITEM_LENGTH_ID);
-	if (err == Error_None) {
+	rc = playlistItemReadOffset(&protocolType, sizeof(protocolType),
+				    PL_ITEM_LENGTH_LEN + PL_ITEM_LENGTH_ID);
+	if (rc == Error_None) {
 		return protocolType;
 	} else {
 		return PlaylistProtoNone;
@@ -288,13 +248,13 @@ ProtocolType_t playlistItemReadProtocolType(void)
  ******************************************************************************/
 uint8_t playlistItemReadLabelLength(void)
 {
-	Error_t err;
+	int rc;
 	uint8_t labelLength;
 
-	err = playlistItemReadOffset(&labelLength, sizeof(labelLength),
-				     PL_ITEM_LENGTH_LEN + PL_ITEM_LENGTH_ID +
-					     PL_ITEM_LENGTH_PROTO);
-	if (err == Error_None) {
+	rc = playlistItemReadOffset(&labelLength, sizeof(labelLength),
+				    PL_ITEM_LENGTH_LEN + PL_ITEM_LENGTH_ID +
+					    PL_ITEM_LENGTH_PROTO);
+	if (rc == Error_None) {
 		return labelLength;
 	} else {
 		return 0;
@@ -312,7 +272,7 @@ uint8_t playlistItemReadLabelLength(void)
  ******************************************************************************/
 uint8_t playlistItemReadLabel(wchar_t *label, uint8_t maxLength)
 {
-	Error_t err;
+	int rc;
 	uint8_t labelLength;
 
 	labelLength = playlistItemReadLabelLength();
@@ -324,9 +284,9 @@ uint8_t playlistItemReadLabel(wchar_t *label, uint8_t maxLength)
 		labelLength = maxLength;
 	}
 
-	err = playlistItemReadOffset(&label, labelLength * sizeof(wchar_t),
-				     PL_ITEM_LENGTH_HEADER);
-	if (err != Error_None) {
+	rc = playlistItemReadOffset(&label, labelLength * sizeof(wchar_t),
+				    PL_ITEM_LENGTH_HEADER);
+	if (rc != Error_None) {
 		return 0;
 	}
 
@@ -344,14 +304,14 @@ uint8_t playlistItemReadLabel(wchar_t *label, uint8_t maxLength)
  ******************************************************************************/
 uint8_t playlistItemReadPayloadLength(void)
 {
-	Error_t err;
+	int rc;
 	uint16_t len;
 	uint16_t payloadLen;
 	uint16_t payloadOffset;
 	uint8_t labelLength;
 
-	err = playlistItemReadOffset(&len, sizeof(len), 0);
-	if (err != Error_None) {
+	rc = playlistItemReadOffset(&len, sizeof(len), 0);
+	if (rc != Error_None) {
 		return 0;
 	}
 
@@ -376,14 +336,14 @@ uint8_t playlistItemReadPayloadLength(void)
  ******************************************************************************/
 uint16_t playlistItemReadPayload(void *payload, uint16_t maxLength)
 {
-	Error_t err;
+	int rc;
 	uint16_t len;
 	uint16_t payloadLen;
 	uint16_t payloadOffset;
 	uint8_t labelLength;
 
-	err = playlistItemReadOffset(&len, sizeof(len), 0);
-	if (err != Error_None) {
+	rc = playlistItemReadOffset(&len, sizeof(len), 0);
+	if (rc != Error_None) {
 		return 0;
 	}
 
@@ -399,8 +359,8 @@ uint16_t playlistItemReadPayload(void *payload, uint16_t maxLength)
 		payloadLen = maxLength;
 	}
 
-	err = playlistItemReadOffset(&payload, payloadLen, payloadOffset);
-	if (err != Error_None) {
+	rc = playlistItemReadOffset(&payload, payloadLen, payloadOffset);
+	if (rc != Error_None) {
 		return 0;
 	}
 
@@ -414,19 +374,19 @@ uint16_t playlistItemReadPayload(void *payload, uint16_t maxLength)
  * @return	An error code
  *
  ******************************************************************************/
-Error_t playlistItemRemove(void)
+int playlistItemRemove(void)
 {
 	uint16_t len;
-	Error_t err;
+	int rc;
 
 	len = playlistItemReadSize();
 	if (len == 0) {
 		return Error_Memory;
 	}
 
-	err = storageRemoveBytes(currentList.file, len);
+	rc = storageRemoveBytes(currentList.file, len);
 
-	return err;
+	return rc;
 }
 
 /**
@@ -436,7 +396,7 @@ Error_t playlistItemRemove(void)
  * @return     Error_None, when successful, an error code otherwise
  *
  ******************************************************************************/
-Error_t playlistItemGotoIndex(uint16_t index)
+int playlistItemGotoIndex(uint16_t index)
 {
 	s32_t retVal;
 
@@ -477,16 +437,16 @@ Error_t playlistItemGotoIndex(uint16_t index)
  * @return     Error_None, when successful, an error code otherwise
  *
  ******************************************************************************/
-Error_t playlistItemGotoId(uint32_t id)
+int playlistItemGotoId(uint32_t id)
 {
 	for (currentList.curItem = 0;
 	     currentList.curItem < currentList.totItems;
 	     ++currentList.curItem) {
 		uint32_t identifier;
-		Error_t err;
+		int rc;
 
-		err = playlistItemGotoIndex(currentList.curItem);
-		if (err != Error_None) {
+		rc = playlistItemGotoIndex(currentList.curItem);
+		if (rc != Error_None) {
 			return Error_Memory;
 		}
 
@@ -523,7 +483,7 @@ uint16_t playlistGetItemCount(void)
  * @return		An error code
  *
  ******************************************************************************/
-static Error_t playlistItemReadOffset(void *buf, int32_t len, int32_t offset)
+static int playlistItemReadOffset(void *buf, int32_t len, int32_t offset)
 {
 	int32_t retVal;
 
@@ -562,7 +522,7 @@ static Error_t playlistItemReadOffset(void *buf, int32_t len, int32_t offset)
  * @return				The error code of the command
  *
  ******************************************************************************/
-static Error_t playlistCheckItems(void)
+static int playlistCheckItems(void)
 {
 	s32_t retVal;
 

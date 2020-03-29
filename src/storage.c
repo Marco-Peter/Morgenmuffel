@@ -94,7 +94,7 @@ int storage_deinit(void)
  * @param id	The parameter identifier
  * @param data	The parameter data
  * @param len	The parameter dat length
- * @return		An error code
+ * @return		The number of read bytes or an error code
  */
 int storage_read_parameter(u16_t id, void *data, size_t len)
 {
@@ -107,7 +107,7 @@ int storage_read_parameter(u16_t id, void *data, size_t len)
  * @param id	The parameter identifier
  * @param data	The parameter data
  * @param len	The parameter dat length
- * @return		An error code
+ * @return		The number of written bytes or an error code
  */
 int storage_write_parameter(u16_t id, void *data, size_t len)
 {

@@ -9,6 +9,8 @@
 
 #include <zephyr/types.h>
 
+#define PARAMETERS_BASE_PLAYLIST 1000
+
 typedef struct parameters_t {
 	u16_t currentPlaylistItem;
 	u8_t volume;

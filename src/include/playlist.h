@@ -15,34 +15,34 @@
 
 #define PLAYLIST_MAX_NAME_LENGTH 64
 
-// Protocol type for the item
-typedef enum ProtocolType_t {
+/// Protocol type for the item
+enum Playlist_ProtocolType_t {
+	/// No protocol, should never be used
 	PlaylistProtoNone,
+	/// FM radio
 	PlaylistProtoFm,
+	/// DAB radio
 	PlaylistProtoDab,
+	/// Local file
 	PlaylistProtoFile,
+	/// Web source (internet radio, media server)
 	PlaylistProtoTcp
-} ProtocolType_t;
+};
 
-typedef struct PlaylistItemHeader_t {
-	/// The identifier of the playlist item
-	u16_t id;
-	/// The total length of the playlist item including this header
-	u16_t len;
-	/// Label string including the string delimiter.
-	wchar_t label[PLAYLIST_MAX_NAME_LENGTH];
-	/// Provides information about the source type
-	ProtocolType_t protocolType;
-} PlaylistItem_t;
+/// Which item is to be selected
+enum Playlist_ItemSelection_t {
+	/// Select the current item
+	Playlist_CurrentItem,
+	/// Select the next item in the sequence
+	Playlist_NextItem,
+	/// Select the previous item in the sequence
+	Playlist_PreviousItem
+};
 
-Error_t playlistItemWrite(const PlaylistItemHeader_t *item);
-Error_t playlistItemRead(PlaylistItemHeader_t *item);
-uint16_t playlistItemReadSize(void);
-ProtocolType_t playlistItemReadProtocolType(void);
-
-Error_t playlistItemRemove(void);
-Error_t playlistItemGotoIndex(uint16_t index);
-Error_t playlistItemGotoId(uint32_t id);
+int playlistInit(void);
+int playlistGetItem(enum Playlist_ItemSelection_t selection);
+int playlistSetItem(u16_t id);
+int playlistItemRemove(u16_t id);
 
 uint16_t playlistGetItemCount(void);
 
