@@ -1,13 +1,13 @@
 # Boilerplate code, which pulls in the Zephyr build system.
 cmake_minimum_required(VERSION 3.13.1)
 
-# Re-direct the directory where the 'boards' directory is found from
-# $ZEPHYR_BASE to this directory.
+# Define the custom board
 set(BOARD_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(BOARD morgenmuffel)
 set(ZEPHYR_BOARD_FLASH_RUNNER jlink)
 
-include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
+find_package(Zephyr)
+
 project(MorgenMuffel)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
