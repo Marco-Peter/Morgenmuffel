@@ -29,39 +29,55 @@
 		compatible = "gpio-keys";
 		btn_pwr: button_power {
 			label = "BtnPower";
-			gpios = <&gpioe 14 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpioe 14 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_sel: button_select {
 			label = "BtnSelect";
-			gpios = <&gpiog 9 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpiog 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_bk: button_back {
 			label = "BtnBack";
-			gpios = <&gpioc 0 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpioc 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_fwd: button_forward {
 			label = "BtnForward";
-			gpios = <&gpioe 2 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpioe 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_menu: button_menu {
 			label = "BtnMenu";
-			gpios = <&gpiof 10 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpiof 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_play: button_play {
 			label = "BtnPlay";
-			gpios = <&gpioc 13 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpioc 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_alarm1: button_alarm1 {
 			label = "BtnAlarm1";
-			gpios = <&gpiod 8 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpiod 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_alarm2: button_alarm2 {
 			label = "BtnAlarm2";
-			gpios = <&gpiod 12 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpiod 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_alarm3: button_alarm3 {
 			label = "BtnAlarm3";
-			gpios = <&gpiod 13 GPIO_INT_ACTIVE_LOW>;
+			gpios = <&gpiod 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+		enc_volume_a: encoder_volume_a {
+			label = "EncVolA";
+			gpios = <&gpioa 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+		enc_volume_b: encoder_volume_b {
+			label = "EncVolB";
+			gpios = <&gpioe 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+		enc_select_a: encoder_select_a {
+			label = "EncSelA";
+			gpios = <&gpiob 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		};
+		enc_select_b: encoder_select_b {
+			label = "EncSelB";
+			gpios = <&gpioc 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 	};
 
