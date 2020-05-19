@@ -17,6 +17,8 @@ target_sources(app PRIVATE
     src/main.c
     src/include/storage.h
     src/storage.c
+    src/events.c
+    src/userinput.c
     #src/include/display.h
     #src/display/display.c
     #src/include/font.h
