@@ -96,7 +96,7 @@ int storage_deinit(void)
  * @param len	The parameter dat length
  * @return		The number of read bytes or an error code
  */
-int storage_read_parameter(u16_t id, void *data, size_t len)
+int storage_read_parameter(uint16_t id, void *data, size_t len)
 {
 	return nvs_read(&nvs, id, data, len);
 }
@@ -109,7 +109,7 @@ int storage_read_parameter(u16_t id, void *data, size_t len)
  * @param len	The parameter dat length
  * @return		The number of written bytes or an error code
  */
-int storage_write_parameter(u16_t id, void *data, size_t len)
+int storage_write_parameter(uint16_t id, void *data, size_t len)
 {
 	return nvs_write(&nvs, id, data, len);
 }

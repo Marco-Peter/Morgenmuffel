@@ -27,7 +27,7 @@
  */
 struct Playlist_PermanentData {
 	/// Currently selected playlist item
-	u16_t currentElement;
+	uint16_t currentElement;
 };
 
 /**
@@ -37,17 +37,17 @@ struct Playlist_ItemHeader_t {
 	/// Label string including the string delimiter.
 	wchar_t label[PLAYLIST_MAX_NAME_LENGTH];
 	/// The identifier of the playlist item
-	u16_t id;
+	uint16_t id;
 	/// Identifier of the next entry
-	u16_t next;
+	uint16_t next;
 	/// Identifier of the previous entry
-	u16_t previous;
+	uint16_t previous;
 	/// Provides information about the source type
 	enum Playlist_ProtocolType_t;
 };
 
 struct {
-	u16_t currentElement;
+	uint16_t currentElement;
 } playlist;
 
 /**
@@ -71,7 +71,7 @@ int playlistInit(void)
 	return 0;
 }
 
-static int readParameter(u16_t id, void *data, size_t len)
+static int readParameter(uint16_t id, void *data, size_t len)
 {
 }
 
@@ -398,7 +398,7 @@ int playlistItemRemove(void)
  ******************************************************************************/
 int playlistItemGotoIndex(uint16_t index)
 {
-	s32_t retVal;
+	int32_t retVal;
 
 	/* We can not parse backwards, therefore we must start at the beginning
      when moving back */
@@ -524,7 +524,7 @@ static int playlistItemReadOffset(void *buf, int32_t len, int32_t offset)
  ******************************************************************************/
 static int playlistCheckItems(void)
 {
-	s32_t retVal;
+	int32_t retVal;
 
 	retVal = SPIFFS_lseek(&spiFileSys, currentList.file, 0, SEEK_SET);
 	if (retVal < 0) {

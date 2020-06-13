@@ -38,8 +38,8 @@
 #define DISP_FULL_ON 0xA4
 // LSB defines inversion state (0xA6: normal, 0xA7: inverse)
 #define DISP_INVERSE 0xA6
-#define DISP_CMD_ON ((u8_t)0xAF)  // Switch on display driver
-#define DISP_CMD_OFF ((u8_t)0xAE) // Switch off display driver
+#define DISP_CMD_ON ((uint8_t)0xAF)  // Switch on display driver
+#define DISP_CMD_OFF ((uint8_t)0xAE) // Switch off display driver
 #define DISP_NOP 0xE3             // No operation (for whatever...)
 #define DISP_LOCK 0xFD // second byte = 0x12: Unlock, second byte = 0x16: lock
 
@@ -99,13 +99,13 @@
 
 // Hardware configuration commands
 #define DISP_START_LINE 0x40 // Set display start line register from 0..63
-#define DISP_CMD_MIRROR_VERT ((u8_t)0xA1)    // Mirror vertically
-#define DISP_CMD_NO_MIRROR_VERT ((u8_t)0xA0) // Do not mirror vertically
+#define DISP_CMD_MIRROR_VERT ((uint8_t)0xA1)    // Mirror vertically
+#define DISP_CMD_NO_MIRROR_VERT ((uint8_t)0xA0) // Do not mirror vertically
 #define DISP_MUX_RATIO 0xA8                  // Set multiplex ratio
 // 2nd byte: Multiplex ration(16..64, Mux ratio = N + 1)
 
-#define DISP_CMD_MIRROR_HORIZ ((u8_t)0xC8)    // Mirror horizontally
-#define DISP_CMD_NO_MIRROR_HORIZ ((u8_t)0xC0) // Do not mirror horizontally
+#define DISP_CMD_MIRROR_HORIZ ((uint8_t)0xC8)    // Mirror horizontally
+#define DISP_CMD_NO_MIRROR_HORIZ ((uint8_t)0xC0) // Do not mirror horizontally
 #define DISP_OFFSET 0xD3                      // Set display offset
 // 2nd byte: vertical shift (0..63)
 
@@ -269,8 +269,8 @@ int displayOff(void) {
  *
  *****************************************************************************/
 int displaySetContrast(uint8_t contrast) {
-  u32_t rc;
-  u8_t cmd[2] = {DISP_CMD_SET_CONTRAST, contrast};
+  uint32_t rc;
+  uint8_t cmd[2] = {DISP_CMD_SET_CONTRAST, contrast};
 
   rc = writeCmd(cmd, sizeof(cmd));
 

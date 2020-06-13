@@ -12,8 +12,8 @@
 #define PARAMETERS_BASE_PLAYLIST 1000
 
 typedef struct parameters_t {
-	u16_t currentPlaylistItem;
-	u8_t volume;
+	uint16_t currentPlaylistItem;
+	uint8_t volume;
 } parameters_t;
 
 extern parameters_t parameters;

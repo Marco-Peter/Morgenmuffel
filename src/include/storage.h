@@ -14,5 +14,5 @@
 
 int storage_init(void);
 int storage_deinit(void);
-int storage_read_parameter(u16_t id, void *data, size_t len);
-int storage_write_parameter(u16_t id, void *data, size_t len);
+int storage_read_parameter(uint16_t id, void *data, size_t len);
+int storage_write_parameter(uint16_t id, void *data, size_t len);

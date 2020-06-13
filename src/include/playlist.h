@@ -41,8 +41,8 @@ enum Playlist_ItemSelection_t {
 
 int playlistInit(void);
 int playlistGetItem(enum Playlist_ItemSelection_t selection);
-int playlistSetItem(u16_t id);
-int playlistItemRemove(u16_t id);
+int playlistSetItem(uint16_t id);
+int playlistItemRemove(uint16_t id);
 
 uint16_t playlistGetItemCount(void);
 
