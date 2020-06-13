@@ -145,6 +145,22 @@
 	status = "okay";
 	clock-frequency = <10000000>;
 	cs-gpios = <&gpiof 3 0>, <&gpiof 6 0>, <&gpiof 10 0>, <&gpiod 9 0>;
+	display: ssd1306fb@0 {
+		compatible = "solomon,ssd1306fb";
+		label = "DISPLAY";
+		reg = <0>;
+		height = <64>;
+		width = <128>;
+		segment-offset = <0>;
+		page-offset = <0>;
+		display-offset = <0>;
+		multiplex-ratio = <0>;
+		segment-remap = true;
+		com-invdir = true;
+		com-sequential = false;
+		precharge = <0>;
+		reset-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
+	}
 };
 
 &i2c1 {
