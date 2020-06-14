@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../zephyr"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"device.h": "c",
+			"generated_dts_board.h": "c",
+			"zephyr.h": "c",
+			"gpio.h": "c",
+			"errno.h": "c",
+			"error.h": "c",
+			"font.h": "c",
+			"display.h": "c",
+			"display_handler.h": "c",
+			"stdint.h": "c",
+			"power.h": "c",
+			"errno-base.h": "c",
+			"littlefs.h": "c",
+			"storage.h": "c",
+			"types.h": "c"
+		}
+	}
+}
