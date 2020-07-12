@@ -1,0 +1,5 @@
+# Copyright (c) 2020 Marco Peter
+# SPDX-License-Identifier: Apache-2.0
+
+config VS1053_DRIVER
+	bool "Enable support for the VLSI VS1053 codec"

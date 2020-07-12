@@ -20,7 +20,7 @@
 	leds {
 		compatible = "gpio-leds";
 		power_led: led_1 {
-			gpios = <&gpiof 9 GPIO_DIR_OUT>;
+			gpios = <&gpiof 9 GPIO_ACTIVE_LOW>;
 			label = "LedPowerFail";
 		};
 	};

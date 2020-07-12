@@ -1,0 +1,14 @@
+BOARD=morgenmuffel
+BUILD_DIR=build
+CMAKE_CXX_COMPILER=/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-g++
+CMAKE_C_COMPILER=/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc
+CMAKE_GDB=/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb
+CMAKE_GENERATOR=Ninja
+CMAKE_MAKE_PROGRAM=/usr/bin/ninja
+SOURCE_DIR=src
+WEST=/home/marco/.local/bin/west
+ZEPHYR_BASE_LOCATION=/home/marco/zephyrproject/zephyr
+ZEPHYR_BOARD_DEBUG_RUNNER=openocd
+ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk
+ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+eclipse.preferences.version=1
