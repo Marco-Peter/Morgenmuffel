@@ -1,5 +1,6 @@
 #include <zephyr.h>
 #include <sys/printk.h>
+#include <vs1053.h>
 
 void main(void)
 {

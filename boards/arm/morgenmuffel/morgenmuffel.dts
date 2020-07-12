@@ -162,6 +162,12 @@
 		reset-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
 		data_cmd-gpios = <&gpiof 5 0>;
 	};
+	codec: vs1053@1 {
+		compatible = "vlsi,vs1053";
+		label = "CODEC";
+		reg = <1>;
+		spi-max-frequency = <10000000>;
+	};
 };
 
 &i2c1 {
