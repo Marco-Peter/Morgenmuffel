@@ -14,35 +14,29 @@
 #include "hardwareconfig.h"
 
 /**
-Initialise GPIO related to the power supply control pins.
-
-*******************************************************************************/
+ * Initialise GPIO related to the power supply control pins.
+ */
 int powerInit(void)
 {
+	const struct device *gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	int rc;
-	struct device *gpioPort;
 
-	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	rc = gpio_pin_configure(gpioPort, POWER_1V8_Pin, GPIO_OUTPUT);
 	if (rc != 0) {
 		return rc;
 	}
-
 	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
 	rc = gpio_pin_configure(gpioPort, POWER_3V3_Pin, GPIO_OUTPUT);
 	if (rc != 0) {
 		return rc;
 	}
-
 	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
 	rc = gpio_pin_configure(gpioPort, POWER_5V_Pin, GPIO_OUTPUT);
 	if (rc != 0) {
 		return rc;
 	}
-
 	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
 	rc = gpio_pin_configure(gpioPort, POWER_BKFD_Pin, GPIO_OUTPUT);
-
 	return rc;
 }
 
@@ -50,16 +44,13 @@ int powerInit(void)
  * Switches the 1.8V power supply on or off.
  *
  * @param on	On-state of the power supply (0: off, else: on)
- *
- *****************************************************************************/
+ */
 int powerSet1v8(bool on)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	int rc;
 
-	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	rc = gpio_pin_set(gpioPort, POWER_1V8_Pin, 1);
-
 	return rc;
 }
 
@@ -67,16 +58,13 @@ int powerSet1v8(bool on)
  * Switches the 3.3V power supply on or off.
  *
  * @param on	On-state of the power supply (0: off, else: on)
- *
- *****************************************************************************/
+ */
 int powerSet3v3(bool on)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
 	int rc;
 
-	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
 	rc = gpio_pin_set(gpioPort, POWER_3V3_Pin, 1);
-
 	return rc;
 }
 
@@ -84,16 +72,14 @@ int powerSet3v3(bool on)
  * Switches the 5V LED power supply on or off.
  *
  * @param on	On-state of the power supply (0: off, else: on)
- *
- *****************************************************************************/
+ */
 int powerSetLed(bool on)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort;
 	int rc;
 
 	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
 	rc = gpio_pin_set(gpioPort, POWER_5V_Pin, 1);
-
 	return rc;
 }
 
@@ -101,16 +87,13 @@ int powerSetLed(bool on)
  * Switches the backfeed power supply on or off.
  *
  * @param on	On-state of the power supply (0: off, else: on)
- *
- *****************************************************************************/
+ */
 int powerSetBackfeed(bool on)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
 	int rc;
 
-	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
 	rc = gpio_pin_set(gpioPort, POWER_BKFD_Pin, 1);
-
 	return rc;
 }
 
@@ -118,16 +101,13 @@ int powerSetBackfeed(bool on)
  * Returns the current state of the 1.8V power supply.
  *
  * @return	The on state of the 1.8V power supply.
- *
- *****************************************************************************/
+ */
 int powerGet1v8(void)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	int pinState;
 
-	gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
 	pinState = gpio_pin_get(gpioPort, POWER_1V8_Pin);
-
 	return pinState;
 }
 
@@ -135,16 +115,13 @@ int powerGet1v8(void)
  * Returns the current state of the 3.3V power supply.
  *
  * @return	The on state of the 3.3V power supply.
- *
- *****************************************************************************/
+ */
 int powerGet3v3(void)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
 	int pinState;
 
-	gpioPort = device_get_binding(POWER_3V3_GPIO_Port);
 	pinState = gpio_pin_get(gpioPort, POWER_3V3_Pin);
-
 	return pinState;
 }
 
@@ -152,16 +129,13 @@ int powerGet3v3(void)
  * Returns the current state of the 5V LED power supply.
  *
  * @return	The on state of the 5V power supply.
- *
- *****************************************************************************/
+ */
 int powerGetLed(void)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_5V_GPIO_Port);
 	int pinState;
 
-	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
 	pinState = gpio_pin_get(gpioPort, POWER_5V_Pin);
-
 	return pinState;
 }
 
@@ -169,15 +143,12 @@ int powerGetLed(void)
  * Returns the current state of the backfeed power supply.
  *
  * @return	The on state of the backfeed power supply.
- *
- *****************************************************************************/
+ */
 int powerGetBackfeed(void)
 {
-	struct device *gpioPort;
+	const struct device *gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
 	int pinState;
 
-	gpioPort = device_get_binding(POWER_BKFD_GPIO_Port);
 	pinState = gpio_pin_get(gpioPort, POWER_BKFD_Pin);
-
 	return pinState;
 }

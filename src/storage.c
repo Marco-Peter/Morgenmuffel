@@ -2,7 +2,7 @@
  * This file implements all storage related functions, like file system
  * mount points.
  *
- *****************************************************************************/
+ */
 
 #include "storage.h"
 #include <drivers/flash.h>
@@ -15,7 +15,7 @@ FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(storage);
 /**
  * Check the return code variable rc and return it if it is not zero
  *
- *****************************************************************************/
+ */
 #define checkRc()                                                              \
 	if (rc != 0) {                                                         \
 		return rc;                                                     \
@@ -24,7 +24,7 @@ FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(storage);
 /**
  * Mount point for flash storage
  *
- *****************************************************************************/
+ */
 static struct fs_mount_t flash_storage_mnt = {
 	.type = FS_LITTLEFS,
 	.fs_data = &storage,
@@ -37,7 +37,7 @@ static struct nvs_fs nvs;
 /**
  * Initialise all available storages
  *
- *****************************************************************************/
+ */
 int storage_init(void)
 {
 	int rc;
@@ -46,9 +46,8 @@ int storage_init(void)
 	const struct flash_area *pfa;
 	struct fs_statvfs sbuf;
 	struct flash_pages_info info;
-	struct device *spiflash;
 
-	spiflash = device_get_binding("M25P16");
+	const struct device *spiflash = device_get_binding("M25P16");
 	rc = flash_get_page_info_by_offs(spiflash, nvs.offset, &info);
 	checkRc();
 
@@ -78,7 +77,7 @@ int storage_init(void)
 /**
  * Deinitialise and secure (mainly unmount) all available storeages
  *
- *****************************************************************************/
+ */
 int storage_deinit(void)
 {
 	int rc;

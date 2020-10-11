@@ -95,19 +95,19 @@ static void scan_inputs(void)
     bool encVolumeA;
     bool encVolumeB;
 
-    struct device *btn_POWER_port = device_get_binding(BTN_POWER_LABEL);
-    struct device *btn_SELECT_port = device_get_binding(BTN_SELECT_LABEL);
-    struct device *btn_BACK_port = device_get_binding(BTN_BACK_LABEL);
-    struct device *btn_FORWARD_port = device_get_binding(BTN_FORWARD_LABEL);
-    struct device *btn_MENU_port = device_get_binding(BTN_MENU_LABEL);
-    struct device *btn_PLAY_port = device_get_binding(BTN_PLAY_LABEL);
-    struct device *btn_ALARM1_port = device_get_binding(BTN_ALARM1_LABEL);
-    struct device *btn_ALARM2_port = device_get_binding(BTN_ALARM2_LABEL);
-    struct device *btn_ALARM3_port = device_get_binding(BTN_ALARM3_LABEL);
-    struct device *enc_VOLUME_A_port = device_get_binding(ENC_VOLUME_A_LABEL);
-    struct device *enc_VOLUME_B_port = device_get_binding(ENC_VOLUME_B_LABEL);
-    struct device *enc_SELECT_A_port = device_get_binding(ENC_SELECT_A_LABEL);
-    struct device *enc_SELECT_B_port = device_get_binding(ENC_SELECT_B_LABEL);
+    const struct device *btn_POWER_port = device_get_binding(BTN_POWER_LABEL);
+    const struct device *btn_SELECT_port = device_get_binding(BTN_SELECT_LABEL);
+    const struct device *btn_BACK_port = device_get_binding(BTN_BACK_LABEL);
+    const struct device *btn_FORWARD_port = device_get_binding(BTN_FORWARD_LABEL);
+    const struct device *btn_MENU_port = device_get_binding(BTN_MENU_LABEL);
+    const struct device *btn_PLAY_port = device_get_binding(BTN_PLAY_LABEL);
+    const struct device *btn_ALARM1_port = device_get_binding(BTN_ALARM1_LABEL);
+    const struct device *btn_ALARM2_port = device_get_binding(BTN_ALARM2_LABEL);
+    const struct device *btn_ALARM3_port = device_get_binding(BTN_ALARM3_LABEL);
+    const struct device *enc_VOLUME_A_port = device_get_binding(ENC_VOLUME_A_LABEL);
+    const struct device *enc_VOLUME_B_port = device_get_binding(ENC_VOLUME_B_LABEL);
+    const struct device *enc_SELECT_A_port = device_get_binding(ENC_SELECT_A_LABEL);
+    const struct device *enc_SELECT_B_port = device_get_binding(ENC_SELECT_B_LABEL);
 
     ret = gpio_pin_configure(BTN(POWER), BTN_POWER_FLAGS);
     ret = gpio_pin_configure(BTN(SELECT), BTN_SELECT_FLAGS);

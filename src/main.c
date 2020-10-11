@@ -30,10 +30,6 @@ void main(void)
 	// TextField initField;
 	// wchar_t initTitle[] = L"Morgenmuffel";
 	// DisplayPage initPage = {1, &initField};
-
-	spi_device = device_get_binding("SPI_1");
-	flash_device = device_get_binding("M25P16");
-
 	rc = storage_init();
 	if (rc) {
 		printk("Failed initialisation with errno %d!\n", rc);
