@@ -6,7 +6,6 @@
 
 #include "storage.h"
 #include <drivers/flash.h>
-#include <fs/nvs.h>
 #include <fs/fs.h>
 #include <fs/littlefs.h>
 
@@ -32,8 +31,6 @@ static struct fs_mount_t flash_storage_mnt = {
 	.mnt_point = STORAGE_MOUNTPOINT_FLASH,
 };
 
-static struct nvs_fs nvs;
-
 /**
  * Initialise all available storages
  *
@@ -46,17 +43,6 @@ int storage_init(void)
 	const struct flash_area *pfa;
 	struct fs_statvfs sbuf;
 	struct flash_pages_info info;
-
-	const struct device *spiflash = device_get_binding("M25P16");
-	rc = flash_get_page_info_by_offs(spiflash, nvs.offset, &info);
-	checkRc();
-
-	nvs.offset = 0;
-	nvs.sector_size = info.size;
-	nvs.sector_count = 8U;
-
-	rc = nvs_init(&nvs, "M25P16");
-	checkRc();
 
 	rc = flash_area_open(id, &pfa);
 	checkRc();
@@ -97,7 +83,7 @@ int storage_deinit(void)
  */
 int storage_read_parameter(uint16_t id, void *data, size_t len)
 {
-	return nvs_read(&nvs, id, data, len);
+	return 0;
 }
 
 /**
@@ -110,5 +96,5 @@ int storage_read_parameter(uint16_t id, void *data, size_t len)
  */
 int storage_write_parameter(uint16_t id, void *data, size_t len)
 {
-	return nvs_write(&nvs, id, data, len);
+	return 0;
 }
