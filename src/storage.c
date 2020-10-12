@@ -42,7 +42,6 @@ int storage_init(void)
 	unsigned int id = (uintptr_t)mp->storage_dev;
 	const struct flash_area *pfa;
 	struct fs_statvfs sbuf;
-	struct flash_pages_info info;
 
 	rc = flash_area_open(id, &pfa);
 	checkRc();
