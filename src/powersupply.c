@@ -152,4 +152,4 @@ static int init(const struct device *dev)
 	return rc;
 }
 
-SYS_INIT(init, APPLICATION, 99);
+//SYS_INIT(init, APPLICATION, 99);

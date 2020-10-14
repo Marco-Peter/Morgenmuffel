@@ -6,11 +6,11 @@
 typedef void (*display_command_t)(void);
 
 int display_init(void);
-int display_off(void);
 
 void display_command(display_command_t cmd);
 
 /* Standard display commands */
 void display_clear(void);
+void display_aus(void);
 
 #endif /* DISPLAY_H */
