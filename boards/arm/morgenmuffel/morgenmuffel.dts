@@ -146,7 +146,7 @@
 	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiof 6 GPIO_ACTIVE_LOW>, <&gpiof 10 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>;
 	display: ssd1306@0 {
 		compatible = "solomon,ssd1306fb";
-		label = "DISPLAY";
+		label = "SSD1306";
 		reg = <0>;
 		spi-max-frequency = <10000000>;
 		height = <64>;
