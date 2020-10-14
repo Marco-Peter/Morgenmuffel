@@ -5,7 +5,6 @@
  */
 
 //#include "display_handler.h"
-#include "storage.h"
 #include <device.h>
 #include <drivers/flash.h>
 #include <errno.h>
@@ -14,40 +13,25 @@
 #include <storage/flash_map.h>
 #include <sys/printk.h>
 #include <zephyr.h>
+#include "display.h"
 
-#define MAX_PATH_LEN 255
+static void show_initScreen(void);
 
-struct device *spi_device = NULL;
-struct device *flash_device = NULL;
-
-/**
- * Application entry point
- */
 void main(void)
 {
-	int rc = 0;
-
-	// TextField initField;
-	// wchar_t initTitle[] = L"Morgenmuffel";
-	// DisplayPage initPage = {1, &initField};
-	rc = storage_init();
-	if (rc) {
-		printk("Failed initialisation with errno %d!\n", rc);
-	}
-
-	// dispInitTextField(&initField, initTitle, &fontFreeSans16, 0, 16, 128, 'c',
-	//                  false, false, DISP_FRAME_NONE);
-
-	// dispShowPage(&initPage);
+	display_command(show_initScreen);
 
 	k_sleep(K_SECONDS(5));
 
-	// displayOff();
+	display_off();
 
-	rc = storage_deinit();
-	if (rc) {
-		printk("Failed deinitialisation with errno %d!\n", rc);
-	}
+	for(;;);
+}
 
-	printk("Finished, all good!\n");
+static void show_initScreen(void)
+{
+	lv_obj_t *label = lv_label_create(lv_scr_act(), NULL);
+	lv_label_set_text(label, "Morgenmuffel");
+	lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);
+	//lv_obj_set_auto_realign(label, true);
 }
