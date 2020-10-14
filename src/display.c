@@ -35,7 +35,7 @@ void display_clear(void)
 	LOG_INF("leave display_clear");
 }
 
-void display_aus(void)
+void display_off(void)
 {
 	LOG_INF("enter display_off");
 	display_blanking_on(display);

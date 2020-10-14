@@ -34,7 +34,7 @@ void main(void)
 	k_sleep(K_SECONDS(5));
 
 	LOG_INF("send command display_off");
-	display_command(display_aus);
+	display_command(display_off);
 
 	LOG_INF("finished");
 

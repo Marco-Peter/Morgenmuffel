@@ -11,6 +11,6 @@ void display_command(display_command_t cmd);
 
 /* Standard display commands */
 void display_clear(void);
-void display_aus(void);
+void display_off(void);
 
 #endif /* DISPLAY_H */
