@@ -143,8 +143,7 @@
 
 &spi2 { /* Peripheral bus connecting display (node 0), VS1053 CS (node 1) and DCS (node 2) and SI4689 (node 3). */
 	status = "okay";
-	clock-frequency = <10000000>;
-	cs-gpios = <&gpiof 3 0>, <&gpiof 6 0>, <&gpiof 10 0>, <&gpiod 9 0>;
+	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiof 6 GPIO_ACTIVE_LOW>, <&gpiof 10 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>;
 	display: ssd1306@0 {
 		compatible = "solomon,ssd1306fb";
 		label = "DISPLAY";
@@ -155,10 +154,10 @@
 		segment-offset = <0>;
 		page-offset = <0>;
 		display-offset = <0>;
-		multiplex-ratio = <0>;
+		multiplex-ratio = <63>;
 		segment-remap;
 		com-invdir;
-		prechargep = <0>;
+		prechargep = <0x22>;
 		reset-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
 		data_cmd-gpios = <&gpiof 5 0>;
 	};
