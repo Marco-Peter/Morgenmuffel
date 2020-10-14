@@ -3,7 +3,6 @@
 #include <device.h>
 #include <drivers/gpio.h>
 #include <drivers/display.h>
-#include <lvgl.h>
 
 #define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
 #include <logging/log.h>
@@ -11,9 +10,11 @@ LOG_MODULE_REGISTER(disp);
 
 #define POWER_ON_PIN 7U
 #define DISPLAY_THREAD_PRIO 2
-#define DISPLAY_THREAD_STACK 256
+#define DISPLAY_THREAD_STACK 1024
+#define DISPLAY_COMMAND_QUEUE_SIZE 3
 
-K_FIFO_DEFINE(display_fifo);
+K_MSGQ_DEFINE(display_msgq, sizeof(display_command_t),
+	      DISPLAY_COMMAND_QUEUE_SIZE, sizeof(display_command_t));
 
 static const struct device *display;
 static const struct device *power_on;
@@ -28,7 +29,12 @@ int display_off(void)
 
 void display_command(display_command_t cmd)
 {
-	k_fifo_put(&display_fifo, cmd);
+	k_msgq_put(&display_msgq, &cmd, K_FOREVER);
+}
+
+void display_clear(void)
+{
+	lv_obj_clean(lv_scr_act());
 }
 
 static void display_func(void)
@@ -50,16 +56,17 @@ static void display_func(void)
 		LOG_ERR("Failed to set power supply pin");
 		return;
 	}
+	k_sleep(K_MSEC(10));
+	display_blanking_off(display);
 
 	for (;;) {
 		display_command_t cmd;
 
-		k_sleep(K_MSEC(10));
-		while ((cmd = (display_command_t)k_fifo_get(
-				&display_fifo, K_NO_WAIT)) != NULL) {
+		while (k_msgq_get(&display_msgq, &cmd, K_NO_WAIT) == 0) {
 			cmd();
 		}
 		lv_task_handler();
+		k_sleep(K_MSEC(10));
 	}
 }
 
