@@ -17,6 +17,11 @@ __subsystem struct sht2x_driver_api {
 	int32_t (*meas_rh)(const struct device *dev);
 };
 
+/**
+ * Return the relative humidity in 1/100 %.
+ * Divide by 100 to get the RH% value in percent (e.g. 45.34%).
+ * Divide by 10000 to get the RH value (e.g. 0.4534).
+ */
 __syscall     int32_t        sht2x_meas_temp(const struct device *dev);
 static inline int32_t z_impl_sht2x_meas_temp(const struct device *dev)
 {
