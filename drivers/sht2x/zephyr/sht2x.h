@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2020 Marco Peter
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+#ifndef __SHT2X_H__
+#define __SHT2X_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <device.h>
+
+__subsystem struct sht2x_driver_api {
+	uint16_t (*meas_temp)(const struct device *dev);
+	uint16_t (*meas_rh)(const struct device *dev);
+};
+
+__syscall     void        sht2x_meas_temp(const struct device *dev);
+static inline void z_impl_sht2x_meas_temp(const struct device *dev)
+{
+	const struct sht2x_driver_api *api = dev->api;
+
+	__ASSERT(api->meas_temp, "Callback pointer must not be NULL");
+	api->meas_temp(dev);
+}
+
+__syscall     uint16_t 
+static inline uint16_t z_impl_sht2x_meas_rh(const struct device *dev)
+{
+	const struct sht2x_driver_api *api = dev->api;0
+
+	__ASSERT(api->meas_rh, "Callback pointer must not be NULL");
+	api->meas_rh(dev);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+#include <syscalls/sht2x.h>
+
+#endif /* __SHT2X_H__ */
