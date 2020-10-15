@@ -11,6 +11,7 @@
 #include <syscall_handler.h>
 #include <drivers/i2c.h>
 #include <logging/log.h>
+#include <sys/crc.h>
 
 LOG_MODULE_REGISTER(SHT2X, LOG_LEVEL_INF);
 
@@ -80,7 +81,8 @@ static int32_t meas_temp_impl(const struct device *dev)
 	int rc;
 	int32_t temp;
 	uint16_t value;
-	uint8_t data[2];
+	uint8_t data[3];
+	uint8_t crc;
 
 	rc = send_command(dev, SHT2X_CMD_TRIGGER_MEAS_TEMP);
 	if (rc != 0) {
@@ -94,6 +96,12 @@ static int32_t meas_temp_impl(const struct device *dev)
 		LOG_ERR("%s: reading measurement data failed with error % d",
 			dev->name, rc);
 		return rc;
+	}
+	crc = crc8(data, 2, 49, 0U, false);
+	if (crc != data[2]) {
+		LOG_ERR("%s: CRC test failed. Expected: 0x%X, received: 0x%X",
+			dev->name, crc, data[2]);
+		return -EIO;
 	}
 	if ((data[1] & 0x02) == 0x02) {
 		LOG_ERR("%s: received humidity instead of temperature",
@@ -125,7 +133,8 @@ static int32_t meas_rh_impl(const struct device *dev)
 	int rc;
 	int32_t rh;
 	uint16_t value;
-	uint8_t data[2];
+	uint8_t data[3];
+	uint8_t crc;
 
 	rc = send_command(dev, SHT2X_CMD_TRIGGER_MEAS_RH);
 	if (rc != 0) {
@@ -139,6 +148,12 @@ static int32_t meas_rh_impl(const struct device *dev)
 		LOG_ERR("%s: reading measurement data failed with error %d",
 			dev->name, rc);
 		return rc;
+	}
+	crc = crc8(data, 2, 49, 0U, false);
+	if (crc != data[2]) {
+		LOG_ERR("%s: CRC test failed. Expected: 0x%X, received: 0x%X",
+			dev->name, crc, data[2]);
+		return -EIO;
 	}
 	if ((data[1] & 0x02) == 0) {
 		LOG_ERR("%s: received temperature instead of humidity",

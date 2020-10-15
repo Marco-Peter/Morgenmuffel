@@ -34,14 +34,18 @@ void main(void)
 	LOG_INF("send command show_temperature");
 	temperature = sht2x_meas_temp(temp_sens);
 	humidity = sht2x_meas_rh(temp_sens);
+	if (temperature < 0) {
+		LOG_ERR("Temperature measurement failed with error %d",
+			temperature);
+	}
+	if (humidity < 0) {
+		LOG_ERR("Humidity measurement failed with error %d", humidity);
+	}
 	display_command(show_temperature);
 
 	LOG_INF("finished");
 
 	k_sleep(K_FOREVER);
-
-	for (;;)
-		;
 }
 
 static void show_initScreen(void)
