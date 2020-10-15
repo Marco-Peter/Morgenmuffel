@@ -169,5 +169,10 @@
 
 &i2c1 {
 	status = "okay";
+	rh_sens: sht2x@80 {
+		compatible = "sensirion,sht2x";
+		label = "SHT2X";
+		reg = <0x80>;
+	};
 };
 

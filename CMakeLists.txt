@@ -6,6 +6,10 @@ set(BOARD_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(BOARD morgenmuffel)
 set(ZEPHYR_BOARD_FLASH_RUNNER jlink)
 
+list(APPEND ZEPHYR_EXTRA_MODULES
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/sht2x
+)
+
 find_package(Zephyr)
 
 project(MorgenMuffel)

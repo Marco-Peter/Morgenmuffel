@@ -17,22 +17,22 @@ __subsystem struct sht2x_driver_api {
 	uint16_t (*meas_rh)(const struct device *dev);
 };
 
-__syscall     void        sht2x_meas_temp(const struct device *dev);
-static inline void z_impl_sht2x_meas_temp(const struct device *dev)
+__syscall     uint16_t        sht2x_meas_temp(const struct device *dev);
+static inline uint16_t z_impl_sht2x_meas_temp(const struct device *dev)
 {
 	const struct sht2x_driver_api *api = dev->api;
 
 	__ASSERT(api->meas_temp, "Callback pointer must not be NULL");
-	api->meas_temp(dev);
+	return api->meas_temp(dev);
 }
 
-__syscall     uint16_t 
+__syscall     uint16_t        sht2x_meas_rh(const struct device *dev);
 static inline uint16_t z_impl_sht2x_meas_rh(const struct device *dev)
 {
-	const struct sht2x_driver_api *api = dev->api;0
+	const struct sht2x_driver_api *api = dev->api;
 
 	__ASSERT(api->meas_rh, "Callback pointer must not be NULL");
-	api->meas_rh(dev);
+	return api->meas_rh(dev);
 }
 
 #ifdef __cplusplus
