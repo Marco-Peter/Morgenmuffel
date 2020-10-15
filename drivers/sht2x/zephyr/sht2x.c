@@ -20,6 +20,8 @@ LOG_MODULE_REGISTER(sht2x);
 #define SHT2X_CMD_WRITE_USER_REG 0xE6
 #define SHT2X_CMD_READ_USER_REG 0xE7
 #define SHT2X_CMD_SOFT_RESET 0xFE
+#define SHT2X_WAIT_TIME_TEMP_MS 86
+#define SHT2X_WAIT_TIME_RH_MS 30
 
 struct sht2x_config {
 	char *i2c_bus_label;
@@ -49,10 +51,17 @@ static inline int send_command(const struct device *dev, uint8_t cmd)
 	return i2c_write(i2c_device(dev), &cmd, sizeof(cmd), i2c_address(dev));
 }
 
+static inline int read_data(const struct device *dev, uint8_t *data,
+			    uint32_t len)
+{
+	return i2c_read(i2c_device(dev), data, len, i2c_address(dev));
+}
+
 static int init(const struct device *dev)
 {
 	const struct sht2x_config *config = dev->config;
 	struct sht2x_data *data = dev->data;
+	int rc;
 
 	data->i2c = device_get_binding(config->i2c_bus_label);
 	if (data->i2c == NULL) {
@@ -60,12 +69,42 @@ static int init(const struct device *dev)
 			config->i2c_bus_label);
 		return -ENODEV;
 	}
-	return send_command(dev, SHT2X_CMD_SOFT_RESET);
+	rc = send_command(dev, SHT2X_CMD_SOFT_RESET);
+	if (rc != 0) {
+		LOG_ERR("%s: reset failed with error %d", dev->name, rc);
+	}
+	return rc;
 }
 
-static uint16_t meas_temp_impl(const struct device *dev)
+static int16_t meas_temp_impl(const struct device *dev)
 {
-	return 0U;
+	int rc;
+	int32_t temp;
+	uint16_t value;
+	uint8_t data[2];
+
+	rc = send_command(dev, SHT2X_CMD_TRIGGER_MEAS_TEMP);
+	if (rc != 0) {
+		LOG_ERR("%s: starting temp measurement failed with error %d",
+			dev->name, rc);
+		return rc;
+	}
+	k_sleep(K_MSEC(SHT2X_WAIT_TIME_TEMP_MS));
+	rc = read_data(dev, data, sizeof(data));
+	if (rc != 0) {
+		LOG_ERR("%s: reading measurement data failed with error % d",
+			dev->name, rc);
+		return rc;
+	}
+	if ((data[0] & 0x02) == 0x02) {
+		LOG_ERR("%s: received humidity instead of temperature",
+			dev->name);
+		return -EIO;
+	}
+	value = (data[0] << 8 | data[1]) & 0xFFFC;
+	temp = 175720 * (uint32_t)value / (UINT16_MAX + 1) - 46850;
+
+	return temp;
 }
 
 #ifdef CONFIG_USERSPACE
@@ -78,7 +117,7 @@ static inline void z_vrfy_sht2x_meas_temp(const struct device *dev)
 #include <syscalls/sht2x_meas_temp_mrsh.c>
 #endif /* CONFIG_USERSPACE */
 
-static uint16_t meas_rh_impl(const struct device *dev)
+static int16_t meas_rh_impl(const struct device *dev)
 {
 	return 0U;
 }
@@ -102,7 +141,7 @@ static inline void z_vrfy_sht2x_meas_rh(const struct device *dev)
                                                                                \
 	DEVICE_AND_API_INIT(                                                   \
 		sht2x_##id, DT_INST_LABEL(id), init, &sht2x_data_##id,         \
-		&sht2x_config_##id, POST_KERNEL,                                \
+		&sht2x_config_##id, POST_KERNEL,                               \
 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
 		&((struct sht2x_driver_api){ .meas_temp = meas_temp_impl,      \
 					     .meas_rh = meas_rh_impl }));
