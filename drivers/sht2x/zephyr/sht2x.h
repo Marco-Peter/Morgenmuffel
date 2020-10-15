@@ -27,9 +27,9 @@ static inline int32_t z_impl_sht2x_meas_temp(const struct device *dev)
 }
 
 /**
- * Return the temperature in m°C (millidegrees).
+ * Return the temperature in 1/100 °C.
  * 
- * Divide by 1000 to get the temperature in °C.
+ * Divide by 100 to get the temperature in °C.
  */
 __syscall     int32_t        sht2x_meas_rh(const struct device *dev);
 static inline int32_t z_impl_sht2x_meas_rh(const struct device *dev)

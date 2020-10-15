@@ -4,53 +4,44 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-//#include "display_handler.h"
 #include <device.h>
-#include <drivers/flash.h>
 #include <errno.h>
 #include <logging/log.h>
-#include <drivers/spi.h>
-#include <storage/flash_map.h>
-#include <sys/printk.h>
 #include <zephyr.h>
 #include "display.h"
 #include "../drivers/sht2x/zephyr/sht2x.h"
 
-#define LOG_LEVEL CONFIG_LOG_DEFAULT_LEVEL
-#include <logging/log.h>
-LOG_MODULE_REGISTER(main);
+LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
+
+#define abs(x) ((x) < 0 ? -(x) : (x))
 
 static void show_initScreen(void);
 static void show_temperature(void);
 
 static int32_t temperature;
+static int32_t humidity;
 
 void main(void)
 {
 	const struct device *temp_sens = device_get_binding("SHT2X");
 
-	if(temp_sens == NULL) {
+	if (temp_sens == NULL) {
 		LOG_ERR("temperature sensor not found");
 	}
 	LOG_INF("send command initScreen");
 	display_command(show_initScreen);
 
-	k_sleep(K_SECONDS(5));
-
-	LOG_INF("send command display_clear");
+	LOG_INF("send command show_temperature");
 	temperature = sht2x_meas_temp(temp_sens);
+	humidity = sht2x_meas_rh(temp_sens);
 	display_command(show_temperature);
-
-	k_sleep(K_SECONDS(5));
-
-	LOG_INF("send command display_off");
-	display_command(display_off);
 
 	LOG_INF("finished");
 
 	k_sleep(K_FOREVER);
 
-	for(;;);
+	for (;;)
+		;
 }
 
 static void show_initScreen(void)
@@ -64,12 +55,13 @@ static void show_initScreen(void)
 static void show_temperature(void)
 {
 	static lv_obj_t *label;
-	char *text = "";
+	char text[] = "Nix zu sehen!";
 
-	if(label == NULL) {
+	if (label == NULL) {
 		label = lv_label_create(lv_scr_act(), NULL);
 	}
-	sprintf(text, "%d.%d°C", temperature / 1000, temperature % 1000);
+	sprintf(text, "%d.%d°C  %d.%d%%", temperature / 100,
+		abs(temperature) % 100, humidity / 100, abs(humidity) % 100);
 	lv_label_set_text(label, text);
 	lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 12);
 }

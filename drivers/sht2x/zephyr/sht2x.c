@@ -10,10 +10,9 @@
 #include <zephyr/types.h>
 #include <syscall_handler.h>
 #include <drivers/i2c.h>
-
-#define LOG_LEVEL CONFIG_LED_LOG_LEVEL
 #include <logging/log.h>
-LOG_MODULE_REGISTER(sht2x);
+
+LOG_MODULE_REGISTER(SHT2X, LOG_LEVEL_INF);
 
 #define SHT2X_CMD_TRIGGER_MEAS_TEMP 0xF3
 #define SHT2X_CMD_TRIGGER_MEAS_RH 0xF5
@@ -96,14 +95,18 @@ static int32_t meas_temp_impl(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
-	if ((data[0] & 0x02) == 0x02) {
+	if ((data[1] & 0x02) == 0x02) {
 		LOG_ERR("%s: received humidity instead of temperature",
 			dev->name);
 		return -EIO;
 	}
-	value = (data[0] << 8 | data[1]) & 0xFFFC;
-	temp = 175720 * (uint32_t)value / (UINT16_MAX + 1) - 46850;
-
+	value = data[0];
+	value <<= 8;
+	value |= data[1];
+	value &= 0xFFFC;
+	LOG_DBG("%s: raw temperature value: 0x%X", dev->name, value);
+	temp = 17572 * (uint32_t)value / (UINT16_MAX + 1) - 4685;
+	LOG_DBG("%s: calculated temperature: %d mDeg.", dev->name, temp);
 	return temp;
 }
 
@@ -119,7 +122,36 @@ static inline void z_vrfy_sht2x_meas_temp(const struct device *dev)
 
 static int32_t meas_rh_impl(const struct device *dev)
 {
-	return 0U;
+	int rc;
+	int32_t rh;
+	uint16_t value;
+	uint8_t data[2];
+
+	rc = send_command(dev, SHT2X_CMD_TRIGGER_MEAS_RH);
+	if (rc != 0) {
+		LOG_ERR("%s: starting RH measurement failed with error %d",
+			dev->name, rc);
+		return rc;
+	}
+	k_sleep(K_MSEC(SHT2X_WAIT_TIME_RH_MS));
+	rc = read_data(dev, data, sizeof(data));
+	if (rc != 0) {
+		LOG_ERR("%s: reading measurement data failed with error %d",
+			dev->name, rc);
+		return rc;
+	}
+	if ((data[1] & 0x02) == 0) {
+		LOG_ERR("%s: received temperature instead of humidity",
+			dev->name);
+		return -EIO;
+	}
+	value = data[0];
+	value <<= 8;
+	value |= data[1];
+	value &= 0xFFFC;
+	LOG_DBG("%s: raw rh value: 0x%X", dev->name, value);
+	rh = 12500 * (uint32_t)value / (UINT16_MAX + 1) - 600;
+	return rh;
 }
 
 #ifdef CONFIG_USERSPACE

@@ -4,6 +4,10 @@
 #include <sys/onoff.h>
 #include <drivers/gpio.h>
 
+#define LOG_LEVEL 1
+#include <logging/log.h>
+LOG_MODULE_REGISTER(power);
+
 /* TODO: Try to use DeviceTree for those settings */
 #define POWER_1V8_Pin 7
 #define POWER_1V8_GPIO_Port "GPIOF"
@@ -136,20 +140,28 @@ static int init(const struct device *dev)
 
         ARG_UNUSED(dev);
 
+        LOG_DBG("power: Configuring power pins");
         gpioPort = device_get_binding(POWER_1V8_GPIO_Port);
         if(gpioPort == NULL) {
+                LOG_ERR("power: GPIO for 1.8V power not found");
                 return -ENODEV;
         }
 	rc = gpio_pin_configure(gpioPort, POWER_1V8_Pin, GPIO_OUTPUT);
 	if (rc != 0) {
+                LOG_ERR("power: Failed to configure 1.8V power pin");
 		return rc;
 	}
 	gpioPort = device_get_binding(POWER_5V_GPIO_Port);
         if(gpioPort == NULL) {
+                LOG_ERR("power: GPIO for 5V power not found");
                 return -ENODEV;
         }
+
 	rc = gpio_pin_configure(gpioPort, POWER_5V_Pin, GPIO_OUTPUT);
+        if(rc != 0) {
+                LOG_ERR("power: Failed to configure 5V power pin");
+        }
 	return rc;
 }
 
-//SYS_INIT(init, APPLICATION, 99);
+SYS_INIT(init, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);

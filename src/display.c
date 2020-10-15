@@ -20,26 +20,26 @@ void display_command(display_command_t cmd)
 {
 	int rc;
 
-	LOG_INF("enter display_command");
+	LOG_DBG("enter display_command");
 	rc = k_msgq_put(&display_msgq, &cmd, K_SECONDS(2));
 	if(rc != 0) {
-		LOG_INF("display_command failed with status %d", rc);
+		LOG_ERR("display_command failed with status %d", rc);
 	}
-	LOG_INF("leave display_command");
+	LOG_DBG("leave display_command");
 }
 
 void display_clear(void)
 {
-	LOG_INF("enter display_clear");
+	LOG_DBG("enter display_clear");
 	lv_obj_clean(lv_scr_act());
-	LOG_INF("leave display_clear");
+	LOG_DBG("leave display_clear");
 }
 
 void display_off(void)
 {
-	LOG_INF("enter display_off");
+	LOG_DBG("enter display_off");
 	display_blanking_on(display);
-	LOG_INF("leave display_off");
+	LOG_DBG("leave display_off");
 }
 
 static void display_func(void)
@@ -55,9 +55,9 @@ static void display_func(void)
 		display_command_t cmd;
 
 		while (k_msgq_get(&display_msgq, &cmd, K_NO_WAIT) == 0) {
-			LOG_INF("new command");
+			LOG_DBG("new command");
 			cmd();
-			LOG_INF("command done");
+			LOG_DBG("command done");
 		}
 		lv_task_handler();
 		k_sleep(K_MSEC(10));
