@@ -13,12 +13,12 @@ extern "C" {
 #include <device.h>
 
 __subsystem struct sht2x_driver_api {
-	int16_t (*meas_temp)(const struct device *dev);
-	int16_t (*meas_rh)(const struct device *dev);
+	int32_t (*meas_temp)(const struct device *dev);
+	int32_t (*meas_rh)(const struct device *dev);
 };
 
-__syscall     int16_t        sht2x_meas_temp(const struct device *dev);
-static inline int16_t z_impl_sht2x_meas_temp(const struct device *dev)
+__syscall     int32_t        sht2x_meas_temp(const struct device *dev);
+static inline int32_t z_impl_sht2x_meas_temp(const struct device *dev)
 {
 	const struct sht2x_driver_api *api = dev->api;
 
@@ -31,8 +31,8 @@ static inline int16_t z_impl_sht2x_meas_temp(const struct device *dev)
  * 
  * Divide by 1000 to get the temperature in °C.
  */
-__syscall     int16_t        sht2x_meas_rh(const struct device *dev);
-static inline int16_t z_impl_sht2x_meas_rh(const struct device *dev)
+__syscall     int32_t        sht2x_meas_rh(const struct device *dev);
+static inline int32_t z_impl_sht2x_meas_rh(const struct device *dev)
 {
 	const struct sht2x_driver_api *api = dev->api;
 

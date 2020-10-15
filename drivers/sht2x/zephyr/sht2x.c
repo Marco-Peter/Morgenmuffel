@@ -76,7 +76,7 @@ static int init(const struct device *dev)
 	return rc;
 }
 
-static int16_t meas_temp_impl(const struct device *dev)
+static int32_t meas_temp_impl(const struct device *dev)
 {
 	int rc;
 	int32_t temp;
@@ -117,7 +117,7 @@ static inline void z_vrfy_sht2x_meas_temp(const struct device *dev)
 #include <syscalls/sht2x_meas_temp_mrsh.c>
 #endif /* CONFIG_USERSPACE */
 
-static int16_t meas_rh_impl(const struct device *dev)
+static int32_t meas_rh_impl(const struct device *dev)
 {
 	return 0U;
 }
