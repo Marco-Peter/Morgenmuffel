@@ -116,7 +116,7 @@
 
 &spi1 { /* Memory bus connecting M25P16 (node 0) flash and SRAM (node 1) */
 	status = "okay";
-	cs-gpios = <&gpiof 13 0>, <&gpiof 12 0>;
+	cs-gpios = <&gpiof 13 GPIO_ACTIVE_LOW>, <&gpiof 12 GPIO_ACTIVE_LOW>;
 	m25p16: m25p16@0 {
 		compatible = "jedec,spi-nor";
 		label = "M25P16";
