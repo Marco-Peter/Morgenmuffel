@@ -76,7 +76,7 @@ static int init(const struct device *dev)
 	return rc;
 }
 
-static int32_t meas_temp(const struct device *dev)
+static int meas_temp(const struct device *dev)
 {
 	struct sht2x_data *data = dev->data;
 	int rc;
@@ -118,7 +118,7 @@ static int32_t meas_temp(const struct device *dev)
 	return rc;
 }
 
-static int32_t meas_rh(const struct device *dev)
+static int meas_rh(const struct device *dev)
 {
 	struct sht2x_data *data = dev->data;
 	int rc;
