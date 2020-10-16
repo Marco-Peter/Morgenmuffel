@@ -1,0 +1,9 @@
+# Copyright (c) 2020, Marco Peter
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    Measurement Specialties MS5637 digital pressure and temperature sensor.
+
+compatible: "meas,ms5637"
+
+include: i2c-device.yaml

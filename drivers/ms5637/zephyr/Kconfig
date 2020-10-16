@@ -1,0 +1,8 @@
+# Copyright (c) 2020 Marco Peter
+# SPDX-License-Identifier: Apache-2.0
+
+config MS5637
+	bool "MS5637 pressure and temperature sensor"
+	depends on I2C
+	help
+	  Enable driver for MS5637 pressure and temperature sensor.

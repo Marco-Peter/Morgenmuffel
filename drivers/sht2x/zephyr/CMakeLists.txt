@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_SHT2X)
-  # Add hello_world_driver.h to the set of global include paths.
   zephyr_include_directories(.)
 
   zephyr_library()

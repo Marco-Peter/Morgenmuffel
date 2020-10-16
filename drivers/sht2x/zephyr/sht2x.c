@@ -7,7 +7,6 @@
 #define DT_DRV_COMPAT sensirion_sht2x
 
 #include "sht2x.h"
-#include <zephyr/types.h>
 #include <syscall_handler.h>
 #include <drivers/i2c.h>
 #include <logging/log.h>

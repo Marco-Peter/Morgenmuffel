@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Nordic Semiconductor
+# Copyright (c) 2020 Marco Peter
 # SPDX-License-Identifier: Apache-2.0
 
 config SHT2X

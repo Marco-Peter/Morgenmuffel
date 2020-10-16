@@ -174,5 +174,10 @@
 		label = "SHT2X";
 		reg = <0x40>;
 	};
+	pr_sens: ms5637@76 {
+		compatible = "meas,ms5637";
+		label = "MS5637";
+		reg = <0x76>;
+	};
 };
 
