@@ -9,43 +9,55 @@
 #include <logging/log.h>
 #include <zephyr.h>
 #include "display.h"
-#include "../drivers/sht2x/zephyr/sht2x.h"
+#include <drivers/sensor.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
-
-#define abs(x) ((x) < 0 ? -(x) : (x))
 
 static void show_initScreen(void);
 static void show_temperature(void);
 
-static int32_t temperature;
-static int32_t humidity;
+static struct sensor_value temperature;
+static struct sensor_value humidity;
+
+static inline int abs(int value)
+{
+	return value < 0 ? -value : value;
+}
 
 void main(void)
 {
-	const struct device *temp_sens = device_get_binding("SHT2X");
+	const struct device *rh_sens = device_get_binding("SHT2X");
 
-	if (temp_sens == NULL) {
+	if (rh_sens == NULL) {
 		LOG_ERR("temperature sensor not found");
 	}
-	LOG_INF("send command initScreen");
+	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
 
-	LOG_INF("send command show_temperature");
-	temperature = sht2x_meas_temp(temp_sens);
-	humidity = sht2x_meas_rh(temp_sens);
-	if (temperature < 0) {
-		LOG_ERR("Temperature measurement failed with error %d",
-			temperature);
+	for (;;) {
+		int rc;
+		LOG_DBG("send command show_temperature");
+		rc = sensor_sample_fetch(rh_sens);
+		if (rc != 0) {
+			LOG_ERR("Fetching data from SHT21 failed with error %d",
+				rc);
+		}
+		rc = sensor_channel_get(rh_sens, SENSOR_CHAN_AMBIENT_TEMP,
+					&temperature);
+		if (rc != 0) {
+			LOG_ERR("Getting temperature from SHT21 failed with eror %d",
+				rc);
+		}
+		rc = sensor_channel_get(rh_sens, SENSOR_CHAN_HUMIDITY,
+					&humidity);
+		if (rc != 0) {
+			LOG_ERR("Getting humidity from SHT21 failed with error %d",
+				rc);
+		}
+		display_command(show_temperature);
+		LOG_DBG("Cycle finished");
+		k_sleep(K_SECONDS(1));
 	}
-	if (humidity < 0) {
-		LOG_ERR("Humidity measurement failed with error %d", humidity);
-	}
-	display_command(show_temperature);
-
-	LOG_INF("finished");
-
-	k_sleep(K_FOREVER);
 }
 
 static void show_initScreen(void)
@@ -64,8 +76,10 @@ static void show_temperature(void)
 	if (label == NULL) {
 		label = lv_label_create(lv_scr_act(), NULL);
 	}
-	sprintf(text, "%d.%d°C  %d.%d%%", temperature / 100,
-		abs(temperature) % 100, humidity / 100, abs(humidity) % 100);
+	snprintf(text, sizeof(text), "%s%d.%dC %d.%d%%",
+		 temperature.val1 < 0 || temperature.val2 < 0 ? "-" : "",
+		 abs(temperature.val1), abs(temperature.val2) / 10000,
+		 abs(humidity.val1), abs(humidity.val2) / 10000);
 	lv_label_set_text(label, text);
 	lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 12);
 }
