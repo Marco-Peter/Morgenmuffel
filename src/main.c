@@ -114,7 +114,7 @@ static void show_temperature(void)
 	lv_label_set_text(label2, text);
 	lv_obj_align(label2, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
 	snprintf(text, sizeof(text), "%d.%dKpa",
-		 pressure.val1, pressure.val2 / 10000);
+		 pressure.val1, pressure.val2 / 1000);
 	lv_label_set_text(label3, text);
 	lv_obj_align(label3, NULL, LV_ALIGN_IN_TOP_MID, 0, 36);
 }
