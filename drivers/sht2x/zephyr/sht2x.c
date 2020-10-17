@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Nordic Semiconductor
+ * Copyright (c) 2020 Marco Peter
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -211,8 +211,8 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 		sht2x_##id, DT_INST_LABEL(id), init, &sht2x_data_##id,         \
 		&sht2x_config_##id, POST_KERNEL,                               \
 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
-		&((struct sensor_driver_api){ .attr_set = NULL,            \
-					      .attr_get = NULL,            \
+		&((struct sensor_driver_api){ .attr_set = NULL,                \
+					      .attr_get = NULL,                \
 					      .trigger_set = NULL,             \
 					      .sample_fetch = sample_fetch,    \
 					      .channel_get = channel_get }));
