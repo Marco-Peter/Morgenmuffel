@@ -14,12 +14,13 @@
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 static void show_initScreen(void);
-static void show_temperature(void);
+static void show_sht21(void);
+static void show_ms5637(void);
+static void show_apds9301(void);
 
-static struct sensor_value temperature1;
-static struct sensor_value temperature2;
-static struct sensor_value humidity;
-static struct sensor_value pressure;
+static const struct device *rh_sens;
+static const struct device *pr_sens;
+static const struct device *lx_sens;
 
 static inline int abs(int value)
 {
@@ -28,52 +29,25 @@ static inline int abs(int value)
 
 void main(void)
 {
-	const struct device *rh_sens = device_get_binding("SHT2X");
-	const struct device *pr_sens = device_get_binding("MS5637");
-
+	rh_sens = device_get_binding("SHT2X");
 	if (rh_sens == NULL) {
-		LOG_ERR("temperature sensor not found");
+		LOG_ERR("humidity sensor not found");
 	}
+	pr_sens = device_get_binding("MS5637");
+	if (rh_sens == NULL) {
+		LOG_ERR("pressure sensor not found");
+	}
+	lx_sens = device_get_binding("APDS9301");
+	if (rh_sens == NULL) {
+		LOG_ERR("lux sensor not found");
+	}
+
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
 
 	for (;;) {
-		int rc;
-		LOG_DBG("send command show_temperature");
-		rc = sensor_sample_fetch(rh_sens);
-		if (rc != 0) {
-			LOG_ERR("Fetching data from SHT21 failed with error %d",
-				rc);
-		}
-		rc = sensor_channel_get(rh_sens, SENSOR_CHAN_AMBIENT_TEMP,
-					&temperature1);
-		if (rc != 0) {
-			LOG_ERR("Getting temperature from SHT21 failed with eror %d",
-				rc);
-		}
-		rc = sensor_channel_get(rh_sens, SENSOR_CHAN_HUMIDITY,
-					&humidity);
-		if (rc != 0) {
-			LOG_ERR("Getting humidity from SHT21 failed with error %d",
-				rc);
-		}
-		rc = sensor_sample_fetch(pr_sens);
-		if(rc != 0) {
-			LOG_ERR("Fetching data from MS5637 failed with error %d", rc);
-		}
-		rc = sensor_channel_get(pr_sens, SENSOR_CHAN_AMBIENT_TEMP, &temperature2);
-		if (rc != 0) {
-			LOG_ERR("Getting temperature from MS5637 failed with eror %d",
-				rc);
-		}
-		rc = sensor_channel_get(pr_sens, SENSOR_CHAN_PRESS, &pressure);
-		if (rc != 0) {
-			LOG_ERR("Getting temperature from SHT21 failed with eror %d",
-				rc);
-		}
-
-		display_command(show_temperature);
-		LOG_DBG("Cycle finished");
+		display_command(show_sht21);
+		display_command(show_apds9301);
 		k_sleep(K_SECONDS(1));
 	}
 }
@@ -86,35 +60,105 @@ static void show_initScreen(void)
 	//lv_obj_set_auto_realign(label, true);
 }
 
-static void show_temperature(void)
+static void show_sht21(void)
 {
-	static lv_obj_t *label1;
-	static lv_obj_t *label2;
-	static lv_obj_t *label3;
+	struct sensor_value temperature1;
+	struct sensor_value humidity;
+	static lv_obj_t *lbl_sht21;
+	int rc;
 	char text[] = "Hier gibt es nix zu sehen!";
 
-	if (label1 == NULL) {
-		label1 = lv_label_create(lv_scr_act(), NULL);
+	rc = sensor_sample_fetch(rh_sens);
+	if (rc != 0) {
+		LOG_ERR("Fetching data from SHT21 failed with error %d",
+			rc);
 	}
-	if (label2 == NULL) {
-		label2 = lv_label_create(lv_scr_act(), NULL);
+	rc = sensor_channel_get(rh_sens, SENSOR_CHAN_AMBIENT_TEMP,
+				&temperature1);
+	if (rc != 0) {
+		LOG_ERR("Getting temperature from SHT21 failed with eror %d",
+			rc);
 	}
-	if (label3 == NULL) {
-		label3 = lv_label_create(lv_scr_act(), NULL);
+	rc = sensor_channel_get(rh_sens, SENSOR_CHAN_HUMIDITY,
+				&humidity);
+	if (rc != 0) {
+		LOG_ERR("Getting humidity from SHT21 failed with error %d",
+			rc);
+	}
+
+	if (lbl_sht21 == NULL) {
+		lbl_sht21 = lv_label_create(lv_scr_act(), NULL);
 	}
 	snprintf(text, sizeof(text), "%s%d.%dC %d.%d%%",
 		 temperature1.val1 < 0 || temperature1.val2 < 0 ? "-" : "",
 		 abs(temperature1.val1), abs(temperature1.val2) / 10000,
 		 humidity.val1, humidity.val2 / 10000);
-	lv_label_set_text(label1, text);
-	lv_obj_align(label1, NULL, LV_ALIGN_IN_TOP_MID, 0, 12);
+	lv_label_set_text(lbl_sht21, text);
+	lv_obj_align(lbl_sht21, NULL, LV_ALIGN_IN_TOP_MID, 0, 12);
+}
+
+static void show_ms5637(void)
+{
+	int rc;
+	struct sensor_value temperature2;
+	struct sensor_value pressure;
+	static lv_obj_t *lbl_ms5637_1;
+	static lv_obj_t *lbl_ms5637_2;
+	char text[] = "Hier gibt es nix zu sehen!";
+
+	rc = sensor_sample_fetch(pr_sens);
+	if(rc != 0) {
+		LOG_ERR("Fetching data from MS5637 failed with error %d", rc);
+	}
+	rc = sensor_channel_get(pr_sens, SENSOR_CHAN_AMBIENT_TEMP, &temperature2);
+	if (rc != 0) {
+		LOG_ERR("Getting temperature from MS5637 failed with eror %d",
+			rc);
+	}
+	rc = sensor_channel_get(pr_sens, SENSOR_CHAN_PRESS, &pressure);
+	if (rc != 0) {
+		LOG_ERR("Getting temperature from MS5637 failed with eror %d",
+			rc);
+	}
+
+	if (lbl_ms5637_1 == NULL) {
+		lbl_ms5637_1 = lv_label_create(lv_scr_act(), NULL);
+	}
+	if (lbl_ms5637_2 == NULL) {
+		lbl_ms5637_2 = lv_label_create(lv_scr_act(), NULL);
+	}
+
 	snprintf(text, sizeof(text), "%s%d.%dC",
 		 temperature2.val1 < 0 || temperature2.val2 < 0 ? "-" : "",
 		 abs(temperature2.val1), abs(temperature2.val2) / 10000);
-	lv_label_set_text(label2, text);
-	lv_obj_align(label2, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
+	lv_label_set_text(lbl_ms5637_1, text);
+	lv_obj_align(lbl_ms5637_1, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
 	snprintf(text, sizeof(text), "%d.%dKpa",
 		 pressure.val1, pressure.val2 / 1000);
-	lv_label_set_text(label3, text);
-	lv_obj_align(label3, NULL, LV_ALIGN_IN_TOP_MID, 0, 36);
+	lv_label_set_text(lbl_ms5637_2, text);
+	lv_obj_align(lbl_ms5637_2, NULL, LV_ALIGN_IN_TOP_MID, 0, 36);
+}
+
+static void show_apds9301(void)
+{
+	int rc;
+	struct sensor_value vis;
+	static lv_obj_t *lbl_apds9301_1;
+	char text[] = "Hier gibt es nix zu sehen!";
+
+	rc = sensor_sample_fetch(lx_sens);
+	if(rc != 0) {
+		LOG_ERR("Fetching data from APDS9301 failed with error %d", rc);
+	}
+	rc = sensor_channel_get(lx_sens, SENSOR_CHAN_LIGHT, &vis);
+	if (rc != 0) {
+		LOG_ERR("Getting illuminance from APDS9301 failed with eror %d",
+			rc);
+	}
+	if (lbl_apds9301_1 == NULL) {
+		lbl_apds9301_1 = lv_label_create(lv_scr_act(), NULL);
+	}
+	snprintf(text, sizeof(text), "%d.%d lux", vis.val1, vis.val2);
+	lv_label_set_text(lbl_apds9301_1, text);
+	lv_obj_align(lbl_apds9301_1, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
 }

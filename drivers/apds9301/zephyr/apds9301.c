@@ -10,8 +10,9 @@
 #include <drivers/gpio.h>
 #include <drivers/sensor.h>
 #include <logging/log.h>
+#include <math.h>
 
-LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_DBG);
 
 #define REGISTER_CONTROL 0x0U
 #define REGISTER_TIMING 0x1U
@@ -21,10 +22,10 @@ LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_INF);
 #define REGISTER_THRESHHIGH_MSB 0x5U
 #define REGISTER_INTERRUPT 0x6U
 #define REGISTER_ID 0xAU
-#define REGISTER_DATA0_LSB 0xCU
-#define REGISTER_DATA0_MSB 0xDU
-#define REGISTER_DATA1_LSB 0xEU
-#define REGISTER_DATA1_MSB 0xFU
+#define REGISTER_DATA_VIS_LSB 0xCU
+#define REGISTER_DATA_VIS_MSB 0xDU
+#define REGISTER_DATA_IR_LSB 0xEU
+#define REGISTER_DATA_IR_MSB 0xFU
 
 #define MASK_COMMAND_CMD 0x80U
 #define OFFS_COMMAND_CMD 7
@@ -50,7 +51,7 @@ LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_INF);
 #define TIMING_INTEG_SCALE_13_7 (1U / 29U)
 #define TIMING_INTEG_MS_101 0x01U
 #define TIMING_INTEG_SCALE_101 (1U / 4U)
-#define TIMING_INTEG_MS_402 0x20U
+#define TIMING_INTEG_MS_402 0x02U
 #define TIMING_INTEG_SCALE_402 1U
 
 #define MASK_INTERRUPT_LEVEL 0x10U
@@ -78,9 +79,12 @@ struct apds9301_data {
 	const struct device *i2c;
 	const struct device *int_gpio;
 	struct gpio_callback int_gpio_cb;
-	int32_t rh;
-	int32_t temp;
+	uint16_t vis;
+	uint16_t ir;
+	uint8_t gain;
 };
+
+static int sample_fetch(const struct device *dev, enum sensor_channel chan);
 
 static inline const struct device *i2c_device(const struct device *dev)
 {
@@ -189,6 +193,10 @@ static int init(const struct device *dev)
 	if ((reg_data & MASK_ID_PARTNUMBER) != ID_PARTNUMBER) {
 		LOG_ERR("%s: wrong part number", dev->name);
 	}
+	rc = write(dev, REGISTER_TIMING, TIMING_INTEG_MS_402, false, false);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to set the sample timing", dev->name);
+	}
 	rc = write(dev, REGISTER_CONTROL, CONTROL_POWER_ON, false, false);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to enable the sensor", dev->name);
@@ -198,14 +206,83 @@ static int init(const struct device *dev)
 
 static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
-	
-	return 0;
+	struct apds9301_data *data = dev->data;
+	int rc = 0;
+	uint16_t ir;
+	uint16_t vis = 0;
+
+	if (chan == SENSOR_CHAN_LIGHT || chan == SENSOR_CHAN_ALL) {
+		rc = read(dev, REGISTER_DATA_VIS_LSB, &vis, true, false);
+		if (rc != 0) {
+			LOG_ERR("%s: fetching visible data failed with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+		rc = read(dev, REGISTER_DATA_IR_LSB, &ir, true, false);
+		if (rc != 0) {
+			LOG_ERR("%s: fetching infrared data failed with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+	} else {
+		return -ENOTSUP;
+	}
+	LOG_DBG("%s: fetched values: vis = %u, ir = %u", dev->name, vis, ir);
+	if (data->gain == 1 && (ir >= 50000 || vis >= 50000)) {
+		data->gain = 0;
+		LOG_INF("%s: changing to low gain", dev->name);
+		rc = write(dev, REGISTER_TIMING, TIMING_INTEG_MS_402, false,
+			   false);
+		if (rc != 0) {
+			LOG_ERR("%s: changing gain failed with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+	} else if (data->gain == 0 && ir <= 1000 && vis <= 1000) {
+		data->gain = 1;
+		LOG_INF("%s: changing to high gain", dev->name);
+		rc = write(dev, REGISTER_TIMING,
+			   TIMING_INTEG_MS_402 | MASK_TIMING_GAIN, false,
+			   false);
+		if (rc != 0) {
+			LOG_ERR("%s: changing gain failed with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+	}
+	data->vis = vis;
+	data->ir = ir;
+	return rc;
 }
 
 static int channel_get(const struct device *dev, enum sensor_channel chan,
 		       struct sensor_value *val)
 {
-	return 0;
+	struct apds9301_data *data = dev->data;
+	int rc = 0;
+
+	if (chan == SENSOR_CHAN_LIGHT) {
+		const float rel = (float)data->ir / (float)data->vis;
+		float value;
+		if (rel <= 0.5f) {
+			value = 0.0304f * (float)data->vis -
+				0.0620f * (float)data->vis * powf(rel, 1.4f);
+		} else if (rel <= 0.61f) {
+			value = 0.0224f * (float)data->vis - 0.0310f * data->ir;
+		} else if (rel <= 0.8f) {
+			value = 0.0128f * (float)data->vis - 0.0153f * data->ir;
+		} else if (rel <= 1.3f) {
+			value = 0.00146f * (float)data->vis -
+				0.00112f * data->ir;
+		} else {
+			value = 0.0f;
+		}
+		val->val1 = truncf(value);
+		val->val2 = roundf((value - val->val1) * 1000000.0f);
+	} else {
+		rc = -ENOTSUP;
+	}
+	return rc;
 }
 
 #define APDS9301_DEVICE(id)                                                    \

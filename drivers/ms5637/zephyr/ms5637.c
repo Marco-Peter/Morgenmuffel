@@ -10,7 +10,7 @@
 #include <drivers/sensor.h>
 #include <logging/log.h>
 
-LOG_MODULE_REGISTER(MS5637, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(MS5637, LOG_LEVEL_ERR);
 
 #define MS5637_CMD_RESET 0x1E
 
