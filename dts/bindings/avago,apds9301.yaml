@@ -1,0 +1,14 @@
+# Copyright (c) 2018, Peter Bigot Consulting, LLC
+# SPDX-License-Identifier: Apache-2.0
+
+description: Avago APDS-9301 ambient light photo sensor
+
+compatible: "avago,apds9301"
+
+include: i2c-device.yaml
+
+properties:
+    int-gpios:
+      type: phandle-array
+      required: false
+      description: Interrupt pin

@@ -179,5 +179,11 @@
 		label = "MS5637";
 		reg = <0x76>;
 	};
+	light_sens: apds9301@29 {
+		compatible = "avago,apds9301";
+		label = "APDS9301";
+		reg = <0x29>;
+		int-gpios = <&gpioe 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
 };
 

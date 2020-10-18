@@ -9,6 +9,7 @@ set(ZEPHYR_BOARD_FLASH_RUNNER jlink)
 list(APPEND ZEPHYR_EXTRA_MODULES
     ${CMAKE_CURRENT_LIST_DIR}/drivers/sht2x
     ${CMAKE_CURRENT_LIST_DIR}/drivers/ms5637
+    ${CMAKE_CURRENT_LIST_DIR}/drivers/apds9301
 )
 
 find_package(Zephyr)
