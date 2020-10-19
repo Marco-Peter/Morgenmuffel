@@ -67,6 +67,11 @@ LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_DBG);
 #define OFFS_ID_REVNO 0
 #define ID_PARTNUMBER ((0x5U << OFFS_ID_PARTNUMBER) & MASK_ID_PARTNUMBER)
 
+enum apds9301_gain {
+	gain_low,
+	gain_high
+};
+
 struct apds9301_config {
 	char *i2c_bus_label;
 	char *int_gpio_label;
@@ -79,9 +84,9 @@ struct apds9301_data {
 	const struct device *i2c;
 	const struct device *int_gpio;
 	struct gpio_callback int_gpio_cb;
-	uint16_t vis;
-	uint16_t ir;
-	uint8_t gain;
+	uint32_t vis;
+	uint32_t ir;
+	enum apds9301_gain gain;
 };
 
 static int sample_fetch(const struct device *dev, enum sensor_channel chan);
@@ -165,6 +170,7 @@ static int init(const struct device *dev)
 			config->i2c_bus_label);
 		return -ENODEV;
 	}
+	data->gain = gain_low;
 	if (config->int_gpio_label) {
 		data->int_gpio = device_get_binding(config->int_gpio_label);
 		if (data->int_gpio == NULL) {
@@ -227,9 +233,15 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 	} else {
 		return -ENOTSUP;
 	}
+	data->vis = vis;
+	data->ir = ir;
+	if(data->gain == gain_low) {
+		data->vis *= 16;
+		data->ir *= 16;
+	}
 	LOG_DBG("%s: fetched values: vis = %u, ir = %u", dev->name, vis, ir);
-	if (data->gain == 1 && (ir >= 50000 || vis >= 50000)) {
-		data->gain = 0;
+	if (data->gain == gain_high && (ir >= 50000U || vis >= 50000U)) {
+		data->gain = gain_low;
 		LOG_INF("%s: changing to low gain", dev->name);
 		rc = write(dev, REGISTER_TIMING, TIMING_INTEG_MS_402, false,
 			   false);
@@ -238,8 +250,8 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 				dev->name, rc);
 			return rc;
 		}
-	} else if (data->gain == 0 && ir <= 1000 && vis <= 1000) {
-		data->gain = 1;
+	} else if (data->gain == gain_low && ir <= 1000U && vis <= 1000U) {
+		data->gain = gain_high;
 		LOG_INF("%s: changing to high gain", dev->name);
 		rc = write(dev, REGISTER_TIMING,
 			   TIMING_INTEG_MS_402 | MASK_TIMING_GAIN, false,
@@ -250,8 +262,6 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 			return rc;
 		}
 	}
-	data->vis = vis;
-	data->ir = ir;
 	return rc;
 }
 
@@ -262,23 +272,11 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 	int rc = 0;
 
 	if (chan == SENSOR_CHAN_LIGHT) {
-		const float rel = (float)data->ir / (float)data->vis;
-		float value;
-		if (rel <= 0.5f) {
-			value = 0.0304f * (float)data->vis -
-				0.0620f * (float)data->vis * powf(rel, 1.4f);
-		} else if (rel <= 0.61f) {
-			value = 0.0224f * (float)data->vis - 0.0310f * data->ir;
-		} else if (rel <= 0.8f) {
-			value = 0.0128f * (float)data->vis - 0.0153f * data->ir;
-		} else if (rel <= 1.3f) {
-			value = 0.00146f * (float)data->vis -
-				0.00112f * data->ir;
-		} else {
-			value = 0.0f;
-		}
-		val->val1 = truncf(value);
-		val->val2 = roundf((value - val->val1) * 1000000.0f);
+		int32_t value;
+
+		value = data->vis - data->ir;
+		val->val1 = value / 40;
+		val->val2 = (value % 40) * 25000;
 	} else {
 		rc = -ENOTSUP;
 	}
