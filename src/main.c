@@ -46,9 +46,9 @@ void main(void)
 	display_command(show_initScreen);
 
 	for (;;) {
+		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);
 		display_command(show_apds9301);
-		k_sleep(K_SECONDS(1));
 	}
 }
 
@@ -70,8 +70,7 @@ static void show_sht21(void)
 
 	rc = sensor_sample_fetch(rh_sens);
 	if (rc != 0) {
-		LOG_ERR("Fetching data from SHT21 failed with error %d",
-			rc);
+		LOG_ERR("Fetching data from SHT21 failed with error %d", rc);
 	}
 	rc = sensor_channel_get(rh_sens, SENSOR_CHAN_AMBIENT_TEMP,
 				&temperature1);
@@ -79,11 +78,9 @@ static void show_sht21(void)
 		LOG_ERR("Getting temperature from SHT21 failed with eror %d",
 			rc);
 	}
-	rc = sensor_channel_get(rh_sens, SENSOR_CHAN_HUMIDITY,
-				&humidity);
+	rc = sensor_channel_get(rh_sens, SENSOR_CHAN_HUMIDITY, &humidity);
 	if (rc != 0) {
-		LOG_ERR("Getting humidity from SHT21 failed with error %d",
-			rc);
+		LOG_ERR("Getting humidity from SHT21 failed with error %d", rc);
 	}
 
 	if (lbl_sht21 == NULL) {
@@ -107,10 +104,11 @@ static void show_ms5637(void)
 	char text[] = "Hier gibt es nix zu sehen!";
 
 	rc = sensor_sample_fetch(pr_sens);
-	if(rc != 0) {
+	if (rc != 0) {
 		LOG_ERR("Fetching data from MS5637 failed with error %d", rc);
 	}
-	rc = sensor_channel_get(pr_sens, SENSOR_CHAN_AMBIENT_TEMP, &temperature2);
+	rc = sensor_channel_get(pr_sens, SENSOR_CHAN_AMBIENT_TEMP,
+				&temperature2);
 	if (rc != 0) {
 		LOG_ERR("Getting temperature from MS5637 failed with eror %d",
 			rc);
@@ -133,8 +131,8 @@ static void show_ms5637(void)
 		 abs(temperature2.val1), abs(temperature2.val2) / 10000);
 	lv_label_set_text(lbl_ms5637_1, text);
 	lv_obj_align(lbl_ms5637_1, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
-	snprintf(text, sizeof(text), "%d.%dKpa",
-		 pressure.val1, pressure.val2 / 1000);
+	snprintf(text, sizeof(text), "%d.%dKpa", pressure.val1,
+		 pressure.val2 / 1000);
 	lv_label_set_text(lbl_ms5637_2, text);
 	lv_obj_align(lbl_ms5637_2, NULL, LV_ALIGN_IN_TOP_MID, 0, 36);
 }
@@ -142,15 +140,15 @@ static void show_ms5637(void)
 static void show_apds9301(void)
 {
 	int rc;
-	struct sensor_value vis;
+	struct sensor_value light_value;
 	static lv_obj_t *lbl_apds9301_1;
 	char text[] = "Hier gibt es nix zu sehen!";
 
 	rc = sensor_sample_fetch(lx_sens);
-	if(rc != 0) {
+	if (rc != 0) {
 		LOG_ERR("Fetching data from APDS9301 failed with error %d", rc);
 	}
-	rc = sensor_channel_get(lx_sens, SENSOR_CHAN_LIGHT, &vis);
+	rc = sensor_channel_get(lx_sens, SENSOR_CHAN_LIGHT, &light_value);
 	if (rc != 0) {
 		LOG_ERR("Getting illuminance from APDS9301 failed with eror %d",
 			rc);
@@ -158,7 +156,8 @@ static void show_apds9301(void)
 	if (lbl_apds9301_1 == NULL) {
 		lbl_apds9301_1 = lv_label_create(lv_scr_act(), NULL);
 	}
-	snprintf(text, sizeof(text), "%d.%d lux", vis.val1, vis.val2);
+	snprintf(text, sizeof(text), "%d.%d lux", light_value.val1,
+		 light_value.val2 / 1000);
 	lv_label_set_text(lbl_apds9301_1, text);
 	lv_obj_align(lbl_apds9301_1, NULL, LV_ALIGN_IN_TOP_MID, 0, 24);
 }

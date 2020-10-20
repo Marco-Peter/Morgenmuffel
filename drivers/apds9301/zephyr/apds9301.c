@@ -89,8 +89,6 @@ struct apds9301_data {
 	enum apds9301_gain gain;
 };
 
-static int sample_fetch(const struct device *dev, enum sensor_channel chan);
-
 static inline const struct device *i2c_device(const struct device *dev)
 {
 	struct apds9301_data *data = dev->data;
@@ -157,10 +155,19 @@ static inline int interrupt_enable(const struct device *dev)
 	const struct apds9301_config *config = dev->config;
 	int rc;
 
-	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
-				     GPIO_INT_EDGE_TO_ACTIVE);
-	rc = write(dev, REGISTER_INTERRUPT, INTERRUPT_OUT_OF_RANGE(2), false,
+	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+					  GPIO_INT_EDGE_TO_ACTIVE);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to enable interrupt with rc %d", dev->name,
+			rc);
+		return rc;
+	}
+	rc = write(dev, REGISTER_INTERRUPT, MASK_INTERRUPT_LEVEL, false,
 		   true);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to write interrupt register with rc %d",
+			dev->name, rc);
+	}
 	return rc;
 }
 
@@ -170,9 +177,18 @@ static inline int interrupt_disable(const struct device *dev)
 	const struct apds9301_config *config = dev->config;
 	int rc;
 
-	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
 				     GPIO_INT_DISABLE);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to disable interrupt with rc %d", dev->name,
+			rc);
+		return rc;
+	}
 	rc = write(dev, REGISTER_INTERRUPT, 0U, false, true);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to write interrupt register with rc %d",
+			dev->name, rc);
+	}
 	return rc;
 }
 
@@ -183,6 +199,8 @@ static void gpio_callback(const struct device *port, struct gpio_callback *cb,
 		CONTAINER_OF(cb, struct apds9301_data, gpio_callback);
 	const struct device *dev =
 		CONTAINER_OF(data, const struct device, data);
+	
+	LOG_DBG("%s: gpio_callback", dev->name);
 
 	if (data->threshold_handler != NULL) {
 		struct sensor_trigger trigger = {
@@ -207,6 +225,7 @@ static int init(const struct device *dev)
 	}
 	data->gain = gain_low;
 	if (config->int_gpio_label) {
+		LOG_DBG("%s: configuring debug pin", dev->name);
 		data->int_gpio = device_get_binding(config->int_gpio_label);
 		if (data->int_gpio == NULL) {
 			LOG_ERR("%s: device %s not found", dev->name,
@@ -249,7 +268,7 @@ static int attr_set(const struct device *dev, enum sensor_channel chan,
 		    enum sensor_attribute attr, const struct sensor_value *val)
 {
 	struct apds9301_data *data = dev->data;
-	int rc = -ENOTSUP;
+	int rc;
 	uint32_t value_cur;
 	uint32_t value_new;
 	uint32_t vis_cur;
@@ -269,14 +288,20 @@ static int attr_set(const struct device *dev, enum sensor_channel chan,
 		vis_cur *= 16;
 		ir_cur *= 16;
 	}
-	value_cur = vis_cur - ir_cur;
-	vis_new = vis_cur * value_new / value_cur;
-	regval = vis_new;
+	if (vis_cur != 0 && ir_cur != 0) {
+		value_cur = vis_cur - ir_cur;
+		vis_new = vis_cur * value_new / value_cur;
+		regval = vis_new;
+	} else {
+		regval = 0;
+	}
 
 	if (attr == SENSOR_ATTR_UPPER_THRESH) {
-		write(dev, REGISTER_THRESHHIGH_LSB, regval, true, false);
+		rc = write(dev, REGISTER_THRESHHIGH_LSB, regval, true, false);
 	} else if (attr == SENSOR_ATTR_LOWER_THRESH) {
-		write(dev, REGISTER_THRESHLOW_LSB, regval, true, false);
+		rc = write(dev, REGISTER_THRESHLOW_LSB, regval, true, false);
+	} else {
+		rc = -ENOTSUP;
 	}
 	return rc;
 }
