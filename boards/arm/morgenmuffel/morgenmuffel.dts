@@ -143,7 +143,7 @@
 
 &spi2 { /* Peripheral bus connecting display (node 0), VS1053 CS (node 1) and DCS (node 2) and SI4689 (node 3). */
 	status = "okay";
-	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiof 6 GPIO_ACTIVE_LOW>, <&gpiof 10 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>;
+	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>, <&gpiof 6 GPIO_ACTIVE_LOW>;
 	display: ssd1306@0 {
 		compatible = "solomon,ssd1306fb";
 		label = "SSD1306";
@@ -159,11 +159,22 @@
 		reset-gpios = <&gpiof 4 GPIO_ACTIVE_LOW>;
 		data_cmd-gpios = <&gpiof 5 0>;
 	};
-	codec: vs1053@1 {
-		compatible = "vlsi,vs1053";
-		label = "CODEC";
+	radio: si4689@1 {
+		compatible = "silabs,si4689";
+		label = "DAB";
 		reg = <1>;
 		spi-max-frequency = <10000000>;
+		reset-gpios = <&gpiod 11 GPIO_ACTIVE_LOW>;
+		int-gpios = <&gpiod 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+	};
+	codec: vs1053@2 {
+		compatible = "vlsi,vs1053";
+		label = "CODEC";
+		reg = <2>;
+		spi-max-frequency = <10000000>;
+		dcs-gpios = <&gpiof 10 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpiof 1 GPIO_ACTIVE_LOW>;
+		dreq-gpios = <&gpiof 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	};
 };
 

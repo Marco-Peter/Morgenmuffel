@@ -1,0 +1,22 @@
+# Copyright (c) 2018, Peter Bigot Consulting, LLC
+# SPDX-License-Identifier: Apache-2.0
+
+description: VLSI VS1053 MP3/Ogg/FLAC Codec
+
+compatible: "vlsi,vs1053"
+
+include: spi-device.yaml
+
+properties:
+    dcs-gpios:
+      type: phandle-array
+      required: true
+      description: data chip select pin
+    dreq-gpios:
+      type: phandle-array
+      required: true
+      description: data request pin
+    reset-gpios:
+      type: phandle-array
+      required: true
+      description: reset pin
