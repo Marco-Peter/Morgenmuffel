@@ -3,6 +3,7 @@
  */
 
 #include "vs1053.h"
+#include <codec.h>
 #include <zephyr/types.h>
 #include <syscall_handler.h>
 #include <drivers/spi.h>

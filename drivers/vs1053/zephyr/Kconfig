@@ -1,5 +1,8 @@
 # Copyright (c) 2020 Marco Peter
 # SPDX-License-Identifier: Apache-2.0
 
-config VS1053_DRIVER
-	bool "Enable support for the VLSI VS1053 codec"
+config VS1053
+	bool "VLSI VS1053 Codec"
+	depends on SPI
+	help
+	  Enable support for the VLSI VS1053 codec
