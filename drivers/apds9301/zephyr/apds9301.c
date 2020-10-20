@@ -12,7 +12,7 @@
 #include <logging/log.h>
 #include <math.h>
 
-LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_ERR);
 
 #define REGISTER_CONTROL 0x0U
 #define REGISTER_TIMING 0x1U
@@ -67,23 +67,24 @@ LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_DBG);
 #define OFFS_ID_REVNO 0
 #define ID_PARTNUMBER ((0x5U << OFFS_ID_PARTNUMBER) & MASK_ID_PARTNUMBER)
 
-enum apds9301_gain {
-	gain_low,
-	gain_high
-};
+#define RESPONSIVITY 40
+
+enum apds9301_gain { gain_low, gain_high };
 
 struct apds9301_config {
+	gpio_flags_t int_gpio_flags;
 	char *i2c_bus_label;
 	char *int_gpio_label;
-	gpio_flags_t int_gpio_flags;
 	uint8_t i2c_addr;
-	uint8_t int_gpio_pin;
+	gpio_pin_t int_gpio_pin;
 };
 
 struct apds9301_data {
+	sensor_trigger_handler_t threshold_handler;
 	const struct device *i2c;
 	const struct device *int_gpio;
-	struct gpio_callback int_gpio_cb;
+	struct gpio_callback gpio_callback;
+	struct k_work work;
 	uint32_t vis;
 	uint32_t ir;
 	enum apds9301_gain gain;
@@ -131,6 +132,19 @@ static inline uint8_t init_len(bool word)
 	return len;
 }
 
+static inline void interrupt_enable(const struct device *dev)
+{
+	struct apds9301_data *data = dev->data;
+	const struct apds9301_config *config = dev->config;
+	gpio_flags_t flags = GPIO_INT_EDGE_TO_ACTIVE;
+
+	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+				     flags);
+	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) > 0) {
+		k_work_submit(&data->work);
+	}
+}
+
 static inline int write(const struct device *dev, uint8_t addr, uint16_t data,
 			bool word, bool clear_irq)
 {
@@ -151,10 +165,31 @@ static inline int read(const struct device *dev, uint8_t addr, uint16_t *data,
 			      (uint8_t *)data, len);
 }
 
-static void gpio_callback(const struct device *dev, struct gpio_callback *cb,
-			  uint32_t pins)
+static void gpio_callback(const struct device *port, struct gpio_callback *cb,
+			  gpio_port_pins_t pins)
 {
-	//struct apds9301_data *data = dev->data;
+	struct apds9301_data *data =
+		CONTAINER_OF(cb, struct apds9301_data, gpio_callback);
+
+	gpio_pin_interrupt_configure(port, pins, GPIO_INT_DISABLE);
+	k_work_submit(&data->work);
+}
+
+void work_cb(struct k_work *item)
+{
+	struct apds9301_data *data =
+		CONTAINER_OF(item, struct apds9301_data, work);
+	const struct device *dev =
+		CONTAINER_OF(data, const struct device, data);
+
+	if (data->threshold_handler != NULL) {
+		struct sensor_trigger trigger = {
+			.chan = SENSOR_CHAN_LIGHT, .type = SENSOR_TRIG_THRESHOLD
+		};
+		data->threshold_handler(dev, &trigger);
+	}
+
+	interrupt_enable(dev);
 }
 
 static int init(const struct device *dev)
@@ -171,6 +206,7 @@ static int init(const struct device *dev)
 		return -ENODEV;
 	}
 	data->gain = gain_low;
+	k_work_init(&data->work, work_cb);
 	if (config->int_gpio_label) {
 		data->int_gpio = device_get_binding(config->int_gpio_label);
 		if (data->int_gpio == NULL) {
@@ -183,9 +219,9 @@ static int init(const struct device *dev)
 			LOG_ERR("%s: configuration of %s failed with rc %d",
 				dev->name, config->int_gpio_label, rc);
 		}
-		gpio_init_callback(&data->int_gpio_cb, gpio_callback,
+		gpio_init_callback(&data->gpio_callback, gpio_callback,
 				   config->int_gpio_pin);
-		rc = gpio_add_callback(data->int_gpio, &data->int_gpio_cb);
+		rc = gpio_add_callback(data->int_gpio, &data->gpio_callback);
 		if (rc != 0) {
 			LOG_ERR("%s: adding callback failed with rc %d",
 				dev->name, rc);
@@ -206,6 +242,69 @@ static int init(const struct device *dev)
 	rc = write(dev, REGISTER_CONTROL, CONTROL_POWER_ON, false, false);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to enable the sensor", dev->name);
+	}
+	return rc;
+}
+
+static int attr_set(const struct device *dev, enum sensor_channel chan,
+		    enum sensor_attribute attr, const struct sensor_value *val)
+{
+	struct apds9301_data *data = dev->data;
+	int rc = -ENOTSUP;
+	uint32_t value_cur;
+	uint32_t value_new;
+	uint32_t vis_cur;
+	uint32_t ir_cur;
+	uint32_t vis_new;
+	uint16_t regval;
+
+	if (chan != SENSOR_CHAN_LIGHT) {
+		return -ENOTSUP;
+	}
+
+	value_new =
+		val->val1 * RESPONSIVITY + val->val2 / (1000000 * RESPONSIVITY);
+	vis_cur = data->vis;
+	ir_cur = data->ir;
+	if (data->gain == gain_low) {
+		vis_cur *= 16;
+		ir_cur *= 16;
+	}
+	value_cur = vis_cur - ir_cur;
+	vis_new = vis_cur * value_new / value_cur;
+	regval = vis_new;
+
+	if (attr == SENSOR_ATTR_UPPER_THRESH) {
+		write(dev, REGISTER_THRESHHIGH_LSB, regval, true, false);
+	} else if (attr == SENSOR_ATTR_LOWER_THRESH) {
+		write(dev, REGISTER_THRESHLOW_LSB, regval, true, false);
+	}
+	return rc;
+}
+
+static int attr_get(const struct device *dev, enum sensor_channel chan,
+		    enum sensor_attribute attr, struct sensor_value *val)
+{
+	return -ENOTSUP;
+}
+
+static int trigger_set(const struct device *dev,
+		       const struct sensor_trigger *trigger,
+		       sensor_trigger_handler_t handler)
+{
+	struct apds9301_data *data = dev->data;
+	int rc = -ENOTSUP;
+
+	if (trigger->type == SENSOR_TRIG_THRESHOLD &&
+	    trigger->chan == SENSOR_CHAN_LIGHT) {
+		data->threshold_handler = handler;
+		if (handler != NULL) {
+			interrupt_enable(dev);
+			rc = write(dev, REGISTER_INTERRUPT,
+				   INTERRUPT_OUT_OF_RANGE(2), false, true);
+		} else {
+			rc = write(dev, REGISTER_INTERRUPT, 0U, false, true);
+		}
 	}
 	return rc;
 }
@@ -235,7 +334,7 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 	}
 	data->vis = vis;
 	data->ir = ir;
-	if(data->gain == gain_low) {
+	if (data->gain == gain_low) {
 		data->vis *= 16;
 		data->ir *= 16;
 	}
@@ -275,8 +374,8 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 		int32_t value;
 
 		value = data->vis - data->ir;
-		val->val1 = value / 40;
-		val->val2 = (value % 40) * 25000;
+		val->val1 = value / RESPONSIVITY;
+		val->val2 = (value % RESPONSIVITY) * (1000000 / RESPONSIVITY);
 	} else {
 		rc = -ENOTSUP;
 	}
@@ -285,9 +384,9 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 
 #define APDS9301_DEVICE(id)                                                    \
 	static struct apds9301_config apds9301_config_##id = {                 \
+		.int_gpio_flags = DT_INST_GPIO_FLAGS(id, int_gpios),           \
 		.i2c_bus_label = DT_INST_BUS_LABEL(id),                        \
 		.int_gpio_label = DT_INST_GPIO_LABEL(id, int_gpios),           \
-		.int_gpio_flags = DT_INST_GPIO_FLAGS(id, int_gpios),           \
 		.i2c_addr = DT_INST_REG_ADDR(id),                              \
 		.int_gpio_pin = DT_INST_GPIO_PIN(id, int_gpios),               \
 	};                                                                     \
@@ -297,9 +396,9 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 		apds9301_##id, DT_INST_LABEL(id), init, &apds9301_data_##id,   \
 		&apds9301_config_##id, POST_KERNEL,                            \
 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
-		&((struct sensor_driver_api){ .attr_set = NULL,                \
-					      .attr_get = NULL,                \
-					      .trigger_set = NULL,             \
+		&((struct sensor_driver_api){ .attr_set = attr_set,            \
+					      .attr_get = attr_get,            \
+					      .trigger_set = trigger_set,      \
 					      .sample_fetch = sample_fetch,    \
 					      .channel_get = channel_get }));
 
