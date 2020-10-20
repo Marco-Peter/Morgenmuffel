@@ -84,7 +84,6 @@ struct apds9301_data {
 	const struct device *i2c;
 	const struct device *int_gpio;
 	struct gpio_callback gpio_callback;
-	struct k_work work;
 	uint32_t vis;
 	uint32_t ir;
 	enum apds9301_gain gain;
@@ -132,19 +131,6 @@ static inline uint8_t init_len(bool word)
 	return len;
 }
 
-static inline void interrupt_enable(const struct device *dev)
-{
-	struct apds9301_data *data = dev->data;
-	const struct apds9301_config *config = dev->config;
-	gpio_flags_t flags = GPIO_INT_EDGE_TO_ACTIVE;
-
-	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
-				     flags);
-	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) > 0) {
-		k_work_submit(&data->work);
-	}
-}
-
 static inline int write(const struct device *dev, uint8_t addr, uint16_t data,
 			bool word, bool clear_irq)
 {
@@ -165,20 +151,36 @@ static inline int read(const struct device *dev, uint8_t addr, uint16_t *data,
 			      (uint8_t *)data, len);
 }
 
+static inline int interrupt_enable(const struct device *dev)
+{
+	struct apds9301_data *data = dev->data;
+	const struct apds9301_config *config = dev->config;
+	int rc;
+
+	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+				     GPIO_INT_EDGE_TO_ACTIVE);
+	rc = write(dev, REGISTER_INTERRUPT, INTERRUPT_OUT_OF_RANGE(2), false,
+		   true);
+	return rc;
+}
+
+static inline int interrupt_disable(const struct device *dev)
+{
+	struct apds9301_data *data = dev->data;
+	const struct apds9301_config *config = dev->config;
+	int rc;
+
+	gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+				     GPIO_INT_DISABLE);
+	rc = write(dev, REGISTER_INTERRUPT, 0U, false, true);
+	return rc;
+}
+
 static void gpio_callback(const struct device *port, struct gpio_callback *cb,
 			  gpio_port_pins_t pins)
 {
 	struct apds9301_data *data =
 		CONTAINER_OF(cb, struct apds9301_data, gpio_callback);
-
-	gpio_pin_interrupt_configure(port, pins, GPIO_INT_DISABLE);
-	k_work_submit(&data->work);
-}
-
-void work_cb(struct k_work *item)
-{
-	struct apds9301_data *data =
-		CONTAINER_OF(item, struct apds9301_data, work);
 	const struct device *dev =
 		CONTAINER_OF(data, const struct device, data);
 
@@ -188,8 +190,6 @@ void work_cb(struct k_work *item)
 		};
 		data->threshold_handler(dev, &trigger);
 	}
-
-	interrupt_enable(dev);
 }
 
 static int init(const struct device *dev)
@@ -206,7 +206,6 @@ static int init(const struct device *dev)
 		return -ENODEV;
 	}
 	data->gain = gain_low;
-	k_work_init(&data->work, work_cb);
 	if (config->int_gpio_label) {
 		data->int_gpio = device_get_binding(config->int_gpio_label);
 		if (data->int_gpio == NULL) {
@@ -299,11 +298,9 @@ static int trigger_set(const struct device *dev,
 	    trigger->chan == SENSOR_CHAN_LIGHT) {
 		data->threshold_handler = handler;
 		if (handler != NULL) {
-			interrupt_enable(dev);
-			rc = write(dev, REGISTER_INTERRUPT,
-				   INTERRUPT_OUT_OF_RANGE(2), false, true);
+			rc = interrupt_enable(dev);
 		} else {
-			rc = write(dev, REGISTER_INTERRUPT, 0U, false, true);
+			rc = interrupt_disable(dev);
 		}
 	}
 	return rc;
@@ -332,11 +329,9 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 	} else {
 		return -ENOTSUP;
 	}
-	data->vis = vis;
-	data->ir = ir;
 	if (data->gain == gain_low) {
-		data->vis *= 16;
-		data->ir *= 16;
+		vis *= 16;
+		ir *= 16;
 	}
 	LOG_DBG("%s: fetched values: vis = %u, ir = %u", dev->name, vis, ir);
 	if (data->gain == gain_high && (ir >= 50000U || vis >= 50000U)) {
@@ -360,6 +355,9 @@ static int sample_fetch(const struct device *dev, enum sensor_channel chan)
 				dev->name, rc);
 			return rc;
 		}
+	} else {
+		data->vis = vis;
+		data->ir = ir;
 	}
 	return rc;
 }
