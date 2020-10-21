@@ -1,9 +1,9 @@
 # Copyright (c) 2018, Peter Bigot Consulting, LLC
 # SPDX-License-Identifier: Apache-2.0
 
-description: Silicon Labs SI4689 DAB Receiver
+description: Silicon Labs SI468x FM/DAB/FMHD/AM/AMHD Receiver
 
-compatible: "silabs,si4689"
+compatible: "silabs,si468x"
 
 include: spi-device.yaml
 

@@ -1,0 +1,9 @@
+# Copyright (c) 2020 Marco Peter
+# SPDX-License-Identifier: Apache-2.0
+
+config SI468X
+	bool "Silicon Labs SI468X FM/DAB/FMHD/AM/AMHD Receiver"
+	depends on SPI
+	help
+	  Enable support for the Silicon Labs SI468x FM/DAB/FMHD/AM/AMHD
+	  receivers
