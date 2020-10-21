@@ -11,6 +11,7 @@
 #define __SI468X_COMMANDS_H__
 
 #include <device.h>
+#include <drivers/spi.h>
 
 // FM Mode commands
 #define SI468X_CMD_FM_TUNE_FREQ 0x30
@@ -392,9 +393,7 @@ struct si468x_serviceData {
 	uint8_t srvState;
 	union {
 		struct {
-			uint8_t
-				dscType:6,
-				dataSrc:2;
+			uint8_t dscType : 6, dataSrc : 2;
 		} comps;
 		uint8_t byte;
 	} type;
@@ -410,51 +409,56 @@ struct si468x_dateTime {
 	uint8_t second; // Second (0..61)
 };
 
+int si468x_cmd_rd_reply(const struct device *dev,
+			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_powerup(const struct device *dev);
 int si468x_cmd_load_init(const struct device *dev);
-int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer, uint16_t len);
+int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
+			 uint16_t len);
 int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr);
 int si468x_cmd_boot(const struct device *dev);
 
-
-
 int si468xReadReply(const struct device *dev, uint8_t *buffer);
-int si468xWaitForCts(const struct device *dev, uint16_t nBytes, uint8_t *buffer);
+int si468xWaitForCts(const struct device *dev, uint16_t nBytes,
+		     uint8_t *buffer);
 int si468xReadOffset(const struct device *dev, uint16_t offset, uint16_t nBytes,
-			   uint8_t *buffer);
+		     uint8_t *buffer);
 int si468xGetSysState(const struct device *dev, enum si468x_img *image);
-int si468xSetProperty(const struct device *dev, uint16_t propId, uint16_t propVal);
-int si468xGetProperty(const struct device *dev, uint16_t propId, uint16_t *propVal);
+int si468xSetProperty(const struct device *dev, uint16_t propId,
+		      uint16_t propVal);
+int si468xGetProperty(const struct device *dev, uint16_t propId,
+		      uint16_t *propVal);
 
-int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs, uint32_t *buffer,
-			       uint8_t maxFreqs);
-int si468xDabTuneFreq(const struct device *dev, uint8_t freqIndex, uint16_t antCap);
+int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs,
+			 uint32_t *buffer, uint8_t maxFreqs);
+int si468xDabTuneFreq(const struct device *dev, uint8_t freqIndex,
+		      uint16_t antCap);
 int si468xDabDigradStatus(const struct device *dev, uint8_t digradAck,
-				uint8_t stcAck, uint8_t atTune,
-				struct si468x_dabDigradStatus *status);
+			  uint8_t stcAck, uint8_t atTune,
+			  struct si468x_dabDigradStatus *status);
 int si468xDabGetEventStatus(const struct device *dev, uint8_t digradAck,
-				  struct si468x_dabEventStatus *evtStatus);
+			    struct si468x_dabEventStatus *evtStatus);
 int si468xDabGetDigitalServiceList(const struct device *dev,
-					 struct si468x_digitalServiceList *serviceList,
-					 uint16_t maxSize);
+				   struct si468x_digitalServiceList *serviceList,
+				   uint16_t maxSize);
 int si468xDabStartDigitalService(const struct device *dev, uint8_t startStop,
-				       uint32_t serviceId, uint16_t compId);
+				 uint32_t serviceId, uint16_t compId);
 int si468xGetDigitalServiceData(const struct device *dev, uint8_t statusOnly,
-				      struct si468x_serviceData *serviceData);
+				struct si468x_serviceData *serviceData);
 int si468xDabGetTime(const struct device *dev, struct si468x_dateTime *dateTime,
-			   uint8_t local);
+		     uint8_t local);
 
 // Helper functions for service list access
-struct si468x_digitalService *si468xDabGetService(struct si468x_digitalServiceList *svcList,
-					  uint8_t svcNum);
-struct si468x_serviceComponent *si468xDabGetServiceComp(struct si468x_digitalService *service,
-						uint8_t compNum);
+struct si468x_digitalService *
+si468xDabGetService(struct si468x_digitalServiceList *svcList, uint8_t svcNum);
+struct si468x_serviceComponent *
+si468xDabGetServiceComp(struct si468x_digitalService *service, uint8_t compNum);
 
 int si468xFlashSetPropList(const struct device *dev, uint8_t *propList,
-				 uint16_t size);
+			   uint16_t size);
 int si468xFlashEraseChip(const struct device *dev);
-int si468xFlashProgramImage(const struct device *dev, uint32_t addr, uint8_t *buffer,
-				  uint16_t size);
+int si468xFlashProgramImage(const struct device *dev, uint32_t addr,
+			    uint8_t *buffer, uint16_t size);
 
 #define si468xAnyInt(_pInst_)                                                  \
 	((_pInst_)->status.stcInt || (_pInst_)->status.acfInt ||               \

@@ -70,4 +70,20 @@ config SI468X_CTUN
 
 endif #SI468X_CLK_MODE_CRYSTAL
 
+config SI468X_FLASH_START_PATCH
+	hex "Start address of patch on external flash memory"
+	default 0x0
+
+config SI468X_FLASH_START_IMAGE_AM
+	hex "Start address of AM firmware on external flash memory"
+	default 0x10000
+
+config SI468X_FLASH_START_IMAGE_DAB
+	hex "Start address of DAB firmware on external flash memory"
+	default 0xB0000
+
+config SI468X_FLASH_START_IMAGE_FM
+	hex "Start address of FM firmware on external flash memory"
+	default 0x150000
+
 endif #SI468X

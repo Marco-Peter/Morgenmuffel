@@ -8,8 +8,20 @@
 #include <drivers/spi.h>
 #include <logging/log.h>
 #include "si468x_commands.h"
+#include "si46xx_rom00_mini_patch.h"
 
 LOG_MODULE_REGISTER(si468x, LOG_LEVEL_DBG);
+
+static int wait_for_cts(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = dev->data;
+
+	do {
+		rc = si468x_cmd_rd_reply(dev, NULL);
+	} while (rc == 0 && data->clear_to_send == false);
+	return rc;
+}
 
 static int init(const struct device *dev)
 {
@@ -20,7 +32,7 @@ static int init(const struct device *dev)
 	data->spi = device_get_binding(config->spi_bus_label);
 
 	data->reset_gpio = device_get_binding(config->reset_gpio_label);
-	if(data->reset_gpio == NULL) {
+	if (data->reset_gpio == NULL) {
 		LOG_ERR("%s: failed to bind the reset gpio driver", dev->name);
 	}
 	rc = gpio_pin_configure(data->reset_gpio, config->reset_gpio_pin,
@@ -30,10 +42,11 @@ static int init(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
-	if(config->cs_gpio_label != NULL) {
+	if (config->cs_gpio_label != NULL) {
 		data->cs_gpio = device_get_binding(config->cs_gpio_label);
-		if(data->cs_gpio == NULL) {
-			LOG_ERR("%s: failed to bind the cs gpio driver", dev->name);
+		if (data->cs_gpio == NULL) {
+			LOG_ERR("%s: failed to bind the cs gpio driver",
+				dev->name);
 		}
 		rc = gpio_pin_configure(data->cs_gpio, config->cs_gpio_pin,
 					GPIO_OUTPUT | config->cs_gpio_flags);
@@ -44,7 +57,7 @@ static int init(const struct device *dev)
 		}
 	}
 	data->int_gpio = device_get_binding(config->int_gpio_label);
-	if(data->int_gpio == NULL) {
+	if (data->int_gpio == NULL) {
 		LOG_ERR("%s: failed to bind the int gpio driver", dev->name);
 	}
 	rc = gpio_pin_configure(data->int_gpio, config->int_gpio_pin,
@@ -84,11 +97,107 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
-	data->clear_to_send = true;
-
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after reset failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
 	rc = si468x_cmd_powerup(dev);
-	if(rc != 0){
-		LOG_ERR("%s: failed to send powerup command with rc %d", dev->name, rc);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to send powerup command with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	k_sleep(K_USEC(20));
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after power up command failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_load_init(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: load init command failed with rc %d", dev->name,
+			rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after load_init (1) failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_host_load(dev, minipatch, MINIPATCH_LENGTH);
+	if (rc != 0) {
+		LOG_ERR("%s: loading mini patch failed with rc %d", dev->name,
+			rc);
+		return rc;
+	}
+	k_sleep(K_MSEC(4));
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS loading mini patch failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_load_init(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: load init command after mini patch failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after load_init (2) failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_flash_load(dev, CONFIG_SI468X_FLASH_START_PATCH);
+	if (rc != 0) {
+		LOG_ERR("%s: flash load command for patch failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after loading patch failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_load_init(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: load init command after fw patch failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after load_init (3) failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_flash_load(dev, mode);
+	if (rc != 0) {
+		LOG_ERR("%s: flash load command for firmware failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after loading fw failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_boot(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: booting failed with rc %d", dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
+			dev->name, rc);
 		return rc;
 	}
 

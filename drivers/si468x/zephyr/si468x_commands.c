@@ -9,7 +9,6 @@
 
 #include "si468x_commands.h"
 #include "si468x.h"
-#include <drivers/spi.h>
 #include <string.h>
 #include <logging/log.h>
 
@@ -145,7 +144,7 @@ static int send_command(const struct device *dev,
 		.slave = config->spi_slave_number,
 		.cs = data->cs_gpio != NULL ? &spi_cs_control : NULL
 	};
-
+	data->clear_to_send = false;
 	rc = spi_write(data->spi, &spi_config, spi_buf_set);
 	return rc;
 }
@@ -165,8 +164,8 @@ static int read_status(const struct device *dev,
 	return 0;
 }
 
-static int receive_response(const struct device *dev,
-			    const struct spi_buf_set *spi_buf_set)
+int si468x_cmd_rd_reply(const struct device *dev,
+			const struct spi_buf_set *spi_buf_set)
 {
 	int rc;
 	size_t count;
@@ -363,8 +362,8 @@ int si468x_cmd_boot(const struct device *dev)
 
 	rc = send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command boot failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
+			rc);
 		return rc;
 	}
 	return rc;

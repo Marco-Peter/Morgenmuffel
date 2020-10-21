@@ -10,6 +10,7 @@
 #include <zephyr.h>
 #include "display.h"
 #include <drivers/sensor.h>
+#include <si468x.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -21,6 +22,7 @@ static void show_apds9301(void);
 static const struct device *rh_sens;
 static const struct device *pr_sens;
 static const struct device *lx_sens;
+static const struct device *tuner;
 
 static inline int abs(int value)
 {
@@ -29,6 +31,8 @@ static inline int abs(int value)
 
 void main(void)
 {
+	int rc;
+
 	rh_sens = device_get_binding("SHT2X");
 	if (rh_sens == NULL) {
 		LOG_ERR("humidity sensor not found");
@@ -41,10 +45,19 @@ void main(void)
 	if (rh_sens == NULL) {
 		LOG_ERR("lux sensor not found");
 	}
+	tuner = device_get_binding("TUNER");
+	if (rh_sens == NULL) {
+		LOG_ERR("tuner not found");
+	}
 
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
-
+/*
+	rc = si468x_startup(tuner, si468x_MODE_DAB);
+	if(rc != 0) {
+		LOG_ERR("Failed to start the tuner with rc %d", rc);
+	}
+*/
 	for (;;) {
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);

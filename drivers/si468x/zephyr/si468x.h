@@ -12,9 +12,9 @@ extern "C" {
 #include <drivers/gpio.h>
 
 enum si468x_mode {
-        si468x_MODE_DAB,
-        si468x_MODE_FM,
-        si468x_MODE_AM
+        si468x_MODE_DAB = CONFIG_SI468X_FLASH_START_IMAGE_DAB,
+        si468x_MODE_FM = CONFIG_SI468X_FLASH_START_IMAGE_FM,
+        si468x_MODE_AM = CONFIG_SI468X_FLASH_START_IMAGE_AM
 };
 
 struct si468x_config {
