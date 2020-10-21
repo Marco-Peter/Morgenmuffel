@@ -12,6 +12,21 @@
 
 LOG_MODULE_REGISTER(si4689, LOG_LEVEL_DBG);
 
+#define SI468X_CLK_MODE_PWRDN 0
+#define SI468X_CLK_MODE_CRYSTAL 1
+#define SI468X_CLK_MODE_SINGLE_ENDED 2
+#define SI468X_CLK_MODE_DIFFERENTIAL 3
+
+#define SI468X_CTSIEN(_x) (_x << 7)
+
+#define CONFIG_SI468X_CLK_MODE SI468X_CLK_MODE_CRYSTAL
+#define CONFIG_SI468X_TR_SIZE 5
+#define CONFIG_SI468X_IBIAS 0x50
+#define CONFIG_SI468X_XTALFREQ 12288000
+#define CONFIG_SI468X_CTUN 63
+#define CONFIG_SI468X_IBIASRUN 0x28
+#define CONFIG_SI468X_CTSIEN SI468X_CTSIEN(0)
+
 struct si4689_config {
 	gpio_flags_t int_gpio_flags;
 	gpio_flags_t reset_gpio_flags;
@@ -81,18 +96,31 @@ static int startup(const struct device *dev, enum si4689_mode mode)
 	int rc;
 
 	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 0);
-	if(rc != 0) {
-		LOG_ERR("%s: failed to release the reset line with rc %d", dev->name, rc);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to release the reset line with rc %d",
+			dev->name, rc);
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
 
-	const uint8_t cmd[] = {
-		SI468X_CMD_POWER_UP,
-		0U,
-		si468x_clk
-	}
-
+	const uint8_t cmd[] = { SI468X_CMD_POWER_UP,
+				CONFIG_SI468X_CTSIEN,
+				(CONFIG_SI468X_CLK_MODE << 4) |
+					CONFIG_SI468X_TR_SIZE,
+				CONFIG_SI468X_IBIAS,
+				CONFIG_SI468X_XTALFREQ & 0xFF,
+				(CONFIG_SI468X_XTALFREQ >> 8) & 0xFF,
+				(CONFIG_SI468X_XTALFREQ >> 16) & 0xFF,
+				(CONFIG_SI468X_XTALFREQ >> 24) & 0xFF,
+				CONFIG_SI468X_CTUN,
+				0x10,
+				0,
+				0,
+				0,
+				CONFIG_SI468X_IBIASRUN,
+				0,
+				0 };
+				
 	return 0;
 }
 
