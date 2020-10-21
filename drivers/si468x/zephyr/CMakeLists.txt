@@ -5,5 +5,8 @@ if(CONFIG_SI468X)
 zephyr_include_directories(.)
 
 zephyr_library()
-zephyr_library_sources(si468x.c)
+zephyr_library_sources(
+        si468x.c
+        si468x_commands.c
+)
 endif()

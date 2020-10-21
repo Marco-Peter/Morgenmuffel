@@ -160,7 +160,7 @@
 		data_cmd-gpios = <&gpiof 5 0>;
 	};
 	radio: si4689@1 {
-		compatible = "silabs,si4689";
+		compatible = "silabs,si468x";
 		label = "DAB";
 		reg = <1>;
 		spi-max-frequency = <10000000>;

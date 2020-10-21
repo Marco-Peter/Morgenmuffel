@@ -10,125 +10,7 @@
 #ifndef __SI468X_COMMANDS_H__
 #define __SI468X_COMMANDS_H__
 
-#include <stdint.h>
-
-// ---- STATUS0 ----
-// General bit masks of any reply
-// Clear to send next command
-#define SI468X_MSK_CTS 0x80
-// Command error
-#define SI468X_MSK_ERR_CMD 0x40
-// Digital radio link change interrupt -> Change in digital radio ensemble acquisition
-// Service using DAB_DIGRAD_STATUS command
-#define SI468X_MSK_DACQINT 0x20
-// An enabled component of a digital radio service requires attention
-// Service using GET_DIGITAL_SERVICE_DATA command
-#define SI468X_MSK_DSRVINT 0x10
-#define SI468X_MSK_RSQINT 0x08
-#define SI468X_MSK_RDSINT 0x04
-#define SI468X_MSK_ACFINT 0x02
-// Seek/Tune command is complete
-#define SI468X_MSK_STCINT 0x01
-
-// ---- STATUS1 ----
-// Digital radio event change interrupt indicator. New event related to digital radio occured
-// Service using DAB_DIGRAD_STATUS command
-#define SI468X_MSK_DEVNTINT 0x20
-
-// ---- STATUS2 ----
-// Is empty
-
-// ---- STATUS3 ----
-// Power up state mask and offset
-#define SI468X_MSK_PUPSTATE 0xC0
-#define SI468X_OFS_PUPSTATE 6
-// DSP frame overrun
-#define SI468X_MSK_DSPERR 0x10
-// Reply data lost --> SPI interface too fast
-#define SI468X_MSK_REPOFERR 0x08
-// Command data lost --> SPI interface too fast
-#define SI468X_MSK_CMDOFERR 0x04
-// Arbiter error occured
-#define SI468X_MSK_ARBERR 0x02
-// Non recoverable error occured. Keep alive timer expired
-#define SI468X_MSK_ERRNR 0x01
-
-// Command errors
-#define SI468X_ERR_CMD_UNSPEC 0x01
-#define SI468X_ERR_CMD_REPLYOVL 0x02
-#define SI468X_ERR_CMD_NOTAVAIL 0x03
-#define SI468X_ERR_CMD_NOSUPPORT 0x04
-#define SI468X_ERR_CMD_BADFREQ 0x05
-#define SI468X_ERR_CMD_NOTFOUND 0x10
-#define SI468X_ERR_CMD_BADARG1 0x11
-#define SI468X_ERR_CMD_BADARG2 0x12
-#define SI468X_ERR_CMD_BADARG3 0x13
-#define SI468X_ERR_CMD_BADARG4 0x14
-#define SI468X_ERR_CMD_BADARG5 0x15
-#define SI468X_ERR_CMD_BADARG6 0x16
-#define SI468X_ERR_CMD_BADARG7 0x17
-#define SI468X_ERR_CMD_BUSY 0x18
-#define SI468X_ERR_CMD_BANDLIM 0x19
-#define SI468X_ERR_CMD_BADNVM 0x20
-#define SI468X_ERR_CMD_BADPATCH 0x30
-#define SI468X_ERR_CMD_BADBOOT 0x31
-#define SI468X_ERR_CMD_BADPROP 0x40
-#define SI468X_ERR_CMD_NOTACQ 0x50
-#define SI468X_ERR_CMD_APPSUPP 0xFF
-
-// Common commands
-#define SI468X_CMD_RD_REPLY 0x00
-#define SI468X_LEN_RD_REPLY 1
-#define SI468X_RPL_RD_REPLY 4
-
-#define SI468X_CMD_POWER_UP 0x01
-#define SI468X_LEN_POWER_UP 16
-
-#define SI468X_CMD_HOST_LOAD 0x04
-#define SI468X_LEN_HOST_LOAD_HDR 4
-
-#define SI468X_CMD_FLASH_LOAD 0x05
-#define SI468X_LEN_FLASH_LOAD 12
-
-#define SI468X_CMD_LOAD_INIT 0x06
-#define SI468X_LEN_LOAD_INIT 2
-
-#define SI468X_CMD_BOOT 0x07
-#define SI468X_LEN_BOOT 2
-
-#define SI468X_CMD_GET_PART_INFO 0x08
-#define SI468X_LEN_GET_PART_INFO 2
-#define SI468X_RPL_GET_PART_INFO 19
-
-#define SI468X_CMD_GET_SYS_STATE 0x09
-#define SI468X_LEN_GET_SYS_STATE 2
-#define SI468X_RPL_GET_SYS_STATE 2
-
-#define SI468X_CMD_GET_POWER_UP_ARGS 0x0A
-#define SI468X_LEN_GET_POWER_UP_ARGS 2
-#define SI468X_RPL_GET_POWER_UP_ARGS 14
-
-#define SI468X_CMD_READ_OFFSET 0x10
-#define SI468X_LEN_READ_OFFSET 4
-#define SI468X_RPL_READ_OFFSET 1
-
-#define SI468X_CMD_GET_FUNC_INFO 0x12
-#define SI468X_LEN_GET_FUNC_INFO 2
-#define SI468X_RPL_GET_FUNC_INFO 8
-
-#define SI468X_CMD_SET_PROPERTY 0x13
-#define SI468X_LEN_SET_PROPERTY 6
-
-#define SI468X_CMD_GET_PROPERTY 0x14
-#define SI468X_LEN_GET_PROPERTY 4
-#define SI468X_RPL_GET_PROPERTY 2
-
-#define SI468X_CMD_WRITE_STORAGE 0x15
-#define SI468X_LEN_WRITE_STORAGE 9
-
-#define SI468X_CMD_READ_STORAGE 0x16
-#define SI468X_LEN_READ_STORAGE 4
-#define SI468X_RPL_READ_STORAGE 1
+#include <device.h>
 
 // FM Mode commands
 #define SI468X_CMD_FM_TUNE_FREQ 0x30
@@ -404,7 +286,18 @@
 #define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOW_THRESHOLD 0xB505
 #define SI468X_PROP_DAB_TEST_BER_CONFIG 0xE800
 
-typedef struct SI468xDabDigradStatus {
+enum si468x_img {
+	si468x_IMG_BOOTLOADER,
+	si468x_IMG_FMHD,
+	si468x_IMG_DAB,
+	si468x_IMG_TDMB,
+	si468x_IMG_FMHD_DEMOD,
+	si468x_IMG_AMHD,
+	si468x_IMG_AMHD_DEMOD,
+	si468x_IMG_DAB_DEMOD
+};
+
+struct si468x_dabDigradStatus {
 	// Answer bte 0 (from LSB to MSB)
 	uint8_t rssiLInt : 1, // RSSI below DAB_DIGRAD_RSSI_LOW_THRESHOLD
 		rssiHInt : 1, // RSSI above DAB_DIGRAD_RSSI_HIGH_THRESHOLD
@@ -431,9 +324,9 @@ typedef struct SI468xDabDigradStatus {
 	uint16_t antCap; // Antenna tuning capacitor value
 	uint16_t cuLevel; // Capacity units level
 	uint8_t fastDect; // Fast detect
-} SI468xDabDigradStatus;
+};
 
-typedef struct SI468xDabEventStatus {
+struct si468x_dabEventStatus {
 	// Answer byte 0 (from LSB to MSB)
 	uint8_t svrListInt : 1, // New service list version available
 		freqInfoInt : 1, // New frequency information --> dabGetFreqInfo()
@@ -450,9 +343,9 @@ typedef struct SI468xDabEventStatus {
 		rfu3 : 6; // reserved for future use - fill bits
 
 	uint16_t listVersion; // Current service list version
-} SI468xDabEventStatus;
+};
 
-typedef struct SI468xServiceComponent {
+struct si468x_serviceComponent {
 	uint16_t id; // Component identifier
 	// Component info byte (bitmasks from LSB to MSB)
 	uint8_t isCa : 1, // access control applies on component
@@ -461,9 +354,9 @@ typedef struct SI468xServiceComponent {
 	// Valid flags (bitmasks from LSB to MSB)
 	uint8_t uaInfoValid : 1, // User application information is valid
 		rfu1 : 7; // Bits reserved for future use
-} SI468xServiceComponent;
+};
 
-typedef struct SI468xDigitalService {
+struct si468x_digitalService {
 	uint32_t id; // Service ID
 	// Service Info 1 byte (bitmasks from LSB to MSB)
 	uint8_t pdFlag : 1, // 0: Program (audio); 1: Data service
@@ -480,66 +373,87 @@ typedef struct SI468xDigitalService {
 
 	uint8_t rfu3; // Reserved for future use / alignment byte
 	char label[16]; // Service label
-} SI468xDigitalService;
+};
 
-typedef struct SI468xDigitalServiceList {
+struct si468x_digitalServiceList {
 	uint16_t size; // Size of the complete downloaded service list in bytes
 	uint16_t version; // list version
 	uint8_t nServices; // number of provided services
 	uint8_t rfu1; // Empty fill byte for data alignment
 	uint16_t rfu2; // Empty fill word (2 bytes) for data alignment
-} SI468xDigitalServiceList;
+};
 
-typedef struct SI468xDateTime {
+struct si468x_serviceData {
+	uint32_t serviceId;
+	uint32_t compId;
+	uint16_t byteCount;
+	uint16_t segNum;
+	uint16_t numSegs;
+	uint8_t srvState;
+	union {
+		struct {
+			uint8_t
+				dscType:6,
+				dataSrc:2;
+		} comps;
+		uint8_t byte;
+	} type;
+	uint8_t *payload;
+};
+
+struct si468x_dateTime {
 	uint16_t year; // Year (eg. 2000)
 	uint8_t month; // Month (1..12)
 	uint8_t day; // Day (1..31)
 	uint8_t hour; // Hour (0..24)
 	uint8_t minute; // Minute (0..60)
 	uint8_t second; // Second (0..61)
-} SI468xDateTime;
+};
 
-SI468xErr si468xReadReply(SI468x *pInst, uint16_t nBytes, uint8_t *buffer);
-SI468xErr si468xWaitForCts(SI468x *pInst, uint16_t nBytes, uint8_t *buffer);
-SI468xErr si468xReadOffset(SI468x *pInst, uint16_t offset, uint16_t nBytes,
+int si468x_cmd_powerup(const struct device *dev);
+int si468x_cmd_load_init(const struct device *dev);
+int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer, uint16_t len);
+int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr);
+int si468x_cmd_boot(const struct device *dev);
+
+
+
+int si468xReadReply(const struct device *dev, uint8_t *buffer);
+int si468xWaitForCts(const struct device *dev, uint16_t nBytes, uint8_t *buffer);
+int si468xReadOffset(const struct device *dev, uint16_t offset, uint16_t nBytes,
 			   uint8_t *buffer);
-SI468xErr si468xPowerUp(SI468x *pInst);
-SI468xErr si468xLoadInit(SI468x *pInst);
-SI468xErr si468xHostLoad(SI468x *pInst, const uint8_t *buffer, uint16_t size);
-SI468xErr si468xFlashLoad(SI468x *pInst, uint32_t startAddr);
-SI468xErr si468xBoot(SI468x *pInst);
-SI468xErr si468xGetSysState(SI468x *pInst, SI468xImage *image);
-SI468xErr si468xSetProperty(SI468x *pInst, uint16_t propId, uint16_t propVal);
-SI468xErr si468xGetProperty(SI468x *pInst, uint16_t propId, uint16_t *propVal);
+int si468xGetSysState(const struct device *dev, enum si468x_img *image);
+int si468xSetProperty(const struct device *dev, uint16_t propId, uint16_t propVal);
+int si468xGetProperty(const struct device *dev, uint16_t propId, uint16_t *propVal);
 
-SI468xErr si468xDabGetFreqList(SI468x *pInst, uint8_t *nFreqs, uint32_t *buffer,
+int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs, uint32_t *buffer,
 			       uint8_t maxFreqs);
-SI468xErr si468xDabTuneFreq(SI468x *pInst, uint8_t freqIndex, uint16_t antCap);
-SI468xErr si468xDabDigradStatus(SI468x *pInst, uint8_t digradAck,
+int si468xDabTuneFreq(const struct device *dev, uint8_t freqIndex, uint16_t antCap);
+int si468xDabDigradStatus(const struct device *dev, uint8_t digradAck,
 				uint8_t stcAck, uint8_t atTune,
-				SI468xDabDigradStatus *status);
-SI468xErr si468xDabGetEventStatus(SI468x *pInst, uint8_t digradAck,
-				  SI468xDabEventStatus *evtStatus);
-SI468xErr si468xDabGetDigitalServiceList(SI468x *pInst,
-					 SI468xDigitalServiceList *serviceList,
+				struct si468x_dabDigradStatus *status);
+int si468xDabGetEventStatus(const struct device *dev, uint8_t digradAck,
+				  struct si468x_dabEventStatus *evtStatus);
+int si468xDabGetDigitalServiceList(const struct device *dev,
+					 struct si468x_digitalServiceList *serviceList,
 					 uint16_t maxSize);
-SI468xErr si468xDabStartDigitalService(SI468x *pInst, uint8_t startStop,
+int si468xDabStartDigitalService(const struct device *dev, uint8_t startStop,
 				       uint32_t serviceId, uint16_t compId);
-SI468xErr si468xGetDigitalServiceData(SI468x *pInst, uint8_t statusOnly,
-				      ServiceData *serviceData);
-SI468xErr si468xDabGetTime(SI468x *pInst, SI468xDateTime *dateTime,
+int si468xGetDigitalServiceData(const struct device *dev, uint8_t statusOnly,
+				      struct si468x_serviceData *serviceData);
+int si468xDabGetTime(const struct device *dev, struct si468x_dateTime *dateTime,
 			   uint8_t local);
 
 // Helper functions for service list access
-SI468xDigitalService *si468xDabGetService(SI468xDigitalServiceList *svcList,
+struct si468x_digitalService *si468xDabGetService(struct si468x_digitalServiceList *svcList,
 					  uint8_t svcNum);
-SI468xServiceComponent *si468xDabGetServiceComp(SI468xDigitalService *service,
+struct si468x_serviceComponent *si468xDabGetServiceComp(struct si468x_digitalService *service,
 						uint8_t compNum);
 
-SI468xErr si468xFlashSetPropList(SI468x *pInst, uint8_t *propList,
+int si468xFlashSetPropList(const struct device *dev, uint8_t *propList,
 				 uint16_t size);
-SI468xErr si468xFlashEraseChip(SI468x *pInst);
-SI468xErr si468xFlashProgramImage(SI468x *pInst, uint32_t addr, uint8_t *buffer,
+int si468xFlashEraseChip(const struct device *dev);
+int si468xFlashProgramImage(const struct device *dev, uint32_t addr, uint8_t *buffer,
 				  uint16_t size);
 
 #define si468xAnyInt(_pInst_)                                                  \

@@ -1,9 +1,73 @@
 # Copyright (c) 2020 Marco Peter
 # SPDX-License-Identifier: Apache-2.0
 
-config SI468X
+menuconfig SI468X
 	bool "Silicon Labs SI468X FM/DAB/FMHD/AM/AMHD Receiver"
 	depends on SPI
 	help
 	  Enable support for the Silicon Labs SI468x FM/DAB/FMHD/AM/AMHD
-	  receivers
+	  receivers.
+
+if SI468X
+
+config SI468X_CTSIEN
+	bool "Use interrupt line in bootloader"
+	help
+	  The bootloader toggles the host interrupt line when CTS is available.
+
+choice
+	prompt "Clock mode"
+	default SI468X_CLK_MODE_CRYSTAL
+	help
+	  Chose the clock mode to work with.
+
+config SI468X_CLK_MODE_PWRDN
+	bool "Oscillator and buffer are powered down."
+
+config SI468X_CLK_MODE_CRYSTAL
+	bool "Reference clock generator is in crystal mode."
+
+config SI468X_CLK_MODE_SINGLE_ENDED
+	bool "Oscillator is off and circuit acts as single ended buffer."
+
+config SI468X_CLK_MODE_DIFFERENTIAL
+	bool "Oscillator is off and circuit acts as differential buffer."
+
+endchoice
+
+config SI468X_CLK_MODE
+	int
+	default 0 if SI468X_CLK_MODE_PWRDN
+	default 1 if SI468X_CLK_MODE_CRYSTAL
+	default 2 if SI468X_CLK_MODE_SINGLE_ENDED
+	default 3 if SI468X_CLK_MODE_DIFFERENTIAL
+
+config SI468X_TR_SIZE
+	int "XOSC TR_SIZE. See refclk spec sheet for more information."
+	range 0 15
+	default 5
+
+config SI468X_XTALFREQ
+	int "XTAL Frequency in Hz."
+	default 12288000
+
+if SI468X_CLK_MODE_CRYSTAL
+
+config SI468X_IBIAS
+	int "XTAL IBIAS current at startup."
+	range 0 127
+	default 80
+
+config SI468X_IBIASRUN
+	int "XTAL IBIAS current at runtime"
+	range 0 127
+	default 40
+
+config SI468X_CTUN
+	int "CTUN"
+	range 0 63
+	default 63
+
+endif #SI468X_CLK_MODE_CRYSTAL
+
+endif #SI468X

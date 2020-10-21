@@ -1,36 +1,59 @@
 /*
  * Copyright (c) 2020 Marco Peter
  */
-#ifndef __VS1053_H__
-#define __VS1053_H__
+#ifndef __SI468X_H__
+#define __SI468X_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <device.h>
+#include <drivers/gpio.h>
 
-enum si4689_mode {
-        si4689_MODE_DAB,
-        si4689_MODE_FM,
-        si4689_MODE_AM
+enum si468x_mode {
+        si468x_MODE_DAB,
+        si468x_MODE_FM,
+        si468x_MODE_AM
 };
 
-struct si4689_api {
-        int (*startup)(const struct device *dev, enum si4689_mode mode);
+struct si468x_config {
+	gpio_flags_t int_gpio_flags;
+	gpio_flags_t reset_gpio_flags;
+	gpio_flags_t cs_gpio_flags;
+        uint16_t spi_slave_number;
+	char *spi_bus_label;
+	char *int_gpio_label;
+	char *reset_gpio_label;
+	char *cs_gpio_label;
+	gpio_pin_t int_gpio_pin;
+	gpio_pin_t reset_gpio_pin;
+	gpio_pin_t cs_gpio_pin;
+};
+
+struct si468x_data {
+	const struct device *spi;
+	const struct device *int_gpio;
+	const struct device *reset_gpio;
+	const struct device *cs_gpio;
+        bool clear_to_send;
+};
+
+struct si468x_api {
+        int (*startup)(const struct device *dev, enum si468x_mode mode);
         int (*powerdown)(const struct device *dev);
 };
 
-static inline int si4689_startup(const struct device *dev, enum si4689_mode mode)
+static inline int si468x_startup(const struct device *dev, enum si468x_mode mode)
 {
-        const struct si4689_api *api = (const struct si4689_api *)dev->api;
+        const struct si468x_api *api = (const struct si468x_api *)dev->api;
 
         return api->startup(dev, mode);
 }
 
-static inline int si4689_powerdown(const struct device *dev)
+static inline int si468x_powerdown(const struct device *dev)
 {
-        const struct si4689_api *api = (const struct si4689_api *)dev->api;
+        const struct si468x_api *api = (const struct si468x_api *)dev->api;
 
         return api->powerdown(dev);
 }
@@ -39,4 +62,4 @@ static inline int si4689_powerdown(const struct device *dev)
 }
 #endif
 
-#endif /* __VS1053_H__ */
+#endif /* __SI468X_H__ */
