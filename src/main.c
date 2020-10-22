@@ -11,6 +11,7 @@
 #include "display.h"
 #include <drivers/sensor.h>
 #include <si468x.h>
+#include "powersupply.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -32,6 +33,11 @@ static inline int abs(int value)
 void main(void)
 {
 	int rc;
+
+	rc = powersupply_request_1v8();
+	if(rc != 0) {
+		LOG_ERR("Requesting 1.8V failed with rc %d", rc);
+	}
 
 	rh_sens = device_get_binding("SHT2X");
 	if (rh_sens == NULL) {
