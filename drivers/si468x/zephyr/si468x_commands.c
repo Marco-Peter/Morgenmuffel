@@ -153,6 +153,7 @@ static int read_status(const struct device *dev,
 		       const struct spi_buf_set *spi_buf_set)
 {
 	struct si468x_data *data = dev->data;
+	enum si468x_pup_state pup_state;
 
 	if (STATUS0_ERR_CMD(spi_buf_set->buffers->buf)) {
 		LOG_ERR("%s: received command error with code %d", dev->name,
@@ -160,8 +161,9 @@ static int read_status(const struct device *dev,
 		return -EIO;
 	}
 	data->clear_to_send = STATUS0_CTS(spi_buf_set->buffers->buf);
+	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers->buf);
 
-	return 0;
+	return pup_state;
 }
 
 int si468x_cmd_rd_reply(const struct device *dev,
@@ -213,11 +215,23 @@ int si468x_cmd_rd_reply(const struct device *dev,
 	}
 
 	rc = read_status(dev, &buf_set);
-	if (rc != 0) {
+	if (rc < 0) {
 		LOG_ERR("%s: reading status failed with rc %d", dev->name, rc);
 		return rc;
 	}
 
+	return rc;
+}
+
+static int wait_for_cts(const struct device *dev,
+			const struct spi_buf_set *spi_buf_set)
+{
+	int rc;
+	struct si468x_data *data = dev->data;
+
+	do {
+		rc = si468x_cmd_rd_reply(dev, spi_buf_set);
+	} while (rc >= 0 && data->clear_to_send == false);
 	return rc;
 }
 
@@ -255,7 +269,23 @@ int si468x_cmd_powerup(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
-	return rc;
+	k_sleep(K_MSEC(2));
+	rc = si468x_cmd_rd_reply(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: reading state after power up command failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	if (data->clear_to_send == false) {
+		LOG_ERR("%s: chip not ready after powerup", dev->name);
+		return -EIO;
+	}
+	if (rc != si468x_PUP_BOOTLOADER) {
+		LOG_ERR("%s: wrong chip state after powerup: %d", dev->name,
+			rc);
+		return -EIO;
+	}
+	return 0;
 }
 
 int si468x_cmd_load_init(const struct device *dev)
@@ -278,7 +308,13 @@ int si468x_cmd_load_init(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
-	return rc;
+	rc = wait_for_cts(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after load_init failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
 }
 
 int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
@@ -309,7 +345,14 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 			dev->name, rc);
 		return rc;
 	}
-	return rc;
+	k_sleep(K_MSEC(4));
+	rc = wait_for_cts(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after host load failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
 }
 
 int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr)
@@ -343,7 +386,13 @@ int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr)
 			dev->name, rc);
 		return rc;
 	}
-	return rc;
+	rc = wait_for_cts(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after flash load failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
 }
 
 int si468x_cmd_boot(const struct device *dev)
@@ -366,5 +415,81 @@ int si468x_cmd_boot(const struct device *dev)
 			rc);
 		return rc;
 	}
-	return rc;
+	rc = wait_for_cts(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	if (rc != si468x_PUP_APPLICATION) {
+		LOG_ERR("%s: wrong chip state after boot command: %d",
+			dev->name, rc);
+		return -EIO;
+	}
+	return 0;
+}
+
+int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
+{
+	int rc;
+	struct si468x_data *data = dev->data;
+
+	if (data->clear_to_send == false) {
+		return -EAGAIN;
+	}
+
+	uint8_t cmd[] = { SI468X_CMD_GET_SYS_STATE, 0 };
+
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+
+	rc = send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
+			rc);
+		return rc;
+	}
+	uint8_t ans;
+	struct spi_buf ans_buf = { .buf = &ans, .len = sizeof(ans) };
+	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
+	rc = wait_for_cts(dev, &ans_buf_set);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	*image = (enum si468x_image)ans;
+	return 0;
+}
+
+int si468x_cmd_set_property(const struct device *dev, uint16_t id, uint16_t val)
+{
+	int rc;
+	struct si468x_data *data = dev->data;
+
+	if (data->clear_to_send == false) {
+		return -EAGAIN;
+	}
+
+	uint8_t cmd[] = {
+		SI468X_CMD_SET_PROPERTY, 0,	     id & 0xFF,
+		(id >> 8) & 0xFF,	 val & 0xFF, (val >> 8) & 0xFF
+	};
+
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+
+	rc = send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending command set property failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_cts(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after set property failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
 }

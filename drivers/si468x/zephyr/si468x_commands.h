@@ -287,15 +287,21 @@
 #define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOW_THRESHOLD 0xB505
 #define SI468X_PROP_DAB_TEST_BER_CONFIG 0xE800
 
-enum si468x_img {
-	si468x_IMG_BOOTLOADER,
-	si468x_IMG_FMHD,
-	si468x_IMG_DAB,
-	si468x_IMG_TDMB,
-	si468x_IMG_FMHD_DEMOD,
-	si468x_IMG_AMHD,
-	si468x_IMG_AMHD_DEMOD,
-	si468x_IMG_DAB_DEMOD
+enum si468x_pup_state {
+	si468x_PUP_RESET = 0,
+	si468x_PUP_BOOTLOADER = 2,
+	si468x_PUP_APPLICATION = 3
+};
+
+enum si468x_image {
+	si468x_IMG_BOOTLOADER = 0,
+	si468x_IMG_FMHD = 1,
+	si468x_IMG_DAB = 2,
+	si468x_IMG_TDMB = 3,
+	si468x_IMG_FMHD_DEMOD = 4,
+	si468x_IMG_AMHD = 5,
+	si468x_IMG_AMHD_DEMOD = 6,
+	si468x_IMG_DAB_DEMOD = 7
 };
 
 struct si468x_dabDigradStatus {
@@ -417,15 +423,16 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 			 uint16_t len);
 int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr);
 int si468x_cmd_boot(const struct device *dev);
+int si468x_cmd_get_sys_state(const struct device *dev,
+			     enum si468x_image *image);
+int si468x_cmd_set_property(const struct device *dev, uint16_t id,
+			    uint16_t val);
 
 int si468xReadReply(const struct device *dev, uint8_t *buffer);
 int si468xWaitForCts(const struct device *dev, uint16_t nBytes,
 		     uint8_t *buffer);
 int si468xReadOffset(const struct device *dev, uint16_t offset, uint16_t nBytes,
 		     uint8_t *buffer);
-int si468xGetSysState(const struct device *dev, enum si468x_img *image);
-int si468xSetProperty(const struct device *dev, uint16_t propId,
-		      uint16_t propVal);
 int si468xGetProperty(const struct device *dev, uint16_t propId,
 		      uint16_t *propVal);
 

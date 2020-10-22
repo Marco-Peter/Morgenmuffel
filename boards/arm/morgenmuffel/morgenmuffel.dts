@@ -45,7 +45,7 @@
 		};
 		btn_menu: button_menu {
 			label = "BtnMenu";
-			gpios = <&gpiof 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpiof 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		};
 		btn_play: button_play {
 			label = "BtnPlay";

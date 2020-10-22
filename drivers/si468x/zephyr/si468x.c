@@ -12,16 +12,9 @@
 
 LOG_MODULE_REGISTER(si468x, LOG_LEVEL_DBG);
 
-static int wait_for_cts(const struct device *dev)
-{
-	int rc;
-	struct si468x_data *data = dev->data;
-
-	do {
-		rc = si468x_cmd_rd_reply(dev, NULL);
-	} while (rc == 0 && data->clear_to_send == false);
-	return rc;
-}
+static int init(const struct device *dev);
+static int startup(const struct device *dev, enum si468x_mode mode);
+static int powerdown(const struct device *dev);
 
 static int init(const struct device *dev)
 {
@@ -83,10 +76,8 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 	const struct si468x_config *config = dev->config;
 	int rc;
 
-	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
+	rc = powerdown(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to pull the reset line with rc %d",
-			dev->name, rc);
 		return rc;
 	}
 	k_sleep(K_MSEC(1));
@@ -97,22 +88,23 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
-	rc = wait_for_cts(dev);
+	rc = si468x_cmd_rd_reply(dev, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after reset failed with rc %d",
+		LOG_ERR("%s: reading state after reset failed with rc %d",
 			dev->name, rc);
 		return rc;
+	}
+	if (data->clear_to_send == false) {
+		LOG_ERR("%s: chip not ready after reset", dev->name);
+		return -EIO;
+	}
+	if (rc != si468x_PUP_RESET) {
+		LOG_ERR("%s: wrong chip state after reset: %d", dev->name, rc);
+		return -EIO;
 	}
 	rc = si468x_cmd_powerup(dev);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to send powerup command with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	k_sleep(K_USEC(20));
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after power up command failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -122,34 +114,15 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 			rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after load_init (1) failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
 	rc = si468x_cmd_host_load(dev, minipatch, MINIPATCH_LENGTH);
 	if (rc != 0) {
 		LOG_ERR("%s: loading mini patch failed with rc %d", dev->name,
 			rc);
 		return rc;
 	}
-	k_sleep(K_MSEC(4));
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS loading mini patch failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
 	rc = si468x_cmd_load_init(dev);
 	if (rc != 0) {
 		LOG_ERR("%s: load init command after mini patch failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after load_init (2) failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -159,21 +132,9 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after loading patch failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
 	rc = si468x_cmd_load_init(dev);
 	if (rc != 0) {
 		LOG_ERR("%s: load init command after fw patch failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after load_init (3) failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -183,30 +144,42 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after loading fw failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
 	rc = si468x_cmd_boot(dev);
 	if (rc != 0) {
 		LOG_ERR("%s: booting failed with rc %d", dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev);
+
+	enum si468x_image image;
+	rc = si468x_cmd_get_sys_state(dev, &image);
 	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("%s: getting image id failed with rc %d", dev->name,
+			rc);
 		return rc;
 	}
-
-	return 0;
+	if (!(((mode == si468x_MODE_AM) && (image == si468x_IMG_AMHD)) ||
+	      ((mode == si468x_MODE_DAB) && (image == si468x_IMG_DAB)) ||
+	      ((mode == si468x_MODE_FM) && (image == si468x_IMG_FMHD)))) {
+		LOG_ERR("%s: loaded wrong firmware image %d for mode %d",
+			dev->name, image, mode);
+		return -EIO;
+	}
+	return rc;
 }
 
 static int powerdown(const struct device *dev)
 {
-	return 0;
+	struct si468x_data *data = dev->data;
+	const struct si468x_config *config = dev->config;
+	int rc;
+
+	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to pull the reset line with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return rc;
 }
 
 #define SI468X_DEVICE(id)                                                      \
