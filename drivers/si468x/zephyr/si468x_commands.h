@@ -75,73 +75,6 @@
 // DLS PAD, DSCTy will be zero
 #define SI468X_DIGITAL_SERVICE_TYPE_DLS 0x02
 
-// DAB mode commands
-#define SI468X_CMD_DAB_TUNE_FREQ 0xB0
-#define SI468X_LEN_DAB_TUNE_FREQ 6
-
-#define SI468X_CMD_DAB_DIGRAD_STATUS 0xB2
-#define SI468X_LEN_DAB_DIGRAD_STATUS 2
-#define SI468X_RPL_DAB_DIGRAD_STATUS 19
-
-#define SI468X_CMD_DAB_GET_EVENT_STATUS 0xB3
-#define SI468X_LEN_DAB_GET_EVENT_STATUS 2
-#define SI468X_RPL_DAB_GET_EVENT_STATUS 4
-
-#define SI468X_CMD_DAB_GET_ENSEMBLE_INFO 0xB4
-#define SI468X_LEN_DAB_GET_ENSEMBLE_INFO 2
-#define SI468X_RPL_DAB_GET_ENSEMBLE_INFO 22
-
-#define SI468X_CMD_DAB_GET_ANNOUNCEMENT_SUPPORT_INFO 0xB5
-#define SI468X_LEN_DAB_GET_ANNOUNCEMENT_SUPPORT_INFO 8
-#define SI468X_RPL_DAB_GET_ANNOUNCEMENT_SUPPORT_INFO 8
-
-#define SI468X_CMD_DAB_GET_ANNOUNCEMENT_INFO 0xB6
-#define SI468X_LEN_DAB_GET_ANNOUNCEMENT_INFO 1
-#define SI468X_RPL_DAB_GET_ANNOUNCEMENT_INFO 12
-
-#define SI468X_CMD_DAB_GET_SERVICE_LINKING_INFO 0xB7
-#define SI468X_LEN_DAB_GET_SERVICE_LINKING_INFO 8
-#define SI468X_RPL_DAB_GET_SERVICE_LINKING_INFO 12
-
-#define SI468X_CMD_DAB_SET_FREQ_LIST 0xB8
-#define SI468X_LEN_DAB_SET_FREQ_LIST_HDR 4
-
-#define SI468X_CMD_DAB_GET_FREQ_LIST 0xB9
-#define SI468X_LEN_DAB_GET_FREQ_LIST 2
-#define SI468X_RPL_DAB_GET_FREQ_LIST_HDR 4
-
-#define SI468X_CMD_DAB_GET_COMPONENT_INFO 0xBB
-#define SI468X_LEN_DAB_GET_COMPONENT_INFO 12
-#define SI468X_RPL_DAB_GET_COMPONENT_INFO 29
-
-#define SI468X_CMD_DAB_GET_TIME 0xBC
-#define SI468X_LEN_DAB_GET_TIME 2
-#define SI468X_RPL_DAB_GET_TIME 7
-
-#define SI468X_CMD_DAB_GET_AUDIO_INFO 0xBD
-#define SI468X_LEN_DAB_GET_AUDIO_INFO 2
-#define SI468X_RPL_DAB_GET_AUDIO_INFO 6
-
-#define SI468X_CMD_DAB_GET_SUBCHAN_INFO 0xBE
-#define SI468X_LEN_DAB_GET_SUBCHAN_INFO 12
-#define SI468X_RPL_DAB_GET_SUBCHAN_INFO 8
-
-#define SI468X_CMD_DAB_GET_FREQ_INFO 0xBF
-#define SI468X_LEN_DAB_GET_FREQ_INFO 2
-#define SI468X_RPL_DAB_GET_FREQ_INFO 16
-
-#define SI468X_CMD_DAB_GET_SERVICE_INFO 0xC0
-#define SI468X_LEN_DAB_GET_SERVICE_INFO 8
-#define SI468X_RPL_DAB_GET_SERVICE_INFO 22
-
-#define SI468X_CMD_DAB_GET_OE_SERVICES_INFO 0xC1
-#define SI468X_LEN_DAB_GET_OE_SERVICES_INFO 8
-#define SI468X_RPL_DAB_GET_OE_SERVICES_INFO 6
-
-#define SI468X_CMD_DAB_ACF_STATUS 0xC2
-#define SI468X_LEN_DAB_ACF_STATUS 2
-#define SI468X_RPL_DAB_ADF_STATUS 6
-
 // Test commands
 #define SI468X_CMD_TEST_GET_RSSI 0xE5
 #define SI468X_LEN_TEST_GET_RSSI 2
@@ -307,7 +240,11 @@ struct si468x_dateTime {
 };
 
 /* common commands implemented in si468x_commands.c */
+int si468x_send_command(const struct device *dev,
+			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_rd_reply(const struct device *dev,
+			const struct spi_buf_set *spi_buf_set);
+int si468x_cmd_wait_for_cts(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_powerup(const struct device *dev);
 int si468x_cmd_load_init(const struct device *dev);
@@ -321,6 +258,8 @@ int si468x_cmd_set_property(const struct device *dev, uint16_t id,
 			    uint16_t val);
 
 /* DAB specific commands implemented in si468x_commands_dab.c */
+int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
+			uint16_t ant_cap);
 
 /* FMHD specific commands implemented in si468x_commands_fmhd.c */
 
@@ -337,8 +276,6 @@ int si468xGetProperty(const struct device *dev, uint16_t propId,
 
 int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs,
 			 uint32_t *buffer, uint8_t maxFreqs);
-int si468xDabTuneFreq(const struct device *dev, uint8_t freqIndex,
-		      uint16_t antCap);
 int si468xDabDigradStatus(const struct device *dev, uint8_t digradAck,
 			  uint8_t stcAck, uint8_t atTune,
 			  struct si468x_dabDigradStatus *status);

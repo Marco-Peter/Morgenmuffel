@@ -50,6 +50,12 @@
 #define SI468X_PROP_TUNE_FRONTEND_VARB 0x1711 // intercept
 #define SI468X_PROP_TUNE_FRONTEND_CFG 0x1712
 
+struct si468x_dab_service {
+	uint16_t id;
+	uint8_t primary_comp_id;
+	uint8_t channel;
+};
+
 struct si468x_config {
 	gpio_flags_t int_gpio_flags;
 	gpio_flags_t reset_gpio_flags;
@@ -69,11 +75,16 @@ struct si468x_data {
 	const struct device *int_gpio;
 	const struct device *reset_gpio;
 	const struct device *cs_gpio;
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	struct si468x_dab_service services[CONFIG_SI468X_DAB_SERVICE_LIST_SIZE];
+#endif
         bool clear_to_send;
+	bool seek_tune_complete;
+	bool dacqint;
 };
 
 int si468x_dab_startup(const struct device *dev);
-
+int si468x_dab_tune(const struct device *dev, uint8_t channel);
 
 
 int si468x_fmhd_startup(const struct device *dev);

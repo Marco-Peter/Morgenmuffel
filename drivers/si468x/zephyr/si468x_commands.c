@@ -124,7 +124,26 @@ LOG_MODULE_REGISTER(si468x_commands, LOG_LEVEL_DBG);
 #define ERR_CMD_NOT_ACQUIRED 0x50
 #define ERR_CMD_APP_NOT_SUPPORTED 0xFF
 
-static int send_command(const struct device *dev,
+static int read_status(const struct device *dev,
+		       const struct spi_buf_set *spi_buf_set)
+{
+	struct si468x_data *data = dev->data;
+	enum si468x_pup_state pup_state;
+
+	if (STATUS0_ERR_CMD(spi_buf_set->buffers->buf)) {
+		LOG_ERR("%s: received command error with code %d", dev->name,
+			STATUS_ERROR_CODE(spi_buf_set->buffers->buf));
+		return -EIO;
+	}
+	data->clear_to_send = STATUS0_CTS(spi_buf_set->buffers->buf);
+	data->seek_tune_complete = STATUS0_STCINT(spi_buf_set->buffers->buf);
+	data->dacqint = STATUS0_DACQINT(spi_buf_set->buffers->buf);
+	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers->buf);
+
+	return pup_state;
+}
+
+int si468x_send_command(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set)
 {
 	int rc;
@@ -147,23 +166,6 @@ static int send_command(const struct device *dev,
 	data->clear_to_send = false;
 	rc = spi_write(data->spi, &spi_config, spi_buf_set);
 	return rc;
-}
-
-static int read_status(const struct device *dev,
-		       const struct spi_buf_set *spi_buf_set)
-{
-	struct si468x_data *data = dev->data;
-	enum si468x_pup_state pup_state;
-
-	if (STATUS0_ERR_CMD(spi_buf_set->buffers->buf)) {
-		LOG_ERR("%s: received command error with code %d", dev->name,
-			STATUS_ERROR_CODE(spi_buf_set->buffers->buf));
-		return -EIO;
-	}
-	data->clear_to_send = STATUS0_CTS(spi_buf_set->buffers->buf);
-	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers->buf);
-
-	return pup_state;
 }
 
 int si468x_cmd_rd_reply(const struct device *dev,
@@ -223,7 +225,7 @@ int si468x_cmd_rd_reply(const struct device *dev,
 	return rc;
 }
 
-static int wait_for_cts(const struct device *dev,
+int si468x_cmd_wait_for_cts(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set)
 {
 	int rc;
@@ -263,7 +265,7 @@ int si468x_cmd_powerup(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command powerup failed with rc %d",
 			dev->name, rc);
@@ -302,13 +304,13 @@ int si468x_cmd_load_init(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command load_init failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev, NULL);
+	rc = si468x_cmd_wait_for_cts(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after load_init failed with rc %d",
 			dev->name, rc);
@@ -339,14 +341,14 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 				 { .buf = (void *)buffer, .len = len } };
 	struct spi_buf_set buf_set = { .buffers = buf, .count = 2 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command host_load failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
-	rc = wait_for_cts(dev, NULL);
+	rc = si468x_cmd_wait_for_cts(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after host load failed with rc %d",
 			dev->name, rc);
@@ -380,13 +382,13 @@ int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command flash_load failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev, NULL);
+	rc = si468x_cmd_wait_for_cts(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after flash load failed with rc %d",
 			dev->name, rc);
@@ -409,13 +411,13 @@ int si468x_cmd_boot(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
 			rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev, NULL);
+	rc = si468x_cmd_wait_for_cts(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
 			dev->name, rc);
@@ -443,7 +445,7 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
 			rc);
@@ -452,7 +454,7 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 	uint8_t ans;
 	struct spi_buf ans_buf = { .buf = &ans, .len = sizeof(ans) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
-	rc = wait_for_cts(dev, &ans_buf_set);
+	rc = si468x_cmd_wait_for_cts(dev, &ans_buf_set);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
 			dev->name, rc);
@@ -479,13 +481,13 @@ int si468x_cmd_set_property(const struct device *dev, uint16_t id, uint16_t val)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	rc = send_command(dev, &buf_set);
+	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command set property failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_cts(dev, NULL);
+	rc = si468x_cmd_wait_for_cts(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for CTS after set property failed with rc %d",
 			dev->name, rc);

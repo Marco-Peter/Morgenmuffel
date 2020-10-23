@@ -102,6 +102,13 @@ config SI468X_DAB_VALID_RSSI_THRESHOLD
 	default 30
 	range -128 127
 
+config SI468X_DAB_SERVICE_LIST_SIZE
+	int "Size of the internal service list"
+	default 100
+	help
+	  The driver needs an internal list on which service and component can
+	  be found on which channel. Each entry requires 4 bytes.
+
 endif #SI468X_DAB
 
 menuconfig SI468X_FMHD

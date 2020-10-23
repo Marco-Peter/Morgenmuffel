@@ -4,9 +4,10 @@
 
 #include "si468x_private.h"
 #include "si468x_commands.h"
+#include <string.h>
 #include <logging/log.h>
 
-LOG_MODULE_REGISTER(si468x_commands_dab, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(si468x_dab, LOG_LEVEL_DBG);
 
 // Digital service interrupt source
 #define SI468X_PROP_DIGITAL_SERVICE_INT_SOURCE 0x8100
@@ -71,6 +72,102 @@ LOG_MODULE_REGISTER(si468x_commands_dab, LOG_LEVEL_DBG);
 #define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOSS_THRESHOLD 0xB504
 #define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOW_THRESHOLD 0xB505
 #define SI468X_PROP_DAB_TEST_BER_CONFIG 0xE800
+
+const wchar_t ebu_chars[] = {
+	0,    L'Ę', L'Į', L'Ų',	 L'Ă', L'Ė', L'Ď', L'Ș', L'Ț', L'Ċ', L'?', L'?',
+	L'Ġ', L'Ĺ', L'Ż', L'Ń',	 L'ą', L'ę', L'į', L'ų', L'ă', L'ė', L'ď', L'ș',
+	L'ț', L'ċ', L'Ň', L'Ě',	 L'ġ', L'ĺ', L'ż', L'?', L' ', L'!', L'"', L'#',
+	L'ł', L'%', L'&', L'\'', L'(', L')', L'*', L'+', L',', L'-', L'.', L'/',
+	L'0', L'1', L'2', L'3',	 L'4', L'5', L'6', L'7', L'8', L'9', L':', L';',
+	L'<', L'=', L'>', L'?',	 L'@', L'A', L'B', L'C', L'D', L'E', L'F', L'G',
+	L'H', L'I', L'J', L'K',	 L'L', L'M', L'N', L'O', L'P', L'Q', L'R', L'S',
+	L'T', L'U', L'V', L'W',	 L'X', L'Y', L'Z', L'[', L'Ů', L']', L'Ł', L'_',
+	L'Ą', L'a', L'b', L'c',	 L'd', L'e', L'f', L'g', L'h', L'i', L'j', L'k',
+	L'l', L'm', L'n', L'o',	 L'p', L'q', L'r', L's', L't', L'u', L'v', L'w',
+	L'x', L'y', L'z', L'«',	 L'ů', L'»', L'Ľ', L'Ħ', L'á', L'à', L'é', L'è',
+	L'í', L'ì', L'ó', L'ò',	 L'ú', L'ù', L'Ñ', L'Ç', L'Ş', L'ß', L'¡', L'Ÿ',
+	L'â', L'ä', L'ê', L'ë',	 L'î', L'ï', L'ô', L'ö', L'û', L'ü', L'ñ', L'ç',
+	L'ş', L'ğ', L'ı', L'ÿ',	 L'Ķ', L'Ņ', L'©', L'Ģ', L'Ğ', L'ě', L'ň', L'ő',
+	L'Ő', L'€', L'£', L'$',	 L'Ā', L'Ē', L'Ī', L'Ū', L'ķ', L'ņ', L'Ļ', L'ģ',
+	L'ļ', L'İ', L'ń', L'ű',	 L'Ű', L'¿', L'ľ', L'°', L'ā', L'ē', L'ī', L'ū',
+	L'Á', L'À', L'É', L'È',	 L'Í', L'Ì', L'Ó', L'Ò', L'Ú', L'Ù', L'Ř', L'Č',
+	L'Š', L'Ž', L'Ð', L'Ŀ',	 L'Â', L'Ä', L'Ê', L'Ë', L'Î', L'Ï', L'Ô', L'Ö',
+	L'Û', L'Ü', L'ř', L'č',	 L'š', L'ž', L'đ', L'ŀ', L'Ã', L'Å', L'Æ', L'Œ',
+	L'ŷ', L'Ý', L'Õ', L'Ø',	 L'Þ', L'Ŋ', L'Ŕ', L'Ć', L'Ś', L'Ź', L'Ť', L'ð',
+	L'ã', L'å', L'æ', L'œ',	 L'ŵ', L'ý', L'õ', L'ø', L'þ', L'ŋ', L'ŕ', L'ć',
+	L'ś', L'ź', L'ť', L'ħ',	 L'?'
+};
+
+static struct si468x_dab_service *add_service(const struct device *dev,
+					      uint16_t service_id)
+{
+	struct si468x_dab_service *service = NULL;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	for (int i = 0; i < CONFIG_SI468X_DAB_SERVICE_LIST_SIZE; i++) {
+		if (data->services[i].id == service_id) {
+			service = &data->services[i];
+			break;
+		} else if (data->services[i].id == 0) {
+			service = &data->services[i];
+		}
+	}
+	return service;
+}
+
+static struct si468x_dab_service *get_service(const struct device *dev,
+					      uint16_t service_id)
+{
+	struct si468x_dab_service *service = NULL;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	for (int i = 0; i < CONFIG_SI468X_DAB_SERVICE_LIST_SIZE; i++) {
+		if (data->services[i].id == service_id) {
+			service = &data->services[i];
+			break;
+		}
+	}
+	return service;
+}
+
+static int wait_on_acquisition(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	do {
+		rc = si468x_cmd_wait_for_cts(dev, NULL);
+	} while (rc >= 0 && data->dacqint == false);
+	return rc;
+}
+
+static void remove_services_with_channel(const struct device *dev,
+					 uint8_t channel)
+{
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	for (int i = 0; i < CONFIG_SI468X_DAB_SERVICE_LIST_SIZE; ++i) {
+		if (data->services[i].channel == channel) {
+			data->services[i].id = 0;
+			data->services[i].primary_comp_id = 0;
+			data->services[i].channel = 0;
+		}
+	}
+}
+
+static int dab_decode_ebu_string(wchar_t *string, const uint8_t *ebu_str,
+				 size_t len)
+{
+	int i;
+	for (i = 0; i < len; i++) {
+		if (ebu_str[i] == 0) {
+			break;
+		}
+		string[i] = ebu_chars[ebu_str[i]];
+	}
+	memset(&string[i], 0, (len - i) * sizeof(wchar_t));
+	return i;
+}
 
 int si468x_dab_startup(const struct device *dev)
 {
@@ -148,6 +245,25 @@ int si468x_dab_startup(const struct device *dev)
 				     SI468X_PROP_DAB_DRC_OPTION_FULL);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab drc with rc %d", dev->name, rc);
+		return rc;
+	}
+	return 0;
+}
+
+int si468x_dab_tune(const struct device *dev, uint8_t channel)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	data->dacqint = false;
+	rc = si468x_cmd_dab_tune(dev, channel, 0);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
+		return rc;
+	}
+	rc = wait_on_acquisition(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d", dev->name, rc);
 		return rc;
 	}
 	return 0;
