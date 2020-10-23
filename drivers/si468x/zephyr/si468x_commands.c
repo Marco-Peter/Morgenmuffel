@@ -8,7 +8,7 @@
  */
 
 #include "si468x_commands.h"
-#include "si468x.h"
+#include "si468x_private.h"
 #include <string.h>
 #include <logging/log.h>
 

@@ -151,49 +151,6 @@
 #define SI468X_LEN_DAB_TEST_GET_BER_INFO 2
 #define SI468X_RPL_DAB_TEST_GET_BER_INFO 8
 
-// General properties for all modes
-
-//Enable top level interrupt sources
-#define SI468X_PROP_INT_CTL_ENABLE 0x0000
-// seek / tune complete --> Safe for next Seek/Tune command
-#define SI468X_MASK_INT_CTL_ENABLE_STCIEN 0x0001
-// ACF information changed (FM mode)
-#define SI468X_MASK_INT_CTL_ENABLE_ACFIEN 0x0002
-// RDS information updated (FM mode)
-#define SI468X_MASK_INT_CTL_ENABLE_RDSIEN 0x0004
-// Received signal quality interrupt
-#define SI468X_MASK_INT_CTL_ENABLE_RSQIEN 0x0008
-// enabled data component needs attention --> GET_DIGITAL_SERVICE_DATA
-#define SI468X_MASK_INT_CTL_ENABLE_DSRVIEN 0x0010
-// digital radio link change interrupt --> DAB_DIGRAD_STATUS
-#define SI468X_MASK_INT_CTL_ENABLE_DACQIEN 0x0020
-// Command error
-#define SI468X_MASK_INT_CTL_ENABLE_ERR_CMDIEN 0x0040
-// Clear to send next command
-#define SI468X_MASK_INT_CTL_ENABLE_CTSIEN 0x0080
-// digital radio event change interrupt
-#define SI468X_MASK_INT_CTL_ENABLE_DEVNTIEN 0x2000
-
-#define SI468X_PROP_INT_CTL_REPEAT 0x0001
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_SELECT 0x0200
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_SAMPLE_RATE 0x0201
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_FORMAT 0x0202
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_FORMAT_OVRDS1 0x0203
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_FORMAT_OVRDS2 0x0204
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_FORMAT_OVRDS3 0x0205
-#define SI468X_PROP_DIGITAL_IO_OUTPUT_FORMAT_OVRDS4 0x0206
-#define SI468X_PROP_AUDIO_ANALOG_VOLUME 0x0300
-#define SI468X_PROP_AUDIO_MUTE 0x0301
-#define SI468X_PROP_AUDIO_OUTPUT_CONFIG 0x0302
-#define SI468X_PROP_PIN_CONFIG_ENABLE 0x0800
-#define SI468X_PROP_WAKE_TONE_ENABLE 0x0900
-#define SI468X_PROP_WAKE_TONE_PERIOD 0x0901
-#define SI468X_PROP_WAKE_TONE_FREQ 0x0902
-#define SI468X_PROP_WAKE_TONE_AMPLITUDE 0x0903
-#define SI468X_PROP_TUNE_FRONTEND_VARM 0x1710 // slope
-#define SI468X_PROP_TUNE_FRONTEND_VARB 0x1711 // intercept
-#define SI468X_PROP_TUNE_FRONTEND_CFG 0x1712
-
 // Properties for FM mode
 
 #define SI468X_PROP_FM_SEEK_BAND_BOTTOM 0x3100
@@ -220,72 +177,6 @@
 #define SI468X_PROP_FM_ACF_SOFTMUTE_TOLERANCE 0x3404
 #define SI468X_PROP_FM_ACF_HIGHCUT_TOLERANCE 0x3405
 #define SI468X_PROP_FM_ACF_BLEND_TOLERANCE 0x3406
-
-// Properties for DAB mode
-
-// Digital service interrupt source
-#define SI468X_PROP_DIGITAL_SERVICE_INT_SOURCE 0x8100
-// Data package available --> GET DIGITAL_SERVICE_DATA
-#define SI468X_MASK_DIGITAL_SERVICE_INT_SOURCE_DSRVPKTINT 0x0001
-// Input buffer overflow --> reading digital service data too slow
-#define SI468X_MASK_DIGITAL_SERVICE_INT_SOURCE_DSRVOVRFLINT 0x0002
-
-#define SI468X_PROP_DIGITAL_SERVICE_RESTART_DELAY 0x8101
-#define SI468X_PROP_DAB_DIGRAD_INTERRUPT_SOURCE 0xB000
-
-#define SI468X_MASK_DAB_DIGRAD_INT_SOURCE_HARDMUTEINT 0x0010
-#define SI468X_MASK_DAB_DIGRAD_INT_SOURCE_FICERRINT 0x0008
-#define SI468X_MASK_DAB_DIGRAD_INT_SOURCE_ACQINT 0x0004
-#define SI468X_MASK_DAB_DIGRAD_INT_SOURCE_RSSIHINT 0x0002
-#define SI468X_MASK_DAB_DIGRAD_INT_SOURCE_RSSILINT 0x0001
-
-#define SI468X_PROP_DAB_DIGRAD_RSSI_HIGH_THRESHOLD 0xB001
-#define SI468X_PROP_DAB_DIGRAD_RSSI_LOW_THRESHOLD 0xB002
-#define SI468X_PROP_DAB_VALID_RSSI_TIME 0xB200
-#define SI468X_PROP_DAB_VALID_RSSI_THRESHOLD 0xB201
-#define SI468X_PROP_DAB_VALID_ACQ_TIME 0xB202
-#define SI468X_PROP_DAB_VALID_SYNC_TIME 0xB203
-#define SI468X_PROP_DAB_VALID_DETECT_TIME 0xB204
-
-// Event status change interrupt sources --> DAB_GET_EVENT_STATUS
-#define SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE 0xB300
-// Digital service list interrupt
-#define SI468X_MASK_DAB_EVENT_INTERRUPT_SOURCE_SRVLIST_INTEN 0x0001
-// Frequency information interrupt
-#define SI468X_MASK_DAB_EVENT_INTERRUPT_SOURCE_FREQINFO_INTEN 0x0002
-// Reconfiguration warning interrupt
-#define SI468X_MASK_DAB_EVENT_INTERRUPT_SOURCE_RECFGWRN_INTEN 0x0040
-// Reconfiguration interrupt
-#define SI468X_MASK_DAB_EVENT_INTERRUPT_SOURCE_RECFG_INTEN 0x0080
-
-#define SI468X_PROP_DAB_EVENT_MIN_SVRLIST_PERIOD 0xB301
-#define SI468X_PROP_DAB_EVENT_MIN_SVRLIST_PERIOD_RECONFIG 0xB302
-#define SI468X_PROP_DAB_EVENT_MIN_FREQINFO_PERIOD 0xB303
-// Select which PAD data application will be forwarded to the host
-#define SI468X_PROP_DAB_XPAD_ENABLE 0xB400
-// Enables PAD delivered DLS packets
-#define SI468X_MASK_DAB_XPAD_ENABLE_DLS_ENABLE 0x0001
-// Enables PAD delivered MOT packets
-#define SI468X_MASK_DAB_XPAD_ENABLE_MOT_ENABLE 0x0002
-// Enables PAD delivered TDC packets
-#define SI468X_MASK_DAB_XPAD_ENABLE_TDC_ENABLE 0x0004
-
-// Dynamic range control setting
-#define SI468X_PROP_DAB_DRC_OPTION 0xB401
-// Disable DRC function (no gain)
-#define SI468X_MASK_DAB_DRC_OPTION_NONE 0x0000
-// Apply 1/2 gain from specified value on PAD data
-#define SI468X_MASK_DAB_DRC_OPTION_HALF 0x0001
-// Apply full gain from specified value on PAD data
-#define SI468X_MASK_DAB_DRC_OPTION_FULL 0x0010
-
-#define SI468X_PROP_DAB_CTRL_DAB_MUTE_ENABLE 0xB500
-#define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGNAL_LEVEL_THRESHOLD 0xB501
-#define SI468X_PROP_DAB_CTRL_DAB_MUTE_WIN_THRESHOLD 0xB502
-#define SI468X_PROP_DAB_CTRL_DAB_UNMUTE_WIN_THRESHOLD 0xB503
-#define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOSS_THRESHOLD 0xB504
-#define SI468X_PROP_DAB_CTRL_DAB_MUTE_SIGLOW_THRESHOLD 0xB505
-#define SI468X_PROP_DAB_TEST_BER_CONFIG 0xE800
 
 enum si468x_pup_state {
 	si468x_PUP_RESET = 0,
@@ -415,6 +306,7 @@ struct si468x_dateTime {
 	uint8_t second; // Second (0..61)
 };
 
+/* common commands implemented in si468x_commands.c */
 int si468x_cmd_rd_reply(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_powerup(const struct device *dev);
@@ -428,6 +320,13 @@ int si468x_cmd_get_sys_state(const struct device *dev,
 int si468x_cmd_set_property(const struct device *dev, uint16_t id,
 			    uint16_t val);
 
+/* DAB specific commands implemented in si468x_commands_dab.c */
+
+/* FMHD specific commands implemented in si468x_commands_fmhd.c */
+
+/* AM specific commands implemented in si468x_commands_am.c */
+
+/* old commands TODO: To be removed when finished */
 int si468xReadReply(const struct device *dev, uint8_t *buffer);
 int si468xWaitForCts(const struct device *dev, uint16_t nBytes,
 		     uint8_t *buffer);

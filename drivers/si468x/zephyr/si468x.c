@@ -4,7 +4,7 @@
 
 #define DT_DRV_COMPAT silabs_si468x
 
-#include "si468x.h"
+#include "si468x_private.h"
 #include <drivers/spi.h>
 #include <logging/log.h>
 #include "si468x_commands.h"
@@ -157,12 +157,37 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 			rc);
 		return rc;
 	}
-	if (!(((mode == si468x_MODE_AM) && (image == si468x_IMG_AMHD)) ||
-	      ((mode == si468x_MODE_DAB) && (image == si468x_IMG_DAB)) ||
-	      ((mode == si468x_MODE_FM) && (image == si468x_IMG_FMHD)))) {
+	if (!(
+#if IS_ENABLED(CONFIG_SI468X_AM)
+		    ((mode == si468x_MODE_AM) && (image == si468x_IMG_AMHD)) ||
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+		    ((mode == si468x_MODE_DAB) && (image == si468x_IMG_DAB)) ||
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+		    ((mode == si468x_MODE_FMHD) && (image == si468x_IMG_FMHD)) ||
+#endif
+		    false)) {
 		LOG_ERR("%s: loaded wrong firmware image %d for mode %d",
 			dev->name, image, mode);
 		return -EIO;
+	}
+	switch (mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		rc = si468x_am_startup(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		rc = si468x_dab_startup(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		rc = si468x_fmhd_startup(dev);
+		break;
+#endif
 	}
 	return rc;
 }

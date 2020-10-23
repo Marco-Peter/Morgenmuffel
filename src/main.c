@@ -59,7 +59,7 @@ void main(void)
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
 
-	rc = si468x_startup(tuner, si468x_MODE_FM);
+	rc = si468x_startup(tuner, si468x_MODE_DAB);
 	if(rc != 0) {
 		LOG_ERR("Failed to start the tuner with rc %d", rc);
 	}

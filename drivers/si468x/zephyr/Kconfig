@@ -74,16 +74,70 @@ config SI468X_FLASH_START_PATCH
 	hex "Start address of patch on external flash memory"
 	default 0x0
 
-config SI468X_FLASH_START_IMAGE_AM
-	hex "Start address of AM firmware on external flash memory"
-	default 0x10000
+menuconfig SI468X_DAB
+	bool "Use DAB Receiver"
+
+if SI468X_DAB
 
 config SI468X_FLASH_START_IMAGE_DAB
 	hex "Start address of DAB firmware on external flash memory"
 	default 0xB0000
 
+config SI468X_VARACTOR_SLOPE_DAB
+	int "Varactor configuration slope in DAB mode"
+	default 0
+	range -32768 32767
+
+config SI468X_VARACTOR_INTCP_DAB
+	int "Varactor configuration intercept in DAB mode"
+	default 0
+	range 0 65535 
+
+config SI468X_VHFSW_DAB
+	bool "Close VHF front end switch in DAB mode"
+	default 1
+
+config SI468X_DAB_VALID_RSSI_THRESHOLD
+	int "RSSI threshold for valid DAB Seek/Tune in dBuV."
+	default 30
+	range -128 127
+
+endif #SI468X_DAB
+
+menuconfig SI468X_FMHD
+	bool "Use FMHD Receiver"
+
+if SI468X_FMHD
+
 config SI468X_FLASH_START_IMAGE_FM
 	hex "Start address of FM firmware on external flash memory"
 	default 0x150000
+
+config SI468X_VARACTOR_SLOPE_FMHD
+	int "Varactor configuration slope in FMHD mode"
+	default -7537
+	range -32768 32767
+
+config SI468X_VARACTOR_INTCP_FMHD
+	int "Varactor configuration intercept in FMHD mode"
+	default 801
+	range 0 65535 
+
+config SI468X_VHFSW_FMHD
+	bool "Close VHF front end switch in FMHD mode"
+	default 0
+
+endif #SI468X_FMHD
+
+menuconfig SI468X_AM
+	bool "Use AM Receiver"
+
+if SI468X_AM
+
+config SI468X_FLASH_START_IMAGE_AM
+	hex "Start address of AM firmware on external flash memory"
+	default 0x10000
+
+endif #SI468X_AM
 
 endif #SI468X
