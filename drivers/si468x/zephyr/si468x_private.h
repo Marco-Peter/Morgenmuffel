@@ -27,6 +27,7 @@
 #define SI468X_PROP_INT_CTL_ENABLE_ERR_CMDIEN 0x0040
 // Clear to send next command
 #define SI468X_PROP_INT_CTL_ENABLE_CTSIEN 0x0080
+#define SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS 7
 // digital radio event change interrupt
 #define SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN 0x2000
 
@@ -81,6 +82,8 @@ struct si468x_data {
         bool clear_to_send;
 	bool seek_tune_complete;
 	bool dacqint;
+	bool dsrvint;
+	bool devntint;
 };
 
 int si468x_dab_startup(const struct device *dev);

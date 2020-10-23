@@ -137,6 +137,8 @@ static int read_status(const struct device *dev,
 	}
 	data->clear_to_send = STATUS0_CTS(spi_buf_set->buffers->buf);
 	data->seek_tune_complete = STATUS0_STCINT(spi_buf_set->buffers->buf);
+	data->dsrvint = STATUS0_DSRVINT(spi_buf->buffers->buf);
+	data->devntint = STATUS1_DEVNTINT(spi_buf->buffers->buf);
 	data->dacqint = STATUS0_DACQINT(spi_buf_set->buffers->buf);
 	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers->buf);
 

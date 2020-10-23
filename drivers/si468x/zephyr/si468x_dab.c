@@ -173,6 +173,19 @@ int si468x_dab_startup(const struct device *dev)
 {
 	int rc;
 
+	rc = si468x_cmd_set_property(
+		dev, SI468X_PROP_INT_CTL_ENABLE,
+		SI468X_PROP_INT_CTL_ENABLE_STCIEN |
+			SI468X_PROP_INT_CTL_ENABLE_DSRVIEN |
+			SI468X_PROP_INT_CTL_ENABLE_DACQIEN |
+			SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN |
+			(IS_ENABLED(CONFIG_SI468X_CTSIEN)
+				<< SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS));
+	if (rc != 0) {
+		LOG_ERR("%s: failed to set dab interrupts with rc %d",
+			dev->name, rc);
+		return rc;
+	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARM,
 				     IS_ENABLED(SI468X_VHFSW_DAB));
 	if (rc != 0) {
@@ -198,17 +211,6 @@ int si468x_dab_startup(const struct device *dev)
 				     CONFIG_SI468X_DAB_VALID_RSSI_THRESHOLD);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab valid RSSI threshold with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	rc = si468x_cmd_set_property(
-		dev, SI468X_PROP_INT_CTL_ENABLE,
-		SI468X_PROP_INT_CTL_ENABLE_STCIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DSRVIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DACQIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab interrupts with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -263,7 +265,8 @@ int si468x_dab_tune(const struct device *dev, uint8_t channel)
 	}
 	rc = wait_on_acquisition(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d", dev->name, rc);
+		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d",
+			dev->name, rc);
 		return rc;
 	}
 	return 0;

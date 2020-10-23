@@ -11,7 +11,7 @@ menuconfig SI468X
 if SI468X
 
 config SI468X_CTSIEN
-	bool "Use interrupt line in bootloader"
+	bool "Use interrupt line for clear to send (CTS)"
 	help
 	  The bootloader toggles the host interrupt line when CTS is available.
 
