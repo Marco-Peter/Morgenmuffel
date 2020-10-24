@@ -1,0 +1,12 @@
+<- Interrupt Pin
+        -> RD_REPLY
+                <- CTS (Clear to Send)
+                        -> Next command in sequence
+                <- DACQINT (Digital Radio Link Change Event)
+                        ->DAB_DIGRAD_STATUS
+                <- DSRVINT
+                        -> GET_DIGITAL_SERVICE_DATA
+                <- STCINT
+                        -> Seek/Tune Complete, Next seek/tune command may be sent
+                <- DEVNTINT (Digital Radio Event Interrupt)
+                        -> DAB_DIGRAD_STATUS
