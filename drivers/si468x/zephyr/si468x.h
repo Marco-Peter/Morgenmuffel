@@ -11,34 +11,58 @@ extern "C" {
 #include <device.h>
 
 enum si468x_mode {
+	si468x_MODE_OFF,
 #if IS_ENABLED(CONFIG_SI468X_DAB)
-        si468x_MODE_DAB = CONFIG_SI468X_FLASH_START_IMAGE_DAB,
+	si468x_MODE_DAB = CONFIG_SI468X_FLASH_START_IMAGE_DAB,
 #endif
 #if IS_ENABLED(CONFIG_SI468X_FMHD)
-        si468x_MODE_FMHD = CONFIG_SI468X_FLASH_START_IMAGE_FM,
+	si468x_MODE_FMHD = CONFIG_SI468X_FLASH_START_IMAGE_FM,
 #endif
 #if IS_ENABLED(CONFIG_SI468X_AM)
-        si468x_MODE_AM = CONFIG_SI468X_FLASH_START_IMAGE_AM,
+	si468x_MODE_AM = CONFIG_SI468X_FLASH_START_IMAGE_AM,
 #endif
 };
 
 struct si468x_api {
-        int (*startup)(const struct device *dev, enum si468x_mode mode);
-        int (*powerdown)(const struct device *dev);
+	int (*powerdown)(const struct device *dev);
+	int (*play_service)(const struct device *dev, enum si468x_mode mode,
+			    uint16_t service);
+	int (*bandscan)(const struct device *dev, enum si468x_mode mode);
 };
-
-static inline int si468x_startup(const struct device *dev, enum si468x_mode mode)
-{
-        const struct si468x_api *api = (const struct si468x_api *)dev->api;
-
-        return api->startup(dev, mode);
-}
 
 static inline int si468x_powerdown(const struct device *dev)
 {
-        const struct si468x_api *api = (const struct si468x_api *)dev->api;
+	const struct si468x_api *api = (const struct si468x_api *)dev->api;
 
-        return api->powerdown(dev);
+	return api->powerdown(dev);
+}
+
+static inline int si468x_play_service(const struct device *dev,
+				      enum si468x_mode mode, uint16_t service)
+{
+	int rc;
+	const struct si468x_api *api = (const struct si468x_api *)dev->api;
+
+	if (mode == si468x_MODE_OFF) {
+		rc = api->powerdown(dev);
+	} else {
+		rc = api->play_service(dev, mode, service);
+	}
+	return rc;
+}
+
+static inline int si468x_bandscan(const struct device *dev,
+				  enum si468x_mode mode)
+{
+	int rc;
+	const struct si468x_api *api = (const struct si468x_api *)dev->api;
+
+	if (mode == si468x_MODE_OFF) {
+		rc = api->powerdown(dev);
+	} else {
+		rc = api->bandscan(dev, mode);
+	}
+	return rc;
 }
 
 #ifdef __cplusplus

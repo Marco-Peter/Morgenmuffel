@@ -245,7 +245,7 @@ int si468x_send_command(const struct device *dev,
 int si468x_cmd_rd_reply(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_wait_for_cts(const struct device *dev,
-			const struct spi_buf_set *spi_buf_set);
+			    const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_powerup(const struct device *dev);
 int si468x_cmd_load_init(const struct device *dev);
 int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
@@ -260,6 +260,9 @@ int si468x_cmd_set_property(const struct device *dev, uint16_t id,
 /* DAB specific commands implemented in si468x_commands_dab.c */
 int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 			uint16_t ant_cap);
+int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
+				 uint8_t component_id);
+int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs);
 
 /* FMHD specific commands implemented in si468x_commands_fmhd.c */
 

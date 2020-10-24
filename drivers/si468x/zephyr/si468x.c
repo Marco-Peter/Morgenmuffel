@@ -72,8 +72,9 @@ static int init(const struct device *dev)
 
 static int startup(const struct device *dev, enum si468x_mode mode)
 {
-	struct si468x_data *data = dev->data;
-	const struct si468x_config *config = dev->config;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	const struct si468x_config *config =
+		(struct si468x_config *)dev->config;
 	int rc;
 
 	rc = powerdown(dev);
@@ -188,21 +189,89 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		rc = si468x_fmhd_startup(dev);
 		break;
 #endif
+	default:
+		rc = -ENOTSUP;
+	}
+	if (rc == 0) {
+		data->current_mode = mode;
 	}
 	return rc;
 }
 
 static int powerdown(const struct device *dev)
 {
-	struct si468x_data *data = dev->data;
-	const struct si468x_config *config = dev->config;
 	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	const struct si468x_config *config =
+		(struct si468x_config *)dev->config;
 
 	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to pull the reset line with rc %d",
 			dev->name, rc);
 		return rc;
+	}
+	data->current_mode = si468x_MODE_OFF;
+	return rc;
+}
+
+static int play_service(const struct device *dev, enum si468x_mode mode,
+			uint16_t service)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	if (mode != data->current_mode) {
+		rc = startup(dev, mode);
+		if (rc != 0) {
+			return rc;
+		}
+	}
+	switch (mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		rc = si468x_am_play_service(dev, service);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		rc = si468x_dab_play_service(dev, service);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		rc = si468x_fmhd_play_service(dev, service);
+		break;
+#endif
+	default:
+		return -ENOTSUP;
+	}
+	return rc;
+}
+
+static int bandscan(const struct device *dev, enum si468x_mode mode)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	switch (mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		rc = si468x_am_bandscan(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		rc = si468x_dab_bandscan(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		rc = si468x_fmhd_bandscan(dev);
+		break;
+#endif
+	default:
+		rc = -ENOTSUP;
 	}
 	return rc;
 }
@@ -223,10 +292,12 @@ static int powerdown(const struct device *dev)
 	};                                                                     \
 	static struct si468x_data si468x_data_##id;                            \
                                                                                \
-	DEVICE_AND_API_INIT(si468x_##id, DT_INST_LABEL(id), init,              \
-			    &si468x_data_##id, &si468x_config_##id,            \
-			    POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,   \
-			    &((struct si468x_api){ .startup = startup,         \
-						   .powerdown = powerdown }));
+	DEVICE_AND_API_INIT(                                                   \
+		si468x_##id, DT_INST_LABEL(id), init, &si468x_data_##id,       \
+		&si468x_config_##id, POST_KERNEL,                              \
+		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
+		&((struct si468x_api){ .powerdown = powerdown,                 \
+				       .play_service = play_service,           \
+				       .bandscan = bandscan }));
 
 DT_INST_FOREACH_STATUS_OKAY(SI468X_DEVICE)

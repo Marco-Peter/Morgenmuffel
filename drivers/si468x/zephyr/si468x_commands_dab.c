@@ -50,7 +50,7 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-        data->seek_tune_complete = false;
+	data->seek_tune_complete = false;
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command tune_freq failed with rc %d",
@@ -60,6 +60,65 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 	rc = wait_for_stcint(dev, NULL);
 	if (rc < 0) {
 		LOG_ERR("%s: waiting for STC failed with rc %d", dev->name, rc);
+		return rc;
+	}
+	return 0;
+}
+
+int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
+				 uint8_t component_id)
+{
+	int rc;
+	uint8_t cmd[] = { SI468X_CMD_START_DIGITAL_SERVICE,
+			  0U,
+			  0U,
+			  0U,
+			  service_id & 0xFF,
+			  (service_id >> 8) & 0xFF,
+			  0U,
+			  0U,
+			  component_id & 0xFF,
+			  0U,
+			  0U,
+			  0U };
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+
+	rc = si468x_send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending command start service failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = wait_for_stcint(dev, NULL);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for STC after start service failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
+}
+
+int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	uint8_t cmd[] = { SI468X_CMD_DAB_GET_FREQ_LIST, 0U };
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+
+	rc = si468x_send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending command get_freq_list failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	struct spi_buf ans_buf = { .buf = num_freqs, .len = sizeof(uint8_t) };
+	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
+	rc = si468x_cmd_wait_for_cts(dev, &ans_buf_set);
+	if (rc < 0) {
+		LOG_ERR("%s: waiting for CTS after getting freq list failed with rc %d",
+			dev->name, rc);
 		return rc;
 	}
 	return 0;

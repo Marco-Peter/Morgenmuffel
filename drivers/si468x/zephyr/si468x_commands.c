@@ -137,8 +137,8 @@ static int read_status(const struct device *dev,
 	}
 	data->clear_to_send = STATUS0_CTS(spi_buf_set->buffers->buf);
 	data->seek_tune_complete = STATUS0_STCINT(spi_buf_set->buffers->buf);
-	data->dsrvint = STATUS0_DSRVINT(spi_buf->buffers->buf);
-	data->devntint = STATUS1_DEVNTINT(spi_buf->buffers->buf);
+	data->dsrvint = STATUS0_DSRVINT(spi_buf_set->buffers->buf);
+	data->devntint = STATUS1_DEVNTINT(spi_buf_set->buffers->buf);
 	data->dacqint = STATUS0_DACQINT(spi_buf_set->buffers->buf);
 	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers->buf);
 
@@ -228,7 +228,7 @@ int si468x_cmd_rd_reply(const struct device *dev,
 }
 
 int si468x_cmd_wait_for_cts(const struct device *dev,
-			const struct spi_buf_set *spi_buf_set)
+			    const struct spi_buf_set *spi_buf_set)
 {
 	int rc;
 	struct si468x_data *data = dev->data;
@@ -458,7 +458,7 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
 	rc = si468x_cmd_wait_for_cts(dev, &ans_buf_set);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
+		LOG_ERR("%s: waiting for CTS after getting system state failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}

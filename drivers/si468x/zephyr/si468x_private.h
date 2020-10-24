@@ -51,17 +51,19 @@
 #define SI468X_PROP_TUNE_FRONTEND_VARB 0x1711 // intercept
 #define SI468X_PROP_TUNE_FRONTEND_CFG 0x1712
 
+#if IS_ENABLED(CONFIG_SI468X_DAB)
 struct si468x_dab_service {
 	uint16_t id;
 	uint8_t primary_comp_id;
 	uint8_t channel;
 };
+#endif
 
 struct si468x_config {
 	gpio_flags_t int_gpio_flags;
 	gpio_flags_t reset_gpio_flags;
 	gpio_flags_t cs_gpio_flags;
-        uint16_t spi_slave_number;
+	uint16_t spi_slave_number;
 	char *spi_bus_label;
 	char *int_gpio_label;
 	char *reset_gpio_label;
@@ -78,8 +80,11 @@ struct si468x_data {
 	const struct device *cs_gpio;
 #if IS_ENABLED(CONFIG_SI468X_DAB)
 	struct si468x_dab_service services[CONFIG_SI468X_DAB_SERVICE_LIST_SIZE];
+	uint8_t current_channel;
 #endif
-        bool clear_to_send;
+	uint16_t current_service;
+	enum si468x_mode current_mode;
+	bool clear_to_send;
 	bool seek_tune_complete;
 	bool dacqint;
 	bool dsrvint;
@@ -87,12 +92,15 @@ struct si468x_data {
 };
 
 int si468x_dab_startup(const struct device *dev);
-int si468x_dab_tune(const struct device *dev, uint8_t channel);
-
+int si468x_dab_play_service(const struct device *dev, uint16_t service);
+int si468x_dab_bandscan(const struct device *dev);
 
 int si468x_fmhd_startup(const struct device *dev);
-
+int si468x_fmhd_play_service(const struct device *dev, uint16_t service);
+int si468x_fmhd_bandscan(const struct device *dev);
 
 int si468x_am_startup(const struct device *dev);
+int si468x_am_play_service(const struct device *dev, uint16_t service);
+int si468x_am_bandscan(const struct device *dev);
 
 #endif /* __SI468X_PRIVATE_H__ */

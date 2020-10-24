@@ -98,8 +98,8 @@ const wchar_t ebu_chars[] = {
 	L'ś', L'ź', L'ť', L'ħ',	 L'?'
 };
 
-static struct si468x_dab_service *add_service(const struct device *dev,
-					      uint16_t service_id)
+static int add_service(const struct device *dev, uint16_t service_id,
+		       uint8_t component_id, uint8_t channel)
 {
 	struct si468x_dab_service *service = NULL;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
@@ -112,11 +112,18 @@ static struct si468x_dab_service *add_service(const struct device *dev,
 			service = &data->services[i];
 		}
 	}
-	return service;
+	if (service != NULL) {
+		service->id = service_id;
+		service->primary_comp_id = component_id;
+		service->channel = channel;
+		return 0;
+	} else {
+		return -ENOMEM;
+	}
 }
 
-static struct si468x_dab_service *get_service(const struct device *dev,
-					      uint16_t service_id)
+static const struct si468x_dab_service *get_service(const struct device *dev,
+						    uint16_t service_id)
 {
 	struct si468x_dab_service *service = NULL;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
@@ -169,6 +176,31 @@ static int dab_decode_ebu_string(wchar_t *string, const uint8_t *ebu_str,
 	return i;
 }
 
+static int dab_tune(const struct device *dev, uint8_t channel)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	if (channel == data->current_channel &&
+	    data->seek_tune_complete == true) {
+		return 0;
+	}
+
+	data->dacqint = false;
+	rc = si468x_cmd_dab_tune(dev, channel, 0);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
+		return rc;
+	}
+	rc = wait_on_acquisition(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return 0;
+}
+
 int si468x_dab_startup(const struct device *dev)
 {
 	int rc;
@@ -180,7 +212,7 @@ int si468x_dab_startup(const struct device *dev)
 			SI468X_PROP_INT_CTL_ENABLE_DACQIEN |
 			SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN |
 			(IS_ENABLED(CONFIG_SI468X_CTSIEN)
-				<< SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS));
+			 << SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS));
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab interrupts with rc %d",
 			dev->name, rc);
@@ -252,22 +284,36 @@ int si468x_dab_startup(const struct device *dev)
 	return 0;
 }
 
-int si468x_dab_tune(const struct device *dev, uint8_t channel)
+int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 {
 	int rc;
+	const struct si468x_dab_service *service = get_service(dev, service_id);
+
+	rc = dab_tune(dev, service->channel);
+	if (rc != 0) {
+		return rc;
+	}
+	return rc;
+}
+
+int si468x_dab_bandscan(const struct device *dev)
+{
+	int rc;
+	uint8_t number_of_freqs;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
-	data->dacqint = false;
-	rc = si468x_cmd_dab_tune(dev, channel, 0);
+	rc = si468x_cmd_dab_get_freq_list(dev, &number_of_freqs);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
+		LOG_ERR("%s: Failed to get frequency list", dev->name);
 		return rc;
 	}
-	rc = wait_on_acquisition(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d",
-			dev->name, rc);
-		return rc;
+	memset(data->services, 0, sizeof(data->services));
+	for (int i = 0; i < number_of_freqs; i++) {
+		LOG_DBG("%s: scanning channel %d", dev->name, i);
+		rc = dab_tune(dev, i);
+		if (rc != 0) {
+			LOG_ERR("%s: Failed to scan channel %d", dev->name, i);
+			return rc;
+		}
 	}
-	return 0;
 }
