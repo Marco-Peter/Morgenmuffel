@@ -16,6 +16,16 @@ static int init(const struct device *dev);
 static int startup(const struct device *dev, enum si468x_mode mode);
 static int powerdown(const struct device *dev);
 
+static void gpio_callback_handler(const struct device *dev,
+				  struct gpio_callback *cb,
+				  gpio_port_pins_t pins)
+{
+	struct si468x_data *data =
+		CONTAINER_OF(cb, struct si468x_data, gpio_callback);
+
+	k_sem_give(&data->sem);
+}
+
 static int init(const struct device *dev)
 {
 	struct si468x_data *data = dev->data;
@@ -56,17 +66,19 @@ static int init(const struct device *dev)
 	rc = gpio_pin_configure(data->int_gpio, config->int_gpio_pin,
 				GPIO_INPUT | config->int_gpio_flags);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to configure interrupt gpio with rc %d",
+		LOG_ERR("%s: failed to configure gpio pin interrupt with rc %d",
 			dev->name, rc);
 		return rc;
 	}
-	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
-					  GPIO_INT_EDGE_TO_ACTIVE);
+	gpio_init_callback(&data->gpio_callback, gpio_callback_handler,
+			   config->int_gpio_pin);
+	rc = gpio_add_callback(data->int_gpio, &data->gpio_callback);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to configure interrupt pin with rc %d",
+		LOG_ERR("%s: failed to add gpio interrupt callback with rc %d",
 			dev->name, rc);
 		return rc;
 	}
+	rc = k_sem_init(&data->sem, 0, 1);
 	return rc;
 }
 
@@ -89,15 +101,11 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
-	rc = si468x_cmd_rd_reply(dev, NULL);
+	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc != 0) {
 		LOG_ERR("%s: reading state after reset failed with rc %d",
 			dev->name, rc);
 		return rc;
-	}
-	if (data->clear_to_send == false) {
-		LOG_ERR("%s: chip not ready after reset", dev->name);
-		return -EIO;
 	}
 	if (rc != si468x_PUP_RESET) {
 		LOG_ERR("%s: wrong chip state after reset: %d", dev->name, rc);
@@ -195,6 +203,13 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 	if (rc == 0) {
 		data->current_mode = mode;
 	}
+	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+					  GPIO_INT_EDGE_TO_ACTIVE);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to configure interrupt pin with rc %d",
+			dev->name, rc);
+		return rc;
+	}
 	return rc;
 }
 
@@ -205,12 +220,20 @@ static int powerdown(const struct device *dev)
 	const struct si468x_config *config =
 		(struct si468x_config *)dev->config;
 
+	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+					  GPIO_INT_DISABLE);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to disable interrupt pin with rc %d",
+			dev->name, rc);
+		return rc;
+	}
 	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to pull the reset line with rc %d",
 			dev->name, rc);
 		return rc;
 	}
+	data->pup_state = si468x_PUP_RESET;
 	data->current_mode = si468x_MODE_OFF;
 	return rc;
 }
@@ -249,6 +272,33 @@ static int play_service(const struct device *dev, enum si468x_mode mode,
 	return rc;
 }
 
+static int process_events(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	switch (data->current_mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		rc = si468x_am_process_events(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		rc = si468x_dab_process_events(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		rc = si468x_fmhd_process_events(dev);
+		break;
+#endif
+	case si468x_MODE_OFF:
+		rc = 0;
+	}
+	return rc;
+}
+
 static int bandscan(const struct device *dev, enum si468x_mode mode)
 {
 	int rc;
@@ -276,6 +326,13 @@ static int bandscan(const struct device *dev, enum si468x_mode mode)
 	return rc;
 }
 
+static struct k_sem *get_semaphore(const struct device *dev)
+{
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	return &data->sem;
+}
+
 #define SI468X_DEVICE(id)                                                      \
 	static struct si468x_config si468x_config_##id = {                     \
 		.int_gpio_flags = DT_INST_GPIO_FLAGS(id, int_gpios),           \
@@ -298,6 +355,8 @@ static int bandscan(const struct device *dev, enum si468x_mode mode)
 		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
 		&((struct si468x_api){ .powerdown = powerdown,                 \
 				       .play_service = play_service,           \
-				       .bandscan = bandscan }));
+				       .process_events = process_events,       \
+				       .bandscan = bandscan,                   \
+				       .get_semaphore = get_semaphore }));
 
 DT_INST_FOREACH_STATUS_OKAY(SI468X_DEVICE)

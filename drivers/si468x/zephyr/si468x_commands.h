@@ -85,7 +85,6 @@
 #define SI468X_RPL_DAB_TEST_GET_BER_INFO 8
 
 // Properties for FM mode
-
 #define SI468X_PROP_FM_SEEK_BAND_BOTTOM 0x3100
 #define SI468X_PROP_FM_SEEK_BAND_TOP 0x3101
 #define SI468X_PROP_FM_SEEK_FREQUENCY_SPACING 0x3102
@@ -111,12 +110,6 @@
 #define SI468X_PROP_FM_ACF_HIGHCUT_TOLERANCE 0x3405
 #define SI468X_PROP_FM_ACF_BLEND_TOLERANCE 0x3406
 
-enum si468x_pup_state {
-	si468x_PUP_RESET = 0,
-	si468x_PUP_BOOTLOADER = 2,
-	si468x_PUP_APPLICATION = 3
-};
-
 enum si468x_image {
 	si468x_IMG_BOOTLOADER = 0,
 	si468x_IMG_FMHD = 1,
@@ -128,6 +121,13 @@ enum si468x_image {
 	si468x_IMG_DAB_DEMOD = 7
 };
 
+struct si468x_events {
+	bool dacqint;
+	bool dsrvint;
+	bool stcint;
+	bool devntint;
+};
+/* old structs */
 struct si468x_dabDigradStatus {
 	// Answer bte 0 (from LSB to MSB)
 	uint8_t rssiLInt : 1, // RSSI below DAB_DIGRAD_RSSI_LOW_THRESHOLD
@@ -243,9 +243,8 @@ struct si468x_dateTime {
 int si468x_send_command(const struct device *dev,
 			const struct spi_buf_set *spi_buf_set);
 int si468x_cmd_rd_reply(const struct device *dev,
-			const struct spi_buf_set *spi_buf_set);
-int si468x_cmd_wait_for_cts(const struct device *dev,
-			    const struct spi_buf_set *spi_buf_set);
+			const struct spi_buf_set *spi_buf_set,
+			struct si468x_events *events);
 int si468x_cmd_powerup(const struct device *dev);
 int si468x_cmd_load_init(const struct device *dev);
 int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,

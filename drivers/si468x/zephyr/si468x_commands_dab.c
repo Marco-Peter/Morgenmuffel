@@ -26,18 +26,6 @@ LOG_MODULE_REGISTER(si468x_commands_dab, LOG_LEVEL_DBG);
 #define SI468X_CMD_DAB_GET_OE_SERVICES_INFO 0xC1
 #define SI468X_CMD_DAB_ACF_STATUS 0xC2
 
-static int wait_for_stcint(const struct device *dev,
-			   const struct spi_buf_set *spi_buf_set)
-{
-	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
-
-	do {
-		rc = si468x_cmd_wait_for_cts(dev, spi_buf_set);
-	} while (rc >= 0 && data->seek_tune_complete == false);
-	return rc;
-}
-
 int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 			uint16_t ant_cap)
 {
@@ -50,16 +38,10 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
-	data->seek_tune_complete = false;
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command tune_freq failed with rc %d",
 			dev->name, rc);
-		return rc;
-	}
-	rc = wait_for_stcint(dev, NULL);
-	if (rc < 0) {
-		LOG_ERR("%s: waiting for STC failed with rc %d", dev->name, rc);
 		return rc;
 	}
 	return 0;
@@ -90,12 +72,6 @@ int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
 			dev->name, rc);
 		return rc;
 	}
-	rc = wait_for_stcint(dev, NULL);
-	if (rc < 0) {
-		LOG_ERR("%s: waiting for STC after start service failed with rc %d",
-			dev->name, rc);
-		return rc;
-	}
 	return 0;
 }
 
@@ -115,8 +91,9 @@ int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs)
 	}
 	struct spi_buf ans_buf = { .buf = num_freqs, .len = sizeof(uint8_t) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
-	rc = si468x_cmd_wait_for_cts(dev, &ans_buf_set);
-	if (rc < 0) {
+
+	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
+	if (rc != 0) {
 		LOG_ERR("%s: waiting for CTS after getting freq list failed with rc %d",
 			dev->name, rc);
 		return rc;

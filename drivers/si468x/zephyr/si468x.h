@@ -27,7 +27,9 @@ struct si468x_api {
 	int (*powerdown)(const struct device *dev);
 	int (*play_service)(const struct device *dev, enum si468x_mode mode,
 			    uint16_t service);
+	int (*process_events)(const struct device *dev);
 	int (*bandscan)(const struct device *dev, enum si468x_mode mode);
+	struct k_sem *(*get_semaphore)(const struct device *dev);
 };
 
 static inline int si468x_powerdown(const struct device *dev)
@@ -51,6 +53,13 @@ static inline int si468x_play_service(const struct device *dev,
 	return rc;
 }
 
+static inline int si468x_process_events(const struct device *dev)
+{
+	const struct si468x_api *api = (const struct si468x_api *)dev->api;
+
+	return api->process_events(dev);
+}
+
 static inline int si468x_bandscan(const struct device *dev,
 				  enum si468x_mode mode)
 {
@@ -63,6 +72,13 @@ static inline int si468x_bandscan(const struct device *dev,
 		rc = api->bandscan(dev, mode);
 	}
 	return rc;
+}
+
+static inline struct k_sem *si468x_get_semaphore(const struct device *dev)
+{
+	const struct si468x_api *api = (const struct si468x_api *)dev->api;
+
+	return api->get_semaphore(dev);
 }
 
 #ifdef __cplusplus

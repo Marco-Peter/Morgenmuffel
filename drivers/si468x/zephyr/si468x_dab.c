@@ -137,19 +137,8 @@ static const struct si468x_dab_service *get_service(const struct device *dev,
 	return service;
 }
 
-static int wait_on_acquisition(const struct device *dev)
-{
-	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
-
-	do {
-		rc = si468x_cmd_wait_for_cts(dev, NULL);
-	} while (rc >= 0 && data->dacqint == false);
-	return rc;
-}
-
-static void remove_services_with_channel(const struct device *dev,
-					 uint8_t channel)
+static void remove_services_on_channel(const struct device *dev,
+				       uint8_t channel)
 {
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
@@ -176,26 +165,40 @@ static int dab_decode_ebu_string(wchar_t *string, const uint8_t *ebu_str,
 	return i;
 }
 
+static int dab_wait_for_tune_complete(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	struct si468x_events events = { 0 };
+
+	do {
+		rc = k_sem_take(&data->sem, K_SECONDS(10));
+		if (rc != -EAGAIN) {
+			LOG_ERR("%s: waiting for semaphor timed out",
+				dev->name);
+			return rc;
+		} else if (rc != 0) {
+			LOG_ERR("%s: generic error on waiting for semaphore rc %d",
+				dev->name, rc);
+			return rc;
+		}
+		rc = si468x_cmd_rd_reply(dev, NULL, &events);
+		if (rc != 0) {
+			LOG_ERR("%s: failed to read pending interrupts with rc %d",
+				dev->name, rc);
+		}
+		return rc;
+	} while (events.dacqint == false);
+}
+
 static int dab_tune(const struct device *dev, uint8_t channel)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
-	if (channel == data->current_channel &&
-	    data->seek_tune_complete == true) {
-		return 0;
-	}
-
-	data->dacqint = false;
 	rc = si468x_cmd_dab_tune(dev, channel, 0);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
-		return rc;
-	}
-	rc = wait_on_acquisition(dev);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to wait for DAB acquisition with rc %d",
-			dev->name, rc);
 		return rc;
 	}
 	return 0;
@@ -287,12 +290,22 @@ int si468x_dab_startup(const struct device *dev)
 int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 {
 	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
 	const struct si468x_dab_service *service = get_service(dev, service_id);
 
 	rc = dab_tune(dev, service->channel);
 	if (rc != 0) {
 		return rc;
 	}
+	rc = k_sem_take(&data->sem, K_FOREVER);
+	return rc;
+}
+
+int si468x_dab_process_events(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
 	return rc;
 }
 
