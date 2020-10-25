@@ -189,6 +189,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 		}
 		return rc;
 	} while (events.dacqint == false);
+	rc = si468x_cmd_dab_digrad_status(dev, false, true, NULL);
 }
 
 static int dab_tune(const struct device *dev, uint8_t channel)
@@ -297,7 +298,19 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 	if (rc != 0) {
 		return rc;
 	}
-	rc = k_sem_take(&data->sem, K_FOREVER);
+	rc = dab_wait_for_tune_complete(dev);
+	if (rc != 0) {
+		LOG_ERR("%s: failed waiting for tuning to complete with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_dab_start_service(dev, service->id,
+					  service->primary_comp_id);
+	if (rc != 0) {
+		log_err("%s: failed starting the service with rc %d", dev->name,
+			rc);
+		return rc;
+	}
 	return rc;
 }
 

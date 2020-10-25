@@ -127,35 +127,16 @@ struct si468x_events {
 	bool stcint;
 	bool devntint;
 };
-/* old structs */
-struct si468x_dabDigradStatus {
-	// Answer bte 0 (from LSB to MSB)
-	uint8_t rssiLInt : 1, // RSSI below DAB_DIGRAD_RSSI_LOW_THRESHOLD
-		rssiHInt : 1, // RSSI above DAB_DIGRAD_RSSI_HIGH_THRESHOLD
-		acquiredInt : 1, // Ensemble is acquired interrupt
-		ficErrInt : 1, // Fast Information Channel error interrupt
-		hardMuteInt : 1, // Hard muting interrupt
-		rfu1 : 3; // reserved for future use - fill bits
-	// Answer byte 0 (from LSB to MSB)
-	uint8_t valid : 1, // Ensemble is valid
-		rfu2 : 1, // reserved for future use - fill bit
-		acquired : 1, // Ensemble is acquired
-		ficErr : 1, // Fast Information Channel error
-		hardMute : 1, // Hard muting active
-		rfu3 : 3; // reserved for future use - fill bits
-
-	uint8_t rssi; // Received signal strength indicator
-	uint8_t snr; // Signal to noise ratio
-	uint8_t ficQuality; // Fast Information Channel quality
-	uint8_t cnr; // Ratio of OFDM signal level
-	uint16_t fibErrors; // Fast Information Block errors
-	uint32_t tunedFreq; // Tuned frequency
-	uint8_t tuneIndex; // Frequency index
-	uint8_t fftOffset; // FFT offset
-	uint16_t antCap; // Antenna tuning capacitor value
-	uint16_t cuLevel; // Capacity units level
-	uint8_t fastDect; // Fast detect
+struct si468x_dab_digrad_status {
+	int8_t rssi;
+	uint8_t snr;
+	uint8_t fic_quality;
+	bool hardmute;
+	bool ficerr;
+	bool acq;
+	bool valid;
 };
+/* old structs */
 
 struct si468x_dabEventStatus {
 	// Answer byte 0 (from LSB to MSB)
@@ -262,6 +243,9 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
 				 uint8_t component_id);
 int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs);
+int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
+				 bool stc_ack,
+				 struct si468x_dab_digrad_status *status);
 
 /* FMHD specific commands implemented in si468x_commands_fmhd.c */
 
@@ -278,9 +262,6 @@ int si468xGetProperty(const struct device *dev, uint16_t propId,
 
 int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs,
 			 uint32_t *buffer, uint8_t maxFreqs);
-int si468xDabDigradStatus(const struct device *dev, uint8_t digradAck,
-			  uint8_t stcAck, uint8_t atTune,
-			  struct si468x_dabDigradStatus *status);
 int si468xDabGetEventStatus(const struct device *dev, uint8_t digradAck,
 			    struct si468x_dabEventStatus *evtStatus);
 int si468xDabGetDigitalServiceList(const struct device *dev,
