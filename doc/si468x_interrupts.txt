@@ -9,4 +9,4 @@
                 <- STCINT
                         -> Seek/Tune Complete, Next seek/tune command may be sent
                 <- DEVNTINT (Digital Radio Event Interrupt)
-                        -> DAB_DIGRAD_STATUS
+                        -> DAB_GET_EVENT_STATUS

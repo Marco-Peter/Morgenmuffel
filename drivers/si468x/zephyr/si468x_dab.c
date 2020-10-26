@@ -165,6 +165,19 @@ static int dab_decode_ebu_string(wchar_t *string, const uint8_t *ebu_str,
 	return i;
 }
 
+static int dab_tune(const struct device *dev, uint8_t channel)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	rc = si468x_cmd_dab_tune(dev, channel, 0);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
+		return rc;
+	}
+	return 0;
+}
+
 static int dab_wait_for_tune_complete(const struct device *dev)
 {
 	int rc;
@@ -202,17 +215,16 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 	return rc;
 }
 
-static int dab_tune(const struct device *dev, uint8_t channel)
+static int dab_wait_for_acquisition(const struct device *dev)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
+	struct si468x_config *config = (struct si468x_config *)dev->config;
+	struct si468x_events events = { 0 };
 
-	rc = si468x_cmd_dab_tune(dev, channel, 0);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
-		return rc;
+	do {
+		rc = k_sem_take(&data->sem, )
 	}
-	return 0;
 }
 
 int si468x_dab_startup(const struct device *dev)
