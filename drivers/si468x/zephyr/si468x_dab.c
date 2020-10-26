@@ -169,6 +169,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
+	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
 
 	do {
@@ -190,6 +191,15 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 		return rc;
 	} while (events.dacqint == false);
 	rc = si468x_cmd_dab_digrad_status(dev, false, true, NULL);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to acknowledge STC interrupt with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+		k_sem_give(&data->sem);
+	}
+	return rc;
 }
 
 static int dab_tune(const struct device *dev, uint8_t channel)
