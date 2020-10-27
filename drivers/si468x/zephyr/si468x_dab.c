@@ -170,6 +170,11 @@ static int dab_tune(const struct device *dev, uint8_t channel)
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
+	rc = si468x_dab_process_events(dev, true);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to acknowledge pending interrupts with rc %d",
+			dev->name, rc);
+	}
 	rc = si468x_cmd_dab_tune(dev, channel, 0);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
@@ -184,6 +189,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
+	struct si468x_dab_digrad_status digrad_status;
 
 	do {
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
@@ -202,29 +208,17 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 				dev->name, rc);
 		}
 		return rc;
-	} while (events.dacqint == false);
-	rc = si468x_cmd_dab_digrad_status(dev, false, true, NULL);
+	} while (events.stcint == false);
+	rc = si468x_cmd_dab_digrad_status(dev, true, true, &digrad_status);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to acknowledge STC interrupt with rc %d",
+		LOG_ERR("%s: failed to acknowledge STC and digrad interrupt with rc %d",
 			dev->name, rc);
 		return rc;
 	}
 	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
 		k_sem_give(&data->sem);
 	}
-	return rc;
-}
-
-static int dab_wait_for_acquisition(const struct device *dev)
-{
-	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
-	struct si468x_config *config = (struct si468x_config *)dev->config;
-	struct si468x_events events = { 0 };
-
-	do {
-		rc = k_sem_take(&data->sem, )
-	}
+	return (int)digrad_status.valid;
 }
 
 int si468x_dab_startup(const struct device *dev)
@@ -233,21 +227,13 @@ int si468x_dab_startup(const struct device *dev)
 
 	rc = si468x_cmd_set_property(
 		dev, SI468X_PROP_INT_CTL_ENABLE,
-		SI468X_PROP_INT_CTL_ENABLE_STCIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DSRVIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DACQIEN |
-			SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN |
+		SI468X_PROP_INT_CTL_ENABLE_DEVNTIEN |
 			(IS_ENABLED(CONFIG_SI468X_CTSIEN)
-			 << SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS));
+			 << SI468X_PROP_INT_CTL_ENABLE_CTSIEN_OFFS) |
+			SI468X_PROP_INT_CTL_ENABLE_DSRVIEN |
+			SI468X_PROP_INT_CTL_ENABLE_STCIEN);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab interrupts with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARM,
-				     IS_ENABLED(SI468X_VHFSW_DAB));
-	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab varactor slope with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -258,27 +244,17 @@ int si468x_dab_startup(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
-	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARM,
+	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARB,
 				     CONFIG_SI468X_VARACTOR_INTCP_DAB);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab varactor intercept with rc %d",
 			dev->name, rc);
 		return rc;
 	}
-	rc = si468x_cmd_set_property(dev, SI468X_PROP_DAB_VALID_RSSI_THRESHOLD,
-				     CONFIG_SI468X_DAB_VALID_RSSI_THRESHOLD);
+	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_CFG,
+				     IS_ENABLED(SI468X_VHFSW_DAB));
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab valid RSSI threshold with rc %d",
-			dev->name, rc);
-		return rc;
-	}
-	rc = si468x_cmd_set_property(
-		dev, SI468X_PROP_DIGITAL_SERVICE_INT_SOURCE,
-		SI468X_PROP_INT_CTL_ENABLE_STCIEN |
-			SI468X_PROP_DIGITAL_SERVICE_INT_SOURCE_DSRVOVRFLINT |
-			SI468X_PROP_DIGITAL_SERVICE_INT_SOURCE_DSRVPKTINT);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab digital service interrupts with rc %d",
+		LOG_ERR("%s: failed to set dab frontend configuration with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -290,12 +266,16 @@ int si468x_dab_startup(const struct device *dev)
 			dev->name, rc);
 		return rc;
 	}
+	rc = si468x_cmd_set_property(dev, SI468X_PROP_DAB_VALID_RSSI_THRESHOLD,
+				     CONFIG_SI468X_DAB_VALID_RSSI_THRESHOLD);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to set dab valid RSSI threshold with rc %d",
+			dev->name, rc);
+		return rc;
+	}
 	rc = si468x_cmd_set_property(
 		dev, SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE,
-		SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_SRVLIST_INTEN |
-			SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_FREQINFO_INTEN |
-			SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_RECFGWRN_INTEN |
-			SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_RECFG_INTEN);
+		SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_SRVLIST_INTEN);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to set dab event interrupt sources with rc %d",
 			dev->name, rc);
@@ -329,14 +309,14 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 	rc = si468x_cmd_dab_start_service(dev, service->id,
 					  service->primary_comp_id);
 	if (rc != 0) {
-		log_err("%s: failed starting the service with rc %d", dev->name,
+		LOG_ERR("%s: failed starting the service with rc %d", dev->name,
 			rc);
 		return rc;
 	}
 	return rc;
 }
 
-int si468x_dab_process_events(const struct device *dev)
+int si468x_dab_process_events(const struct device *dev, bool ack_only)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;

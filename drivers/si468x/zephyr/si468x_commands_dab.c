@@ -102,7 +102,7 @@ int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs)
 
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after getting freq list failed with rc %d",
+		LOG_ERR("%s: getting number of frequencies failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
@@ -119,31 +119,29 @@ int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
 			  ((uint8_t)digrad_ack << 3) | (uint8_t)stc_ack };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
-	struct spi_buf_set *ans_buf_set = NULL;
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command get_freq_list failed with rc %d",
+		LOG_ERR("%s: sending digrad status command failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
 	uint8_t ans[5];
 	struct spi_buf ans_buf = { .buf = ans, .len = sizeof(ans) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
-	rc = si468x_cmd_rd_reply(dev, ans_buf_set,
-				 status == NULL ? NULL : &ans_buf_set);
+	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: waiting for CTS after getting freq list failed with rc %d",
+		LOG_ERR("%s: getting digrad status failed with rc %d",
 			dev->name, rc);
 		return rc;
 	}
 	if (status != NULL) {
-		status->valid = DIGRAD_STATUS_VALID(buf);
-		status->acq = DIGRAD_STATUS_ACQ(buf);
-		status->ficerr = DIGRAD_STATUS_FICERR(buf);
-		status->hardmute = DIGRAD_STATUS_HARDMUTE(buf);
-		status->rssi = DIGRAD_STATUS_RSSI(buf);
-		status->fic_quality = DIGRAD_STATUS_FIC_QUALITY(buf);
+		status->valid = DIGRAD_STATUS_VALID(ans);
+		status->acq = DIGRAD_STATUS_ACQ(ans);
+		status->ficerr = DIGRAD_STATUS_FICERR(ans);
+		status->hardmute = DIGRAD_STATUS_HARDMUTE(ans);
+		status->rssi = DIGRAD_STATUS_RSSI(ans);
+		status->fic_quality = DIGRAD_STATUS_FIC_QUALITY(ans);
 	}
 	return rc;
 }

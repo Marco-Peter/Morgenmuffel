@@ -97,17 +97,17 @@ struct si468x_data {
 
 int si468x_dab_startup(const struct device *dev);
 int si468x_dab_play_service(const struct device *dev, uint16_t service);
-int si468x_dab_process_events(const struct device *dev);
+int si468x_dab_process_events(const struct device *dev, bool ack_only);
 int si468x_dab_bandscan(const struct device *dev);
 
 int si468x_fmhd_startup(const struct device *dev);
 int si468x_fmhd_play_service(const struct device *dev, uint16_t service);
-int si468x_fmhd_process_events(const struct device *dev);
+int si468x_fmhd_process_events(const struct device *dev, bool ack_only);
 int si468x_fmhd_bandscan(const struct device *dev);
 
 int si468x_am_startup(const struct device *dev);
 int si468x_am_play_service(const struct device *dev, uint16_t service);
-int si468x_am_process_events(const struct device *dev);
+int si468x_am_process_events(const struct device *dev, bool ack_only);
 int si468x_am_bandscan(const struct device *dev);
 
 #endif /* __SI468X_PRIVATE_H__ */

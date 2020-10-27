@@ -272,7 +272,7 @@ static int play_service(const struct device *dev, enum si468x_mode mode,
 	return rc;
 }
 
-static int process_events(const struct device *dev)
+static int process_events(const struct device *dev, bool ack_only)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
@@ -280,17 +280,17 @@ static int process_events(const struct device *dev)
 	switch (data->current_mode) {
 #if IS_ENABLED(CONFIG_SI468X_AM)
 	case si468x_MODE_AM:
-		rc = si468x_am_process_events(dev);
+		rc = si468x_am_process_events(dev, ack_only);
 		break;
 #endif
 #if IS_ENABLED(CONFIG_SI468X_DAB)
 	case si468x_MODE_DAB:
-		rc = si468x_dab_process_events(dev);
+		rc = si468x_dab_process_events(dev, ack_only);
 		break;
 #endif
 #if IS_ENABLED(CONFIG_SI468X_FMHD)
 	case si468x_MODE_FMHD:
-		rc = si468x_fmhd_process_events(dev);
+		rc = si468x_fmhd_process_events(dev, ack_only);
 		break;
 #endif
 	case si468x_MODE_OFF:
