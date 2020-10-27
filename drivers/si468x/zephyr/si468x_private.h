@@ -98,16 +98,22 @@ struct si468x_data {
 int si468x_dab_startup(const struct device *dev);
 int si468x_dab_play_service(const struct device *dev, uint16_t service);
 int si468x_dab_process_events(const struct device *dev, bool ack_only);
-int si468x_dab_bandscan(const struct device *dev);
+int si468x_dab_bandscan(const struct device *dev, uint8_t *buffer);
+uint16_t si468x_dab_get_num_of_services(const struct device *dev);
+uint16_t si468x_dab_get_service_id(const struct device *dev, uint16_t index);
 
 int si468x_fmhd_startup(const struct device *dev);
 int si468x_fmhd_play_service(const struct device *dev, uint16_t service);
 int si468x_fmhd_process_events(const struct device *dev, bool ack_only);
-int si468x_fmhd_bandscan(const struct device *dev);
+int si468x_fmhd_bandscan(const struct device *dev, uint8_t *buffer);
+uint16_t si468x_fmhd_get_num_of_services(const struct device *dev);
+uint16_t si468x_fmhd_get_service_id(const struct device *dev, uint16_t index);
 
 int si468x_am_startup(const struct device *dev);
 int si468x_am_play_service(const struct device *dev, uint16_t service);
 int si468x_am_process_events(const struct device *dev, bool ack_only);
-int si468x_am_bandscan(const struct device *dev);
+int si468x_am_bandscan(const struct device *dev, uint8_t *buffer);
+uint16_t si468x_am_get_num_of_services(const struct device *dev);
+uint16_t si468x_am_get_service_id(const struct device *dev, uint16_t index);
 
 #endif /* __SI468X_PRIVATE_H__ */

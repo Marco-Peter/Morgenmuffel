@@ -34,6 +34,10 @@ LOG_MODULE_REGISTER(si468x_commands_dab, LOG_LEVEL_DBG);
 #define DIGRAD_STATUS_SNR(_buf) ((_buf)[3])
 #define DIGRAD_STATUS_FIC_QUALITY(_buf) ((_buf)[4])
 
+#define EVENT_STATUS_SVRLIST(_buf) ((_buf)[1] & 0x01)
+#define EVENT_STATUS_FREQINFO(_buf) ((_buf)[1] & 0x02)
+#define EVENT_STATUS_SVRLISTVER(_buf) ((_buf)[2] | ((_buf)[3] << 8))
+
 int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 			uint16_t ant_cap)
 {
@@ -142,6 +146,38 @@ int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
 		status->hardmute = DIGRAD_STATUS_HARDMUTE(ans);
 		status->rssi = DIGRAD_STATUS_RSSI(ans);
 		status->fic_quality = DIGRAD_STATUS_FIC_QUALITY(ans);
+	}
+	return rc;
+}
+
+int si468x_cmd_dab_get_event_status(const struct device *dev, bool event_ack,
+				    struct si468x_dab_event_status *status)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	uint8_t cmd[] = { SI468X_CMD_DAB_GET_EVENT_STATUS, (uint8_t)event_ack };
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+
+	rc = si468x_send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending digrad status command failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	uint8_t ans[4];
+	struct spi_buf ans_buf = { .buf = ans, .len = sizeof(ans) };
+	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
+	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
+	if (rc != 0) {
+		LOG_ERR("%s: getting digrad status failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	if (status != NULL) {
+		status->svr_list = EVENT_STATUS_SVRLIST(ans);
+		status->freq_info = EVENT_STATUS_FREQINFO(ans);
+		status->svr_list_version = EVENT_STATUS_SVRLISTVER(ans);
 	}
 	return rc;
 }

@@ -442,3 +442,40 @@ int si468x_cmd_set_property(const struct device *dev, uint16_t id, uint16_t val)
 	}
 	return 0;
 }
+
+int si468x_cmd_get_digital_service_list(const struct device *dev,
+					uint8_t *buffer)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	uint8_t cmd[] = { SI468X_CMD_GET_DIGITAL_SERVICE_LIST, 0 };
+	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
+	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
+	uint16_t len;
+	struct spi_buf ans_buf[] = { { .buf = &len, .len = sizeof(len) },
+				     { .buf = buffer, .len = 2048 } };
+	struct spi_buf_set ans_buf_set = { .buffers = ans_buf, .count = 1 };
+
+	rc = si468x_send_command(dev, &buf_set);
+	if (rc != 0) {
+		LOG_ERR("%s: sending get_digital_service_list command failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
+	if (rc != 0) {
+		LOG_ERR("%s: getting digital service list size failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	ans_buf[1].len = len;
+	ans_buf_set.count = 2;
+	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
+	if (rc != 0) {
+		LOG_ERR("%s: getting digital service list failed with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return len;
+}

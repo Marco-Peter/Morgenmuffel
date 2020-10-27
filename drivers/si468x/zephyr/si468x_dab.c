@@ -189,7 +189,6 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
-	struct si468x_dab_digrad_status digrad_status;
 
 	do {
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
@@ -209,16 +208,135 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 		}
 		return rc;
 	} while (events.stcint == false);
+	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+		k_sem_give(&data->sem);
+	}
+	return 0;
+}
+
+static int dab_is_acquisition_valid(const struct device *dev)
+{
+	int rc;
+	struct si468x_dab_digrad_status digrad_status;
+
 	rc = si468x_cmd_dab_digrad_status(dev, true, true, &digrad_status);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to acknowledge STC and digrad interrupt with rc %d",
 			dev->name, rc);
 		return rc;
 	}
+	return (int)digrad_status.valid;
+}
+
+static int dab_wait_for_service_list(const struct device *dev)
+{
+	int rc;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	struct si468x_config *config = (struct si468x_config *)dev->config;
+	struct si468x_events events = { 0 };
+
+	do {
+		rc = k_sem_take(&data->sem, K_SECONDS(10));
+		if (rc != -EAGAIN) {
+			LOG_ERR("%s: waiting for semaphor timed out",
+				dev->name);
+			return rc;
+		} else if (rc != 0) {
+			LOG_ERR("%s: generic error on waiting for semaphore rc %d",
+				dev->name, rc);
+			return rc;
+		}
+		rc = si468x_cmd_rd_reply(dev, NULL, &events);
+		if (rc != 0) {
+			LOG_ERR("%s: failed to read pending interrupts with rc %d",
+				dev->name, rc);
+		}
+		return rc;
+	} while (events.devntint == false);
 	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
 		k_sem_give(&data->sem);
 	}
-	return (int)digrad_status.valid;
+	return 0;
+}
+
+static int dab_is_service_list_ready(const struct device *dev)
+{
+	int rc;
+	struct si468x_dab_event_status event_status;
+
+	rc = si468x_cmd_dab_get_event_status(dev, true, &event_status);
+	if (rc != 0) {
+		LOG_ERR("%s: failed to acknowledge event status with rc %d",
+			dev->name, rc);
+		return rc;
+	}
+	return (int)event_status.svr_list;
+}
+
+static int dab_read_svc_component(const struct device *dev, uint8_t channel,
+				  uint16_t svc_id, uint8_t *buffer)
+{
+	uint16_t cmp_id = (uint16_t)*buffer;
+	if ((cmp_id & 0xC000) != 0U) {
+		LOG_INF("%s: data component ignored", dev->name);
+		return 0;
+	}
+	buffer += 2;
+	if ((*buffer & 0x02) == 0U) {
+		int rc;
+
+		rc = add_service(dev, svc_id, (uint8_t)(cmp_id & 0xFF),
+				 channel);
+		if (rc != 0) {
+			LOG_ERR("%s: no memory for service", dev->name);
+			return -ENOMEM;
+		}
+		LOG_DBG("%s: added service: svc_id = %d, cmp_id = %d",
+			dev->name, svc_id, cmp_id);
+	} else {
+		LOG_INF("%s: secondary service ignored", dev->name);
+	}
+	return 0;
+}
+
+static int dab_read_service_list(const struct device *dev, uint8_t channel,
+				 uint8_t *buffer)
+{
+	int rc;
+
+	rc = si468x_cmd_get_digital_service_list(dev, buffer);
+	if (rc < 0) {
+		LOG_ERR("%s: failed to read service list with rc %d", dev->name,
+			rc);
+		return rc;
+	}
+	LOG_INF("%s: service list version %d", dev->name, (uint16_t)*buffer);
+	buffer += 2;
+	uint8_t num_of_svc = *buffer;
+	buffer += 4;
+	for (int svc_num = 0; svc_num < num_of_svc; svc_num++) {
+		uint32_t svc_id = (uint32_t)*buffer;
+		buffer += 4;
+		bool is_data_svc = (*buffer & 0x01) == 1U;
+		buffer++;
+		uint8_t num_of_cmp = *buffer & 0x0F;
+		buffer += 3 + 16;
+		if (is_data_svc == true) {
+			LOG_INF("%s: data service ignored", dev->name);
+			buffer += num_of_cmp * 4U;
+			continue;
+		}
+		for (int cmp_num = 0; cmp_num < num_of_cmp; cmp_num++) {
+			rc = dab_read_svc_component(dev, channel,
+						    (uint16_t)(svc_id & 0xFFFF),
+						    buffer);
+			if (rc != 0) {
+				return rc;
+			}
+			buffer += 4U;
+		}
+	}
+	return 0;
 }
 
 int si468x_dab_startup(const struct device *dev)
@@ -306,6 +424,16 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 			dev->name, rc);
 		return rc;
 	}
+	rc = dab_is_acquisition_valid(dev);
+	if (rc < 0) {
+		LOG_ERR("%s: checking tuning validity failed with rc %d",
+			dev->name, rc);
+		return rc;
+	} else if (rc == 0) {
+		LOG_ERR("%s: No valid station found on channel %d", dev->name,
+			service->channel);
+		return -ENOLINK;
+	}
 	rc = si468x_cmd_dab_start_service(dev, service->id,
 					  service->primary_comp_id);
 	if (rc != 0) {
@@ -324,7 +452,7 @@ int si468x_dab_process_events(const struct device *dev, bool ack_only)
 	return rc;
 }
 
-int si468x_dab_bandscan(const struct device *dev)
+int si468x_dab_bandscan(const struct device *dev, uint8_t *buffer)
 {
 	int rc;
 	uint8_t number_of_freqs;
@@ -343,5 +471,73 @@ int si468x_dab_bandscan(const struct device *dev)
 			LOG_ERR("%s: Failed to scan channel %d", dev->name, i);
 			return rc;
 		}
+		rc = dab_wait_for_tune_complete(dev);
+		if (rc != 0) {
+			LOG_ERR("%s: failed waiting for tuning to complete with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+		rc = dab_is_acquisition_valid(dev);
+		if (rc < 0) {
+			LOG_ERR("%s: checking tuning validity failed with rc %d",
+				dev->name, rc);
+			return rc;
+		} else if (rc == 0) {
+			continue;
+		}
+		rc = dab_wait_for_service_list(dev);
+		if (rc != 0) {
+			LOG_ERR("%s: failed waiting for service list with rc %d",
+				dev->name, rc);
+			return rc;
+		}
+		rc = dab_is_service_list_ready(dev);
+		if (rc < 0) {
+			LOG_ERR("%s: checking tuning validity failed with rc %d",
+				dev->name, rc);
+			return rc;
+		} else if (rc == 0) {
+			LOG_ERR("%s: service list not ready on channel %d",
+				dev->name, i);
+			continue;
+		}
+		rc = dab_read_service_list(dev, i, buffer);
+		if (rc != 0) {
+			LOG_ERR("%s: failed reading service list with rc %d",
+				dev->name, rc);
+			return rc;
+		}
 	}
+	return 0;
+}
+
+uint16_t si468x_dab_get_num_of_services(const struct device *dev)
+{
+	struct si468x_dab_service *service = NULL;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	uint16_t count = 0;
+
+	for (int i = 0; i < CONFIG_SI468X_DAB_SERVICE_LIST_SIZE; i++) {
+		if (data->services[i].id != 0U) {
+			count++;
+		}
+	}
+	return count;
+}
+
+uint16_t si468x_dab_get_service_id(const struct device *dev, uint16_t index)
+{
+	struct si468x_dab_service *service = NULL;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+	uint16_t count = 0;
+
+	for (int i = 0; i < CONFIG_SI468X_DAB_SERVICE_LIST_SIZE; i++) {
+		if (data->services[i].id != 0U) {
+			if (count == index) {
+				return data->services[i].id;
+			}
+			count++;
+		}
+	}
+	return 0U;
 }

@@ -25,6 +25,8 @@ static const struct device *pr_sens;
 static const struct device *lx_sens;
 static const struct device *tuner;
 
+uint8_t buffer[2048];
+
 static inline int abs(int value)
 {
 	return value < 0 ? -value : value;
@@ -58,6 +60,11 @@ void main(void)
 
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
+
+	rc = si468x_bandscan(tuner, si468x_MODE_DAB, buffer);
+	if (rc != 0) {
+		LOG_ERR("Bandscan failed with rc %d", rc);
+	}
 
 	rc = si468x_play_service(tuner, si468x_MODE_DAB, 42);
 	if (rc != 0) {

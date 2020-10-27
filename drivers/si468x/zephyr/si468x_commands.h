@@ -136,26 +136,13 @@ struct si468x_dab_digrad_status {
 	bool acq;
 	bool valid;
 };
-/* old structs */
-
-struct si468x_dabEventStatus {
-	// Answer byte 0 (from LSB to MSB)
-	uint8_t svrListInt : 1, // New service list version available
-		freqInfoInt : 1, // New frequency information --> dabGetFreqInfo()
-		// --> dabGetDigitalServiceList()
-		rfu1 : 1, // reserved for future use - fill bit
-		annoInt : 1, // New announcement information available
-		// --> dabGetAnnouncementInfo()
-		rfu2 : 2, // reserved for future use - fill bits
-		recfgWarnInt : 1, // Ensemble will be reconfigured within 6 seconds
-		recfgInt : 1; // Ensemble has been reconfigured
-	// Answer byte 1 (from LSB to MSB)
-	uint8_t svrList : 1, // Service list available --> dabGetDigitalServiceList()
-		freqInfo : 1, // Frequency information available --> dabGetFreqInt()
-		rfu3 : 6; // reserved for future use - fill bits
-
-	uint16_t listVersion; // Current service list version
+struct si468x_dab_event_status {
+	uint16_t svr_list_version;
+	bool svr_list;
+	bool freq_info;
 };
+
+/* old structs */
 
 struct si468x_serviceComponent {
 	uint16_t id; // Component identifier
@@ -185,14 +172,6 @@ struct si468x_digitalService {
 
 	uint8_t rfu3; // Reserved for future use / alignment byte
 	char label[16]; // Service label
-};
-
-struct si468x_digitalServiceList {
-	uint16_t size; // Size of the complete downloaded service list in bytes
-	uint16_t version; // list version
-	uint8_t nServices; // number of provided services
-	uint8_t rfu1; // Empty fill byte for data alignment
-	uint16_t rfu2; // Empty fill word (2 bytes) for data alignment
 };
 
 struct si468x_serviceData {
@@ -236,6 +215,8 @@ int si468x_cmd_get_sys_state(const struct device *dev,
 			     enum si468x_image *image);
 int si468x_cmd_set_property(const struct device *dev, uint16_t id,
 			    uint16_t val);
+int si468x_cmd_get_digital_service_list(const struct device *dev,
+					uint8_t *buffer);
 
 /* DAB specific commands implemented in si468x_commands_dab.c */
 int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
@@ -246,6 +227,8 @@ int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs);
 int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
 				 bool stc_ack,
 				 struct si468x_dab_digrad_status *status);
+int si468x_cmd_dab_get_event_status(const struct device *dev, bool event_ack,
+				    struct si468x_dab_event_status *status);
 
 /* FMHD specific commands implemented in si468x_commands_fmhd.c */
 
@@ -262,11 +245,6 @@ int si468xGetProperty(const struct device *dev, uint16_t propId,
 
 int si468xDabGetFreqList(const struct device *dev, uint8_t *nFreqs,
 			 uint32_t *buffer, uint8_t maxFreqs);
-int si468xDabGetEventStatus(const struct device *dev, uint8_t digradAck,
-			    struct si468x_dabEventStatus *evtStatus);
-int si468xDabGetDigitalServiceList(const struct device *dev,
-				   struct si468x_digitalServiceList *serviceList,
-				   uint16_t maxSize);
 int si468xDabStartDigitalService(const struct device *dev, uint8_t startStop,
 				 uint32_t serviceId, uint16_t compId);
 int si468xGetDigitalServiceData(const struct device *dev, uint8_t statusOnly,
@@ -275,6 +253,7 @@ int si468xDabGetTime(const struct device *dev, struct si468x_dateTime *dateTime,
 		     uint8_t local);
 
 // Helper functions for service list access
+/*
 struct si468x_digitalService *
 si468xDabGetService(struct si468x_digitalServiceList *svcList, uint8_t svcNum);
 struct si468x_serviceComponent *
@@ -290,5 +269,5 @@ int si468xFlashProgramImage(const struct device *dev, uint32_t addr,
 	((_pInst_)->status.stcInt || (_pInst_)->status.acfInt ||               \
 	 (_pInst_)->status.rdsInt || (_pInst_)->status.rsqInt ||               \
 	 (_pInst_)->status.dacqInt || (_pInst_)->status.devntInt)
-
+*/
 #endif // __SI468X_COMMANDS_H__

@@ -299,25 +299,32 @@ static int process_events(const struct device *dev, bool ack_only)
 	return rc;
 }
 
-static int bandscan(const struct device *dev, enum si468x_mode mode)
+static int bandscan(const struct device *dev, enum si468x_mode mode,
+		    uint8_t *buffer)
 {
 	int rc;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
+	if (mode != data->current_mode) {
+		rc = startup(dev, mode);
+		if (rc != 0) {
+			return rc;
+		}
+	}
 	switch (mode) {
 #if IS_ENABLED(CONFIG_SI468X_AM)
 	case si468x_MODE_AM:
-		rc = si468x_am_bandscan(dev);
+		rc = si468x_am_bandscan(dev, buffer);
 		break;
 #endif
 #if IS_ENABLED(CONFIG_SI468X_DAB)
 	case si468x_MODE_DAB:
-		rc = si468x_dab_bandscan(dev);
+		rc = si468x_dab_bandscan(dev, buffer);
 		break;
 #endif
 #if IS_ENABLED(CONFIG_SI468X_FMHD)
 	case si468x_MODE_FMHD:
-		rc = si468x_fmhd_bandscan(dev);
+		rc = si468x_fmhd_bandscan(dev, buffer);
 		break;
 #endif
 	default:
@@ -331,6 +338,60 @@ static struct k_sem *get_semaphore(const struct device *dev)
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
 	return &data->sem;
+}
+
+static uint16_t get_num_of_services(const struct device *dev)
+{
+	uint16_t num_of_services;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	switch (data->current_mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		num_of_services = si468x_am_get_num_of_services(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		num_of_services = si468x_dab_get_num_of_services(dev);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		num_of_services = si468x_fmhd_get_num_of_services(dev);
+		break;
+#endif
+	default:
+		num_of_services = 0U;
+	}
+	return num_of_services;
+}
+
+static uint16_t get_service_id(const struct device *dev, uint16_t index)
+{
+	uint16_t service_id;
+	struct si468x_data *data = (struct si468x_data *)dev->data;
+
+	switch (data->current_mode) {
+#if IS_ENABLED(CONFIG_SI468X_AM)
+	case si468x_MODE_AM:
+		service_id = si468x_am_get_service_id(dev, index);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_DAB)
+	case si468x_MODE_DAB:
+		service_id = si468x_dab_get_service_id(dev, index);
+		break;
+#endif
+#if IS_ENABLED(CONFIG_SI468X_FMHD)
+	case si468x_MODE_FMHD:
+		service_id = si468x_fmhd_get_service_id(dev, index);
+		break;
+#endif
+	default:
+		service_id = 0U;
+	}
+	return service_id;
 }
 
 #define SI468X_DEVICE(id)                                                      \
@@ -357,6 +418,9 @@ static struct k_sem *get_semaphore(const struct device *dev)
 				       .play_service = play_service,           \
 				       .process_events = process_events,       \
 				       .bandscan = bandscan,                   \
-				       .get_semaphore = get_semaphore }));
+				       .get_semaphore = get_semaphore,         \
+				       .get_num_of_services =                  \
+					       get_num_of_services,            \
+				       .get_service_id = get_service_id }));
 
 DT_INST_FOREACH_STATUS_OKAY(SI468X_DEVICE)
