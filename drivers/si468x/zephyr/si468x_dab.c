@@ -168,7 +168,6 @@ static int dab_decode_ebu_string(wchar_t *string, const uint8_t *ebu_str,
 static int dab_tune(const struct device *dev, uint8_t channel)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 
 	rc = si468x_dab_process_events(dev, true);
 	if (rc != 0) {
@@ -417,7 +416,6 @@ int si468x_dab_startup(const struct device *dev)
 int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 	const struct si468x_dab_service *service = get_service(dev, service_id);
 
 	rc = dab_tune(dev, service->channel);
@@ -449,8 +447,7 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 
 int si468x_dab_process_events(const struct device *dev, bool ack_only)
 {
-	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
+	int rc = 0;
 
 	return rc;
 }
@@ -468,7 +465,7 @@ int si468x_dab_bandscan(const struct device *dev, uint8_t *buffer)
 	}
 	memset(data->services, 0, sizeof(data->services));
 	for (int i = 0; i < number_of_freqs; i++) {
-		LOG_DBG("%canning channel %d", );
+		LOG_DBG("Scanning channel %d", i);
 		rc = dab_tune(dev, i);
 		if (rc != 0) {
 			LOG_ERR("Failed to scan channel %d", i);
@@ -514,7 +511,6 @@ int si468x_dab_bandscan(const struct device *dev, uint8_t *buffer)
 
 uint16_t si468x_dab_get_num_of_services(const struct device *dev)
 {
-	struct si468x_dab_service *service = NULL;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint16_t count = 0;
 
@@ -528,7 +524,6 @@ uint16_t si468x_dab_get_num_of_services(const struct device *dev)
 
 uint16_t si468x_dab_get_service_id(const struct device *dev, uint16_t index)
 {
-	struct si468x_dab_service *service = NULL;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint16_t count = 0;
 

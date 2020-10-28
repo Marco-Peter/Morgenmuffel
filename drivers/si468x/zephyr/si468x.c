@@ -261,7 +261,7 @@ static int play_service(const struct device *dev, enum si468x_mode mode,
 
 static int process_events(const struct device *dev, bool ack_only)
 {
-	int rc;
+	int rc = 0;
 	struct si468x_data *data = (struct si468x_data *)dev->data;
 
 	switch (data->current_mode) {
@@ -282,6 +282,7 @@ static int process_events(const struct device *dev, bool ack_only)
 #endif
 	case si468x_MODE_OFF:
 		rc = 0;
+		break;
 	}
 	return rc;
 }

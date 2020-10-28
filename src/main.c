@@ -61,7 +61,7 @@ void main(void)
 
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
-
+	/*
 	rc = si468x_bandscan(tuner, si468x_MODE_DAB, buffer);
 	if (rc != 0) {
 		LOG_ERR("Bandscan failed with rc %d", rc);
@@ -71,7 +71,7 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Failed to start the tuner with rc %d", rc);
 	}
-
+*/
 	for (;;) {
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);

@@ -42,7 +42,6 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 			uint16_t ant_cap)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint8_t cmd[] = {
 		SI468X_CMD_DAB_TUNE_FREQ, 0U, channel, 0U, ant_cap & 0xFFU,
 		(ant_cap >> 8) & 0xFFU
@@ -88,7 +87,6 @@ int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
 int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint8_t cmd[] = { SI468X_CMD_DAB_GET_FREQ_LIST, 0U };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
@@ -114,7 +112,6 @@ int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
 				 struct si468x_dab_digrad_status *status)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint8_t cmd[] = { SI468X_CMD_DAB_DIGRAD_STATUS,
 			  ((uint8_t)digrad_ack << 3) | (uint8_t)stc_ack };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
@@ -148,7 +145,6 @@ int si468x_cmd_dab_get_event_status(const struct device *dev, bool event_ack,
 				    struct si468x_dab_event_status *status)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 	uint8_t cmd[] = { SI468X_CMD_DAB_GET_EVENT_STATUS, (uint8_t)event_ack };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };

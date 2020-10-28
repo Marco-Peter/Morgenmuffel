@@ -261,7 +261,6 @@ int si468x_cmd_powerup(const struct device *dev)
 int si468x_cmd_load_init(const struct device *dev)
 {
 	int rc;
-	struct si468x_data *data = dev->data;
 	uint8_t cmd[] = { SI468X_CMD_LOAD_INIT, 0 };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
@@ -285,7 +284,6 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 			 uint16_t len)
 {
 	int rc;
-	struct si468x_data *data = dev->data;
 
 	if (len > SI468X_HOST_LOAD_DATA_LIMIT) {
 		LOG_ERR("%s: Too much data for host load command", dev->name);
@@ -316,7 +314,6 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr)
 {
 	int rc;
-	struct si468x_data *data = dev->data;
 	uint8_t cmd[] = { SI468X_CMD_FLASH_LOAD,
 			  0,
 			  0,
@@ -374,7 +371,6 @@ int si468x_cmd_boot(const struct device *dev)
 int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 {
 	int rc;
-	struct si468x_data *data = dev->data;
 	uint8_t cmd[] = { SI468X_CMD_GET_SYS_STATE, 0 };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
@@ -400,7 +396,6 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 int si468x_cmd_set_property(const struct device *dev, uint16_t id, uint16_t val)
 {
 	int rc;
-	struct si468x_data *data = dev->data;
 	uint8_t cmd[] = {
 		SI468X_CMD_SET_PROPERTY, 0,	     id & 0xFF,
 		(id >> 8) & 0xFF,	 val & 0xFF, (val >> 8) & 0xFF
@@ -426,7 +421,6 @@ int si468x_cmd_get_digital_service_list(const struct device *dev,
 					uint8_t *buffer)
 {
 	int rc;
-	struct si468x_data *data = (struct si468x_data *)dev->data;
 
 	uint8_t cmd[] = { SI468X_CMD_GET_DIGITAL_SERVICE_LIST, 0 };
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
