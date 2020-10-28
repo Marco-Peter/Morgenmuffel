@@ -172,12 +172,12 @@ static int dab_tune(const struct device *dev, uint8_t channel)
 
 	rc = si468x_dab_process_events(dev, true);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to acknowledge pending interrupts with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to acknowledge pending interrupts with rc %d",
+			rc);
 	}
 	rc = si468x_cmd_dab_tune(dev, channel, 0);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to tune on DAB with rc %d", dev->name, rc);
+		LOG_ERR("failed to tune on DAB with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -190,25 +190,31 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
 
+	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+		LOG_DBG("Interrupt pin already active on tuning");
+	}
+
 	do {
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
-		if (rc != -EAGAIN) {
-			LOG_ERR("%s: waiting for semaphor timed out",
-				dev->name);
+		if (rc == -EAGAIN) {
+			LOG_ERR("waiting for tuning timed out. Pin state: %d",
+				gpio_pin_get(data->int_gpio,
+					     config->int_gpio_pin));
 			return rc;
 		} else if (rc != 0) {
-			LOG_ERR("%s: generic error on waiting for semaphore rc %d",
-				dev->name, rc);
+			LOG_ERR("generic error on waiting for semaphore rc %d",
+				rc);
 			return rc;
 		}
 		rc = si468x_cmd_rd_reply(dev, NULL, &events);
 		if (rc != 0) {
-			LOG_ERR("%s: failed to read pending interrupts with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed to read pending interrupts with rc %d",
+				rc);
 		}
 		return rc;
 	} while (events.stcint == false);
 	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+		LOG_DBG("other interrupts active");
 		k_sem_give(&data->sem);
 	}
 	return 0;
@@ -221,8 +227,8 @@ static int dab_is_acquisition_valid(const struct device *dev)
 
 	rc = si468x_cmd_dab_digrad_status(dev, true, true, &digrad_status);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to acknowledge STC and digrad interrupt with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to acknowledge STC and digrad interrupt with rc %d",
+			rc);
 		return rc;
 	}
 	return (int)digrad_status.valid;
@@ -235,21 +241,26 @@ static int dab_wait_for_service_list(const struct device *dev)
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
 
+	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+		LOG_DBG("Interrupt pin already active when waiting for service list");
+	}
+
 	do {
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
 		if (rc != -EAGAIN) {
-			LOG_ERR("%s: waiting for semaphor timed out",
-				dev->name);
+			LOG_ERR("waiting for service list timed out. Pin state: %d",
+				gpio_pin_get(data->int_gpio,
+					     config->int_gpio_pin));
 			return rc;
 		} else if (rc != 0) {
-			LOG_ERR("%s: generic error on waiting for semaphore rc %d",
-				dev->name, rc);
+			LOG_ERR("generic error on waiting for semaphore rc %d",
+				rc);
 			return rc;
 		}
 		rc = si468x_cmd_rd_reply(dev, NULL, &events);
 		if (rc != 0) {
-			LOG_ERR("%s: failed to read pending interrupts with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed to read pending interrupts with rc %d",
+				rc);
 		}
 		return rc;
 	} while (events.devntint == false);
@@ -266,8 +277,7 @@ static int dab_is_service_list_ready(const struct device *dev)
 
 	rc = si468x_cmd_dab_get_event_status(dev, true, &event_status);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to acknowledge event status with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to acknowledge event status with rc %d", rc);
 		return rc;
 	}
 	return (int)event_status.svr_list;
@@ -278,7 +288,7 @@ static int dab_read_svc_component(const struct device *dev, uint8_t channel,
 {
 	uint16_t cmp_id = (uint16_t)*buffer;
 	if ((cmp_id & 0xC000) != 0U) {
-		LOG_INF("%s: data component ignored", dev->name);
+		LOG_INF("data component ignored");
 		return 0;
 	}
 	buffer += 2;
@@ -288,13 +298,13 @@ static int dab_read_svc_component(const struct device *dev, uint8_t channel,
 		rc = add_service(dev, svc_id, (uint8_t)(cmp_id & 0xFF),
 				 channel);
 		if (rc != 0) {
-			LOG_ERR("%s: no memory for service", dev->name);
+			LOG_ERR("no memory for service");
 			return -ENOMEM;
 		}
-		LOG_DBG("%s: added service: svc_id = %d, cmp_id = %d",
-			dev->name, svc_id, cmp_id);
+		LOG_DBG("added service: svc_id = %d, cmp_id = %d", svc_id,
+			cmp_id);
 	} else {
-		LOG_INF("%s: secondary service ignored", dev->name);
+		LOG_INF("secondary service ignored");
 	}
 	return 0;
 }
@@ -306,11 +316,10 @@ static int dab_read_service_list(const struct device *dev, uint8_t channel,
 
 	rc = si468x_cmd_get_digital_service_list(dev, buffer);
 	if (rc < 0) {
-		LOG_ERR("%s: failed to read service list with rc %d", dev->name,
-			rc);
+		LOG_ERR("failed to read service list with rc %d", rc);
 		return rc;
 	}
-	LOG_INF("%s: service list version %d", dev->name, (uint16_t)*buffer);
+	LOG_INF("service list version %d", (uint16_t)*buffer);
 	buffer += 2;
 	uint8_t num_of_svc = *buffer;
 	buffer += 4;
@@ -322,7 +331,7 @@ static int dab_read_service_list(const struct device *dev, uint8_t channel,
 		uint8_t num_of_cmp = *buffer & 0x0F;
 		buffer += 3 + 16;
 		if (is_data_svc == true) {
-			LOG_INF("%s: data service ignored", dev->name);
+			LOG_INF("data service ignored");
 			buffer += num_of_cmp * 4U;
 			continue;
 		}
@@ -351,58 +360,55 @@ int si468x_dab_startup(const struct device *dev)
 			SI468X_PROP_INT_CTL_ENABLE_DSRVIEN |
 			SI468X_PROP_INT_CTL_ENABLE_STCIEN);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab interrupts with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab interrupts with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARM,
 				     CONFIG_SI468X_VARACTOR_SLOPE_DAB);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab varactor slope with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab varactor slope with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_VARB,
 				     CONFIG_SI468X_VARACTOR_INTCP_DAB);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab varactor intercept with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab varactor intercept with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_TUNE_FRONTEND_CFG,
 				     IS_ENABLED(SI468X_VHFSW_DAB));
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab frontend configuration with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab frontend configuration with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev,
 				     SI468X_PROP_DAB_DIGRAD_INTERRUPT_SOURCE,
 				     SI468X_PROP_DAB_DIGRAD_INT_SOURCE_ACQINT);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab digrad interrupt sources with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab digrad interrupt sources with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_DAB_VALID_RSSI_THRESHOLD,
 				     CONFIG_SI468X_DAB_VALID_RSSI_THRESHOLD);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab valid RSSI threshold with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab valid RSSI threshold with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(
 		dev, SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE,
 		SI468X_PROP_DAB_EVENT_INTERRUPT_SOURCE_SRVLIST_INTEN);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab event interrupt sources with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to set dab event interrupt sources with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_set_property(dev, SI468X_PROP_DAB_DRC_OPTION,
 				     SI468X_PROP_DAB_DRC_OPTION_FULL);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to set dab drc with rc %d", dev->name, rc);
+		LOG_ERR("failed to set dab drc with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -420,25 +426,22 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 	}
 	rc = dab_wait_for_tune_complete(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: failed waiting for tuning to complete with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed waiting for tuning to complete with rc %d", rc);
 		return rc;
 	}
 	rc = dab_is_acquisition_valid(dev);
 	if (rc < 0) {
-		LOG_ERR("%s: checking tuning validity failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("checking tuning validity failed with rc %d", rc);
 		return rc;
 	} else if (rc == 0) {
-		LOG_ERR("%s: No valid station found on channel %d", dev->name,
+		LOG_ERR("No valid station found on channel %d",
 			service->channel);
 		return -ENOLINK;
 	}
 	rc = si468x_cmd_dab_start_service(dev, service->id,
 					  service->primary_comp_id);
 	if (rc != 0) {
-		LOG_ERR("%s: failed starting the service with rc %d", dev->name,
-			rc);
+		LOG_ERR("failed starting the service with rc %d", rc);
 		return rc;
 	}
 	return rc;
@@ -460,51 +463,49 @@ int si468x_dab_bandscan(const struct device *dev, uint8_t *buffer)
 
 	rc = si468x_cmd_dab_get_freq_list(dev, &number_of_freqs);
 	if (rc != 0) {
-		LOG_ERR("%s: Failed to get frequency list", dev->name);
+		LOG_ERR("Failed to get frequency list");
 		return rc;
 	}
 	memset(data->services, 0, sizeof(data->services));
 	for (int i = 0; i < number_of_freqs; i++) {
-		LOG_DBG("%s: scanning channel %d", dev->name, i);
+		LOG_DBG("%canning channel %d", );
 		rc = dab_tune(dev, i);
 		if (rc != 0) {
-			LOG_ERR("%s: Failed to scan channel %d", dev->name, i);
+			LOG_ERR("Failed to scan channel %d", i);
 			return rc;
 		}
 		rc = dab_wait_for_tune_complete(dev);
 		if (rc != 0) {
-			LOG_ERR("%s: failed waiting for tuning to complete with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed waiting for tuning to complete with rc %d",
+				rc);
 			return rc;
 		}
 		rc = dab_is_acquisition_valid(dev);
 		if (rc < 0) {
-			LOG_ERR("%s: checking tuning validity failed with rc %d",
-				dev->name, rc);
+			LOG_ERR("checking tuning validity failed with rc %d",
+				rc);
 			return rc;
 		} else if (rc == 0) {
 			continue;
 		}
 		rc = dab_wait_for_service_list(dev);
 		if (rc != 0) {
-			LOG_ERR("%s: failed waiting for service list with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed waiting for service list with rc %d",
+				rc);
 			return rc;
 		}
 		rc = dab_is_service_list_ready(dev);
 		if (rc < 0) {
-			LOG_ERR("%s: checking tuning validity failed with rc %d",
-				dev->name, rc);
+			LOG_ERR("checking tuning validity failed with rc %d",
+				rc);
 			return rc;
 		} else if (rc == 0) {
-			LOG_ERR("%s: service list not ready on channel %d",
-				dev->name, i);
+			LOG_ERR("service list not ready on channel %d", i);
 			continue;
 		}
 		rc = dab_read_service_list(dev, i, buffer);
 		if (rc != 0) {
-			LOG_ERR("%s: failed reading service list with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed reading service list with rc %d", rc);
 			return rc;
 		}
 	}

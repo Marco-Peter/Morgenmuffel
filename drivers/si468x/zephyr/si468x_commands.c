@@ -12,7 +12,7 @@
 #include <string.h>
 #include <logging/log.h>
 
-LOG_MODULE_REGISTER(si468x_commands, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(si468x_commands, LOG_LEVEL_INF);
 
 #define SI468X_CMD_POWER_UP 0x01
 #define SI468X_CMD_HOST_LOAD 0x04
@@ -33,72 +33,52 @@ LOG_MODULE_REGISTER(si468x_commands, LOG_LEVEL_DBG);
 #define SI468X_HOST_LOAD_DATA_LIMIT 4096
 #define SI468X_CTSIEN(_x) (_x << 7)
 
-#define STATUS0_MASK_CTS 0x80
 #define STATUS0_OFFS_CTS 7
-#define STATUS0_CTS(_buf)                                                      \
-	((((uint8_t *)(_buf))[1] & STATUS0_MASK_CTS) >> STATUS0_OFFS_CTS)
+#define STATUS0_CTS(_buf) ((((uint8_t *)(_buf))[1] >> STATUS0_OFFS_CTS) & 0x01)
 
-#define STATUS0_MASK_ERR_CMD 0x40
 #define STATUS0_OFFS_ERR_CMD 6
 #define STATUS0_ERR_CMD(_buf)                                                  \
-	((((uint8_t *)(_buf))[1] & STATUS0_MASK_ERR_CMD) >>                    \
-	 STATUS0_OFFS_ERR_CMD)
+	((((uint8_t *)(_buf))[1] >> STATUS0_OFFS_ERR_CMD) & 0x01)
 
-#define STATUS0_MASK_DACQINT 0x20
 #define STATUS0_OFFS_DACQINT 5
 #define STATUS0_DACQINT(_buf)                                                  \
-	((((uint8_t *)(_buf))[1] & STATUS0_MASK_DACQINT) >>                    \
-	 STATUS0_OFFS_DACQINT)
+	((((uint8_t *)(_buf))[1] >> STATUS0_OFFS_DACQINT) & 0x01)
 
-#define STATUS0_MASK_DSRVINT 0x10
 #define STATUS0_OFFS_DSRVINT 4
 #define STATUS0_DSRVINT(_buf)                                                  \
-	((((uint8_t *)(_buf))[1] & STATUS0_MASK_DSRVINT) >>                    \
-	 STATUS0_OFFS_DSRVINT)
+	((((uint8_t *)(_buf))[1] >> STATUS0_OFFS_DSRVINT) & 0x01)
 
-#define STATUS0_MASK_STCINT 0x01
 #define STATUS0_OFFS_STCINT 0
 #define STATUS0_STCINT(_buf)                                                   \
-	((((uint8_t *)(_buf))[1] & STATUS0_MASK_STCINT) >> STATUS0_OFFS_STCINT)
+	((((uint8_t *)(_buf))[1] >> STATUS0_OFFS_STCINT) & 0x01)
 
-#define STATUS1_MASK_DEVNTINT 0x20
 #define STATUS1_OFFS_DEVNTINT 5
 #define STATUS1_DEVNTINT(_buf)                                                 \
-	((((uint8_t *)(_buf))[2] & STATUS1_MASK_DEVNTINT) >>                   \
-	 STATUS1_OFFS_DEVNTINT)
+	((((uint8_t *)(_buf))[2] >> STATUS1_OFFS_DEVNTINT) & 0x01)
 
-#define STATUS3_MASK_PUP_STATE 0xC0
 #define STATUS3_OFFS_PUP_STATE 6
 #define STATUS3_PUP_STATE(_buf)                                                \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_PUP_STATE) >>                  \
-	 STATUS3_OFFS_PUP_STATE)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_PUP_STATE) & 0x03)
 
-#define STATUS3_MASK_DSPERR 0x10
 #define STATUS3_OFFS_DSPERR 4
 #define STATUS3_DSPERR(_buf)                                                   \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_DSPERR) >> STATUS3_OFFS_DSPERR)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_DSPERR) & 0x01)
 
-#define STATUS3_MASK_REPOFERR 0x08
 #define STATUS3_OFFS_REPOFERR 3
 #define STATUS3_REPOFERR(_buf)                                                 \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_REPOFERR) >>                   \
-	 STATUS3_OFFS_REPOFERR)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_REPOFERR) & 0x01)
 
-#define STATUS3_MASK_CMDOFERR 0x04
 #define STATUS3_OFFS_CMDOFERR 2
 #define STATUS3_CMDOFERR(_buf)                                                 \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_CMDOFERR) >>                   \
-	 STATUS3_OFFS_CMDOFERR)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_CMDOFERR) & 0x01)
 
-#define STATUS3_MASK_ARBERR 0x02
 #define STATUS3_OFFS_ARBERR 1
 #define STATUS3_ARBERR(_buf)                                                   \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_ARBERR) >> STATUS3_OFFS_ARBERR)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_ARBERR) & 0x01)
 
-#define STATUS3_MASK_ERRNR 0x01
 #define STATUS3_OFFS_ERRNR 0
 #define STATUS3_ERRNR(_buf)                                                    \
-	((((uint8_t *)(_buf))[4] & STATUS3_MASK_ERRNR) >> STATUS3_OFFS_ERRNR)
+	((((uint8_t *)(_buf))[4] >> STATUS3_OFFS_ERRNR) & 0x01)
 
 #define STATUS_ERROR_CODE(_buf) (((uint8_t *)(_buf))[5])
 
@@ -131,27 +111,28 @@ static int read_status(const struct device *dev,
 	struct si468x_data *data = dev->data;
 	enum si468x_pup_state pup_state;
 
-	if (STATUS0_ERR_CMD(spi_buf_set->buffers->buf)) {
+	if (STATUS0_CTS(spi_buf_set->buffers[0].buf) == 0U) {
+		LOG_ERR("%s: not clear to send", dev->name);
+	}
+	if (STATUS0_ERR_CMD(spi_buf_set->buffers[0].buf)) {
 		LOG_ERR("%s: received command error with code %d", dev->name,
-			STATUS_ERROR_CODE(spi_buf_set->buffers->buf));
+			STATUS_ERROR_CODE(spi_buf_set->buffers[0].buf));
 		return -EIO;
 	}
-	if (STATUS3_PUP_STATE(spi_buf_set->buffers->buf) != data->pup_state) {
+	pup_state = STATUS3_PUP_STATE(spi_buf_set->buffers[0].buf);
+	if (pup_state != data->pup_state) {
 		LOG_ERR("%s: wrong pup_state! %d instead of %d", dev->name,
-			STATUS3_PUP_STATE(spi_buf_set->buffers->buf),
-			data->pup_state);
+			pup_state, data->pup_state);
 		return -EIO;
-	}
-	if (STATUS0_CTS(spi_buf_set->buffers->buf) == false) {
-		LOG_DBG("%s: not clear to send", dev->name);
 	}
 	if (events != NULL) {
-		events->dacqint = STATUS0_DACQINT(spi_buf_set->buffers->buf);
-		events->dsrvint = STATUS0_DSRVINT(spi_buf_set->buffers->buf);
-		events->stcint = STATUS0_STCINT(spi_buf_set->buffers->buf);
-		events->devntint = STATUS1_DEVNTINT(spi_buf_set->buffers->buf);
+		events->dacqint = STATUS0_DACQINT(spi_buf_set->buffers[0].buf);
+		events->dsrvint = STATUS0_DSRVINT(spi_buf_set->buffers[0].buf);
+		events->stcint = STATUS0_STCINT(spi_buf_set->buffers[0].buf);
+		events->devntint =
+			STATUS1_DEVNTINT(spi_buf_set->buffers[0].buf);
 	}
-	return pup_state;
+	return 0;
 }
 
 int si468x_send_command(const struct device *dev,
@@ -220,16 +201,17 @@ int si468x_cmd_rd_reply(const struct device *dev,
 	}
 	struct spi_buf_set buf_set = { .buffers = buf, .count = count };
 
-	rc = spi_read(data->spi, &spi_config, &buf_set);
-	if (rc != 0) {
-		LOG_ERR("%s: failed to read response with rc %d", dev->name,
-			rc);
-		return rc;
-	}
+	do {
+		rc = spi_read(data->spi, &spi_config, &buf_set);
+		if (rc != 0) {
+			LOG_ERR("failed to read response with rc %d", rc);
+			return rc;
+		}
+	} while (STATUS0_CTS(status) == 0U);
 
 	rc = read_status(dev, &buf_set, events);
 	if (rc < 0) {
-		LOG_ERR("%s: reading status failed with rc %d", dev->name, rc);
+		LOG_ERR("reading status failed with rc %d", rc);
 		return rc;
 	}
 
@@ -240,7 +222,6 @@ int si468x_cmd_powerup(const struct device *dev)
 {
 	int rc;
 	struct si468x_data *data = dev->data;
-
 	uint8_t cmd[] = { SI468X_CMD_POWER_UP,
 			  SI468X_CTSIEN(IS_ENABLED(CONFIG_SI468X_CTSIEN)),
 			  (CONFIG_SI468X_CLK_MODE << 4) | CONFIG_SI468X_TR_SIZE,
@@ -260,18 +241,18 @@ int si468x_cmd_powerup(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
+	LOG_DBG("%s: Command Powerup", dev->name);
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command powerup failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command powerup failed with rc %d", rc);
 		return rc;
 	}
-	k_sleep(K_MSEC(2));
+	k_sleep(K_MSEC(20));
 	data->pup_state = si468x_PUP_BOOTLOADER;
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: reading state after power up command failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("reading state after power up command failed with rc %d",
+			rc);
 		return rc;
 	}
 	return 0;
@@ -285,16 +266,16 @@ int si468x_cmd_load_init(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
+	LOG_DBG("%s: Command load_init", dev->name);
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command load_init failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command load_init failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after load_init failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after load_init failed with rc %d",
+			rc);
 		return rc;
 	}
 	return 0;
@@ -316,17 +297,17 @@ int si468x_cmd_host_load(const struct device *dev, const uint8_t *buffer,
 				 { .buf = (void *)buffer, .len = len } };
 	struct spi_buf_set buf_set = { .buffers = buf, .count = 2 };
 
+	LOG_DBG("%s: Command host_load", dev->name);
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command host_load failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command host_load failed with rc %d", rc);
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after host load failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after host load failed with rc %d",
+			rc);
 		return rc;
 	}
 	return 0;
@@ -351,16 +332,16 @@ int si468x_cmd_flash_load(const struct device *dev, uint32_t start_addr)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
+	LOG_DBG("%s: Command flash_load", dev->name);
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command flash_load failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command flash_load failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after flash load failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after flash load failed with rc %d",
+			rc);
 		return rc;
 	}
 	return 0;
@@ -374,6 +355,7 @@ int si468x_cmd_boot(const struct device *dev)
 	struct spi_buf buf = { .buf = cmd, .len = sizeof(cmd) };
 	struct spi_buf_set buf_set = { .buffers = &buf, .count = 1 };
 
+	LOG_DBG("%s: Command boot", dev->name);
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
 		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
@@ -383,8 +365,7 @@ int si468x_cmd_boot(const struct device *dev)
 	data->pup_state = si468x_PUP_APPLICATION;
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after booting failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after booting failed with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -400,8 +381,7 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command boot failed with rc %d", dev->name,
-			rc);
+		LOG_ERR("sending command boot failed with rc %d", rc);
 		return rc;
 	}
 	uint8_t ans;
@@ -409,8 +389,8 @@ int si468x_cmd_get_sys_state(const struct device *dev, enum si468x_image *image)
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after getting system state failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after getting system state failed with rc %d",
+			rc);
 		return rc;
 	}
 	*image = (enum si468x_image)ans;
@@ -430,14 +410,13 @@ int si468x_cmd_set_property(const struct device *dev, uint16_t id, uint16_t val)
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command set property failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command set property failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc < 0) {
-		LOG_ERR("%s: waiting for CTS after set property failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("waiting for CTS after set property failed with rc %d",
+			rc);
 		return rc;
 	}
 	return 0;
@@ -459,22 +438,21 @@ int si468x_cmd_get_digital_service_list(const struct device *dev,
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending get_digital_service_list command failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending get_digital_service_list command failed with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: getting digital service list size failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("getting digital service list size failed with rc %d",
+			rc);
 		return rc;
 	}
 	ans_buf[1].len = len;
 	ans_buf_set.count = 2;
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: getting digital service list failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("getting digital service list failed with rc %d", rc);
 		return rc;
 	}
 	return len;

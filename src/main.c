@@ -40,6 +40,7 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Requesting 1.8V failed with rc %d", rc);
 	}
+	k_sleep(K_MSEC(10));
 
 	rh_sens = device_get_binding("SHT2X");
 	if (rh_sens == NULL) {

@@ -52,8 +52,7 @@ int si468x_cmd_dab_tune(const struct device *dev, uint8_t channel,
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command tune_freq failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command tune_freq failed with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -80,8 +79,7 @@ int si468x_cmd_dab_start_service(const struct device *dev, uint16_t service_id,
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command start service failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command start service failed with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -97,17 +95,15 @@ int si468x_cmd_dab_get_freq_list(const struct device *dev, uint8_t *num_freqs)
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending command get_freq_list failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending command get_freq_list failed with rc %d", rc);
 		return rc;
 	}
 	struct spi_buf ans_buf = { .buf = num_freqs, .len = sizeof(uint8_t) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
 
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
-	if (rc != 0) {
-		LOG_ERR("%s: getting number of frequencies failed with rc %d",
-			dev->name, rc);
+	if (rc < 0) {
+		LOG_ERR("getting number of frequencies failed with rc %d", rc);
 		return rc;
 	}
 	return 0;
@@ -126,17 +122,15 @@ int si468x_cmd_dab_digrad_status(const struct device *dev, bool digrad_ack,
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending digrad status command failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending digrad status command failed with rc %d", rc);
 		return rc;
 	}
 	uint8_t ans[5];
 	struct spi_buf ans_buf = { .buf = ans, .len = sizeof(ans) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
-	if (rc != 0) {
-		LOG_ERR("%s: getting digrad status failed with rc %d",
-			dev->name, rc);
+	if (rc < 0) {
+		LOG_ERR("getting digrad status failed with rc %d", rc);
 		return rc;
 	}
 	if (status != NULL) {
@@ -161,17 +155,15 @@ int si468x_cmd_dab_get_event_status(const struct device *dev, bool event_ack,
 
 	rc = si468x_send_command(dev, &buf_set);
 	if (rc != 0) {
-		LOG_ERR("%s: sending digrad status command failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("sending digrad status command failed with rc %d", rc);
 		return rc;
 	}
 	uint8_t ans[4];
 	struct spi_buf ans_buf = { .buf = ans, .len = sizeof(ans) };
 	struct spi_buf_set ans_buf_set = { .buffers = &ans_buf, .count = 1 };
 	rc = si468x_cmd_rd_reply(dev, &ans_buf_set, NULL);
-	if (rc != 0) {
-		LOG_ERR("%s: getting digrad status failed with rc %d",
-			dev->name, rc);
+	if (rc < 0) {
+		LOG_ERR("getting digrad status failed with rc %d", rc);
 		return rc;
 	}
 	if (status != NULL) {

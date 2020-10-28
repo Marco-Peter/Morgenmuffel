@@ -36,46 +36,43 @@ static int init(const struct device *dev)
 
 	data->reset_gpio = device_get_binding(config->reset_gpio_label);
 	if (data->reset_gpio == NULL) {
-		LOG_ERR("%s: failed to bind the reset gpio driver", dev->name);
+		LOG_ERR("failed to bind the reset gpio driver");
 	}
 	rc = gpio_pin_configure(data->reset_gpio, config->reset_gpio_pin,
 				GPIO_OUTPUT_ACTIVE | config->reset_gpio_flags);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to configure reset gpio with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to configure reset gpio with rc %d", rc);
 		return rc;
 	}
 	if (config->cs_gpio_label != NULL) {
 		data->cs_gpio = device_get_binding(config->cs_gpio_label);
 		if (data->cs_gpio == NULL) {
-			LOG_ERR("%s: failed to bind the cs gpio driver",
-				dev->name);
+			LOG_ERR("failed to bind the cs gpio driver");
 		}
 		rc = gpio_pin_configure(data->cs_gpio, config->cs_gpio_pin,
 					GPIO_OUTPUT | config->cs_gpio_flags);
 		if (rc != 0) {
-			LOG_ERR("%s: failed to configure chip select gpio with rc %d",
-				dev->name, rc);
+			LOG_ERR("failed to configure chip select gpio with rc %d",
+				rc);
 			return rc;
 		}
 	}
 	data->int_gpio = device_get_binding(config->int_gpio_label);
 	if (data->int_gpio == NULL) {
-		LOG_ERR("%s: failed to bind the int gpio driver", dev->name);
+		LOG_ERR("failed to bind the int gpio driver");
 	}
 	rc = gpio_pin_configure(data->int_gpio, config->int_gpio_pin,
 				GPIO_INPUT | config->int_gpio_flags);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to configure gpio pin interrupt with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to configure gpio pin interrupt with rc %d",
+			rc);
 		return rc;
 	}
 	gpio_init_callback(&data->gpio_callback, gpio_callback_handler,
-			   config->int_gpio_pin);
+			   BIT(config->int_gpio_pin));
 	rc = gpio_add_callback(data->int_gpio, &data->gpio_callback);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to add gpio interrupt callback with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to add gpio interrupt callback with rc %d", rc);
 		return rc;
 	}
 	rc = k_sem_init(&data->sem, 0, 1);
@@ -96,74 +93,67 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 	k_sleep(K_MSEC(1));
 	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 0);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to release the reset line with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to release the reset line with rc %d", rc);
 		return rc;
 	}
 	k_sleep(K_MSEC(4));
 	rc = si468x_cmd_rd_reply(dev, NULL, NULL);
 	if (rc != 0) {
-		LOG_ERR("%s: reading state after reset failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("reading state after reset failed with rc %d", rc);
 		return rc;
 	}
 	if (rc != si468x_PUP_RESET) {
-		LOG_ERR("%s: wrong chip state after reset: %d", dev->name, rc);
+		LOG_ERR("wrong chip state after reset: %d", rc);
 		return -EIO;
 	}
 	rc = si468x_cmd_powerup(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to send powerup command with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to send powerup command with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_load_init(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: load init command failed with rc %d", dev->name,
-			rc);
+		LOG_ERR("load init command failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_host_load(dev, minipatch, MINIPATCH_LENGTH);
 	if (rc != 0) {
-		LOG_ERR("%s: loading mini patch failed with rc %d", dev->name,
-			rc);
+		LOG_ERR("loading mini patch failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_load_init(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: load init command after mini patch failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("load init command after mini patch failed with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_flash_load(dev, CONFIG_SI468X_FLASH_START_PATCH);
 	if (rc != 0) {
-		LOG_ERR("%s: flash load command for patch failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("flash load command for patch failed with rc %d", rc);
 		return rc;
 	}
 	rc = si468x_cmd_load_init(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: load init command after fw patch failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("load init command after fw patch failed with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_flash_load(dev, mode);
 	if (rc != 0) {
-		LOG_ERR("%s: flash load command for firmware failed with rc %d",
-			dev->name, rc);
+		LOG_ERR("flash load command for firmware failed with rc %d",
+			rc);
 		return rc;
 	}
 	rc = si468x_cmd_boot(dev);
 	if (rc != 0) {
-		LOG_ERR("%s: booting failed with rc %d", dev->name, rc);
+		LOG_ERR("booting failed with rc %d", rc);
 		return rc;
 	}
 
 	enum si468x_image image;
 	rc = si468x_cmd_get_sys_state(dev, &image);
 	if (rc != 0) {
-		LOG_ERR("%s: getting image id failed with rc %d", dev->name,
-			rc);
+		LOG_ERR("getting image id failed with rc %d", rc);
 		return rc;
 	}
 	if (!(
@@ -177,8 +167,8 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		    ((mode == si468x_MODE_FMHD) && (image == si468x_IMG_FMHD)) ||
 #endif
 		    false)) {
-		LOG_ERR("%s: loaded wrong firmware image %d for mode %d",
-			dev->name, image, mode);
+		LOG_ERR("loaded wrong firmware image %d for mode %d", image,
+			mode);
 		return -EIO;
 	}
 	switch (mode) {
@@ -206,8 +196,7 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
 					  GPIO_INT_EDGE_TO_ACTIVE);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to configure interrupt pin with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to configure interrupt pin with rc %d", rc);
 		return rc;
 	}
 	return rc;
@@ -223,14 +212,12 @@ static int powerdown(const struct device *dev)
 	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
 					  GPIO_INT_DISABLE);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to disable interrupt pin with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to disable interrupt pin with rc %d", rc);
 		return rc;
 	}
 	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
 	if (rc != 0) {
-		LOG_ERR("%s: failed to pull the reset line with rc %d",
-			dev->name, rc);
+		LOG_ERR("failed to pull the reset line with rc %d", rc);
 		return rc;
 	}
 	data->pup_state = si468x_PUP_RESET;
