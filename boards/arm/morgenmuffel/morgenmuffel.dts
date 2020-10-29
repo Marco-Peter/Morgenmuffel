@@ -101,8 +101,14 @@
 };
 
 &usart2 {
-	current-speed = <38400>;
+	current-speed = <115200>;
 	status = "okay";
+	
+	esp8266 {
+		compatible = "espressif,esp";
+		label = "esp8266";
+		status = "okay";
+	};
 };
 
 &usart3 {

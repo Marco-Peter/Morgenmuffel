@@ -21,6 +21,19 @@ config NET_L2_ETHERNET
 config ETH_STM32_HAL
 	default y
 
+if WIFI
+
+config SERIAL
+	default y
+
+config WIFI_ESP
+	default y
+
+config UART_INTERRUPT_DRIVEN
+	default y
+
+endif # WIFI
+
 endif # NETWORKING
 
 if DISPLAY
