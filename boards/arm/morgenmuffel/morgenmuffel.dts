@@ -123,6 +123,10 @@
 	status = "okay";
 };
 
+&mac {
+	status = "okay";
+};
+
 &spi1 { /* Memory bus connecting M25P16 (node 0) flash and SRAM (node 1) */
 	status = "okay";
 	cs-gpios = <&gpiof 13 GPIO_ACTIVE_LOW>, <&gpiof 12 GPIO_ACTIVE_LOW>;
