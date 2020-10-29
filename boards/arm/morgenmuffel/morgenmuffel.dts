@@ -107,6 +107,9 @@
 	esp8266 {
 		compatible = "espressif,esp";
 		label = "esp8266";
+		power-gpios = <&gpioa 4 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpiob 0 GPIO_ACTIVE_LOW>;
+		target-speed = <230400>
 		status = "okay";
 	};
 };
