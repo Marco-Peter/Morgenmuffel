@@ -32,6 +32,6 @@ target_sources(app PRIVATE
     src/free_sans_16.c
     src/free_sans_32.c
     src/powersupply.c
-    src/uart_forwarder.c
+    src/usb_device_handler.c
 )
 target_include_directories( app PRIVATE src/include)

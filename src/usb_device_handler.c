@@ -1,4 +1,4 @@
-#include "usb_device.h"
+#include "usb_device_handler.h"
 #include <device.h>
 #include <zephyr.h>
 #include <drivers/uart.h>
@@ -6,7 +6,7 @@
 #include <sys/ring_buffer.h>
 #include <logging/log.h>
 
-LOG_MODULE_REGISTER(usb_device, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(usb_device_handler, LOG_LEVEL_DBG);
 
 RING_BUF_DECLARE(ringbuf_to_esp, 32);
 RING_BUF_DECLARE(ringbuf_to_host, 32);
@@ -17,7 +17,7 @@ static const struct device *usb_cdc_esp;
 static void usb_cdc_handler(const struct device *dev, void *user_data);
 static void uart_esp_handler(const struct device *dev, void *user_data);
 
-int usb_device_init(void)
+int usb_devicehandler_init(void)
 {
 	int rc;
 
@@ -31,8 +31,21 @@ int usb_device_init(void)
 	if (rc != 0) {
 		LOG_ERR("Failed to enable USB with rc %d", rc);
 	}
+
 	uart_irq_callback_user_data_set(usb_cdc_esp, usb_cdc_handler, NULL);
 	uart_irq_callback_user_data_set(uart_esp, uart_esp_handler, NULL);
+	while (true) {
+		uint32_t dtr = 0U;
+		uart_line_ctrl_get(usb_cdc_esp, UART_LINE_CTRL_DTR, &dtr);
+		if (dtr) {
+			break;
+		} else {
+			/* Give CPU resources to low priority threads. */
+			k_sleep(K_MSEC(100));
+		}
+	}
+
+	LOG_INF("DTR set");
 	rc = uart_line_ctrl_set(usb_cdc_esp, UART_LINE_CTRL_DCD, 1);
 	if (rc != 0) {
 		LOG_ERR("Failed to set DCD with rc %d", rc);
@@ -43,6 +56,7 @@ int usb_device_init(void)
 	}
 	uart_irq_rx_enable(uart_esp);
 	uart_irq_rx_enable(usb_cdc_esp);
+	return rc;
 }
 
 static int copy_to_buffer(const struct device *dev, struct ring_buf *ringbuf,
@@ -73,9 +87,12 @@ static void uart_handler(const struct device *dev, const struct device *other,
 
 			available = ring_buf_space_get(out_buf);
 			used = copy_to_buffer(dev, out_buf, available);
+			LOG_DBG("received %d bytes from %s", used, dev->name);
 			available -= used;
 			if (available > used) {
 				used = copy_to_buffer(dev, out_buf, available);
+				LOG_DBG("received %d bytes from %s", used,
+					dev->name);
 				if (used == available) {
 					LOG_ERR("%s: out_buf is full!",
 						dev->name);
@@ -101,6 +118,7 @@ static void uart_handler(const struct device *dev, const struct device *other,
 			if (rc != 0) {
 				LOG_ERR("invalid argument on ring_buf_get_finish!");
 			}
+			LOG_DBG("sent %d bytes to %s", used, dev->name);
 		}
 	}
 }

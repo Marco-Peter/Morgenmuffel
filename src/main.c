@@ -10,8 +10,10 @@
 #include <zephyr.h>
 #include "display.h"
 #include <drivers/sensor.h>
+#include <drivers/gpio.h>
 #include <si468x.h>
 #include "powersupply.h"
+#include "usb_device_handler.h"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -24,6 +26,8 @@ static const struct device *rh_sens;
 static const struct device *pr_sens;
 static const struct device *lx_sens;
 static const struct device *tuner;
+static const struct device *wlan_chip_en_port;
+static const struct device *wlan_rst;
 
 uint8_t buffer[2048];
 
@@ -58,6 +62,23 @@ void main(void)
 	if (rh_sens == NULL) {
 		LOG_ERR("tuner not found");
 	}
+	wlan_chip_en_port = device_get_binding("GPIOA");
+	if(wlan_chip_en_port == NULL) {
+		LOG_ERR("WLan enable port not found");
+	}
+	wlan_rst = device_get_binding("GPIOB");
+	if(wlan_rst == NULL) {
+		LOG_ERR("WLan reset port not found");
+	}
+
+	rc = gpio_pin_configure(wlan_chip_en_port, 4, GPIO_OUTPUT_INACTIVE);
+	if(rc != 0) {
+		LOG_ERR("Failed to configure enable output");
+	}
+	rc = gpio_pin_configure(wlan_rst, 0, GPIO_OUTPUT_ACTIVE | GPIO_ACTIVE_LOW);
+	if(rc != 0) {
+		LOG_ERR("Failed to configure reset output");
+	}
 
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
@@ -72,6 +93,23 @@ void main(void)
 		LOG_ERR("Failed to start the tuner with rc %d", rc);
 	}
 */
+	k_sleep(K_MSEC(100));
+	rc = gpio_pin_set(wlan_chip_en_port, 4, 1);
+	if(rc != 0) {
+		LOG_ERR("Failed to switch on enable pin");
+	}
+	k_sleep(K_MSEC(100));
+	rc = gpio_pin_set(wlan_rst, 0, 0);
+	if(rc != 0) {
+		LOG_ERR("Failed to release reset pin");
+	}
+	k_sleep(K_MSEC(100));
+
+	rc = usb_devicehandler_init();
+	if (rc != 0) {
+		LOG_ERR("Initialisation of USB failed");
+	}
+
 	for (;;) {
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);
