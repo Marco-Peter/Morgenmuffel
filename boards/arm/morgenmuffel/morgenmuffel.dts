@@ -102,6 +102,7 @@
 
 &usart2 {
 	current-speed = <115200>;
+	parity = <0>;
 	status = "okay";
 	
 	esp8266 {

@@ -23,7 +23,8 @@
 			"errno-base.h": "c",
 			"littlefs.h": "c",
 			"storage.h": "c",
-			"types.h": "c"
+			"types.h": "c",
+			"cdc_acm.h": "c"
 		}
 	}
 }
