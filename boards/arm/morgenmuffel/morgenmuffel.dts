@@ -6,7 +6,7 @@
 
 /dts-v1/;
 #include <st/f2/stm32f207Xg.dtsi>
-#include <dt-bindings/gpio/gpio.h>
+#include <st/f2/stm32f217z(e-g)tx-pinctrl.dtsi>
 
 / {
 	model = "Morgenmuffel Radioclock Board";
@@ -96,11 +96,13 @@
 };
 
 &usart1 {
+	pinctrl-0 = <&usart1_tx_pb6 &usart1_rx_pb7>;
 	current-speed = <38400>;
 	status = "okay";
 };
 
 &usart2 {
+	pinctrl-0 = <&usart2_tx_pd5 &usart2_rx_pd6>;
 	current-speed = <115200>;
 	parity = <0>;
 	status = "okay";
@@ -116,6 +118,7 @@
 };
 
 &usart3 {
+	pinctrl-0 = <&usart3_tx_pc10 &usart3_rx_pc11>;
 	current-speed = <38400>;
 	status = "okay";
 };
@@ -129,8 +132,9 @@
 };
 
 &spi1 { /* Memory bus connecting M25P16 (node 0) flash and SRAM (node 1) */
-	status = "okay";
+	pinctrl-0 = <&spi1_sck_pa5 &spi1_miso_pa6 &spi1_mosi_pb5>;
 	cs-gpios = <&gpiof 13 GPIO_ACTIVE_LOW>, <&gpiof 12 GPIO_ACTIVE_LOW>;
+	status = "okay";
 	m25p16: m25p16@0 {
 		compatible = "jedec,spi-nor";
 		label = "M25P16";
@@ -156,8 +160,10 @@
 };
 
 &spi2 { /* Peripheral bus connecting display (node 0), VS1053 CS (node 1) and DCS (node 2) and SI4689 (node 3). */
+	pinctrl-0 = <&spi2_sck_pb10 &spi2_miso_pc2 &spi2_mosi_pc3>;
+	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>,
+		   <&gpiof 6 GPIO_ACTIVE_LOW>;
 	status = "okay";
-	cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>, <&gpiod 9 GPIO_ACTIVE_LOW>, <&gpiof 6 GPIO_ACTIVE_LOW>;
 	display: ssd1306@0 {
 		compatible = "solomon,ssd1306fb";
 		label = "SSD1306";
@@ -193,6 +199,7 @@
 };
 
 &i2c1 {
+	pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
 	status = "okay";
 	rh_sens: sht2x@40 {
 		compatible = "sensirion,sht2x";
