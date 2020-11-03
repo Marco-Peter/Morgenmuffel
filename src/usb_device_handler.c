@@ -6,9 +6,9 @@
 #include <sys/ring_buffer.h>
 #include <logging/log.h>
 
-LOG_MODULE_REGISTER(usb_device_handler, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(usb_device_handler, LOG_LEVEL_WRN);
 
-RING_BUF_DECLARE(ringbuf_to_esp, 32);
+RING_BUF_DECLARE(ringbuf_to_esp, 4096);
 RING_BUF_DECLARE(ringbuf_to_host, 32);
 
 static const struct device *uart_esp;
@@ -64,17 +64,28 @@ static int copy_to_buffer(const struct device *dev, struct ring_buf *ringbuf,
 {
 	int rc;
 	uint32_t ready;
-	int used;
+	int used = 0;
+	int copied_total = 0;
 	uint8_t *data;
 
-	ready = ring_buf_put_claim(ringbuf, &data, available);
-	used = uart_fifo_read(dev, data, ready);
-	rc = ring_buf_put_finish(ringbuf, used);
-	if (rc != 0) {
-		LOG_ERR("%s: invalid argument on ring_buf_put_finish!",
-			dev->name);
-	}
-	return used;
+	do {
+		available -= used;
+		ready = ring_buf_put_claim(ringbuf, &data, available);
+		if (ready == 0U) {
+			LOG_ERR("%s: Ringbuffer is full", dev->name);
+		}
+		used = uart_fifo_read(dev, data, ready);
+		if (used == 0) {
+			LOG_WRN("%s: No data in FIFO", dev->name);
+		}
+		rc = ring_buf_put_finish(ringbuf, used);
+		if (rc != 0) {
+			LOG_ERR("%s: invalid argument on ring_buf_put_finish!",
+				dev->name);
+		}
+		copied_total += used;
+	} while ((used == ready) && (ready < available));
+	return copied_total;
 }
 
 static void uart_handler(const struct device *dev, const struct device *other,
@@ -88,16 +99,6 @@ static void uart_handler(const struct device *dev, const struct device *other,
 			available = ring_buf_space_get(out_buf);
 			used = copy_to_buffer(dev, out_buf, available);
 			LOG_DBG("received %d bytes from %s", used, dev->name);
-			available -= used;
-			if (available > used) {
-				used = copy_to_buffer(dev, out_buf, available);
-				LOG_DBG("received %d bytes from %s", used,
-					dev->name);
-				if (used == available) {
-					LOG_ERR("%s: out_buf is full!",
-						dev->name);
-				}
-			}
 			uart_irq_tx_enable(other);
 		}
 
@@ -111,9 +112,10 @@ static void uart_handler(const struct device *dev, const struct device *other,
 				ring_buf_get_claim(in_buf, &data, UINT32_MAX);
 			if (available == 0U) {
 				uart_irq_tx_disable(dev);
-				continue;
+				used = 0;
+			} else {
+				used = uart_fifo_fill(dev, data, available);
 			}
-			used = uart_fifo_fill(dev, data, available);
 			rc = ring_buf_get_finish(in_buf, used);
 			if (rc != 0) {
 				LOG_ERR("invalid argument on ring_buf_get_finish!");
