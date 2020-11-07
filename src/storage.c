@@ -8,17 +8,12 @@
 #include <drivers/flash.h>
 #include <fs/fs.h>
 #include <fs/littlefs.h>
+#include <settings/settings.h>
+#include <logging/log.h>
+
+LOG_MODULE_REGISTER(storage, LOG_LEVEL_DBG);
 
 FS_LITTLEFS_DECLARE_DEFAULT_CONFIG(storage);
-
-/**
- * Check the return code variable rc and return it if it is not zero
- *
- */
-#define checkRc()                                                              \
-	if (rc != 0) {                                                         \
-		return rc;                                                     \
-	}
 
 /**
  * Mount point for flash storage
@@ -44,18 +39,39 @@ int storage_init(void)
 	struct fs_statvfs sbuf;
 
 	rc = flash_area_open(id, &pfa);
-	checkRc();
+	if (rc != 0) {
+		LOG_ERR("failed to open flash area with rc %d", rc);
+		return rc;
+	}
 
 	rc = fs_mount(mp);
-	checkRc();
+	if (rc != 0) {
+		LOG_ERR("failed to mount file system with rc %d", rc);
+		return rc;
+	}
 
 	rc = fs_statvfs(mp->mnt_point, &sbuf);
-	checkRc();
+	if (rc != 0) {
+		LOG_ERR("failed to get file system status with rc %d", rc);
+		return rc;
+	}
 
-	printk("%s: bsize = %lu; frsize = %lu;"
-	       " blocks = %lu; bfree = %lu\n",
-	       mp->mnt_point, sbuf.f_bsize, sbuf.f_frsize, sbuf.f_blocks,
-	       sbuf.f_bfree);
+	LOG_INF("%s: bsize = %lu; frsize = %lu;"
+		" blocks = %lu; bfree = %lu\n",
+		mp->mnt_point, sbuf.f_bsize, sbuf.f_frsize, sbuf.f_blocks,
+		sbuf.f_bfree);
+
+	rc = settings_subsys_init();
+	if (rc != 0) {
+		LOG_ERR("failed to initialise settings subsystem with rc %d",
+			rc);
+		return rc;
+	}
+
+	rc = settings_load();
+	if (rc != 0) {
+		LOG_ERR("failed to load settings with rc %d", rc);
+	}
 	return 0;
 }
 
