@@ -7,6 +7,8 @@
 #ifndef STORAGE_H_
 #define STORAGE_H_
 
+#include <zephyr.h>
+
 #define MAX_PATH_LEN 255
 #define STORAGE_MOUNTPOINT_FLASH "/flash"
 

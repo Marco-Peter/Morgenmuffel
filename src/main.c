@@ -63,6 +63,7 @@ void main(void)
 	if (rh_sens == NULL) {
 		LOG_ERR("tuner not found");
 	}
+	/*
 	wlan_chip_en_port = device_get_binding("GPIOA");
 	if (wlan_chip_en_port == NULL) {
 		LOG_ERR("WLan enable port not found");
@@ -87,6 +88,7 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Failed to configure update output");
 	}
+	*/
 
 	LOG_DBG("send command initScreen");
 	display_command(show_initScreen);
@@ -100,7 +102,8 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Failed to start the tuner with rc %d", rc);
 	}
-*/
+	*/
+	/*
 	k_sleep(K_MSEC(100));
 	rc = gpio_pin_set(wlan_chip_en_port, 4, 1);
 	if (rc != 0) {
@@ -117,7 +120,11 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Initialisation of USB failed");
 	}
-
+	*/
+	rc = usb_enable(NULL);
+	if (rc != 0) {
+		LOG_ERR("Failed to enable USB with rc %d", rc);
+	}
 	for (;;) {
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);

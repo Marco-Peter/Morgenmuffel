@@ -83,8 +83,9 @@ int storage_deinit(void)
 {
 	int rc;
 	rc = fs_unmount(&flash_storage_mnt);
-	checkRc();
-
+	if(rc != 0) {
+		LOG_ERR("failed to deinitialise file system with rc %d", rc);
+	}
 	return 0;
 }
 
