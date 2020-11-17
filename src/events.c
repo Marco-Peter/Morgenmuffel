@@ -12,3 +12,9 @@
 struct k_poll_signal buttonEvents = K_POLL_SIGNAL_INITIALIZER(buttonEvents);
 struct k_poll_event events[] = { K_POLL_EVENT_STATIC_INITIALIZER(
         K_POLL_TYPE_SIGNAL, K_POLL_MODE_NOTIFY_ONLY, &buttonEvents, 0) };
+
+int wait_for_user_event(void)
+{
+        k_poll(events, 1, K_FOREVER);
+        return events->signal->result;
+}

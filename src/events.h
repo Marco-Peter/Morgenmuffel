@@ -37,4 +37,6 @@
 
 extern struct k_poll_signal buttonEvents;
 
+int wait_for_user_event(void);
+
 #endif // EVENTS_C_

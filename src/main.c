@@ -14,8 +14,9 @@
 #include <si468x.h>
 #include "powersupply.h"
 #include "usb_device_handler.h"
+#include "events.h"
 
-LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(main, LOG_LEVEL_DBG);
 
 static void show_initScreen(void);
 static void show_sht21(void);
@@ -126,9 +127,13 @@ void main(void)
 		LOG_ERR("Failed to enable USB with rc %d", rc);
 	}
 	for (;;) {
+		int event;
+		event = wait_for_user_event();
+		LOG_DBG("Got user input %d", event);
+/*
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);
-		display_command(show_apds9301);
+		display_command(show_apds9301);*/
 	}
 }
 
