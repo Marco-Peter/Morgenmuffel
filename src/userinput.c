@@ -110,6 +110,19 @@ static const struct device *btn_ALARM3_port;
 static struct encoder enc_select;
 static struct encoder enc_volume;
 
+struct gpio_callback select_encoder_callback;
+struct gpio_callback volume_encoder_callback;
+
+void select_encoder_cb(const struct device *port, struct gpio_callback_t *cb,
+		       gpio_port_pins_t pins)
+{
+}
+
+void volume_encoder_cb(const struct device *port, struct gpio_callback_t *cb,
+		       gpio_port_pins_t pins)
+{
+}
+
 static const struct device *configure_port(const char *label, gpio_pin_t pin,
 					   gpio_flags_t flags)
 {
@@ -257,17 +270,16 @@ static void scan_inputs(void)
 
 	enc_volume.port_a = configure_port(ENC_VOLUME_A_LABEL, ENC_VOLUME_A_PIN,
 					   ENC_VOLUME_A_FLAGS);
+	gpio_init_callback(&volume_encoder_callback, volume_encoder_cb,
+			   ENC_VOLUME_A_PIN);
 	rc = gpio_pin_interrupt_configure(enc_volume.port_a, ENC_VOLUME_A_PIN,
 					  GPIO_INT_EDGE_RISING);
 	if (rc != 0) {
 		LOG_ERR("Failed to configure interrupt of volume encoder A with rc %d",
 			rc);
 	}
-
 	enc_volume.port_b = configure_port(ENC_VOLUME_B_LABEL, ENC_VOLUME_B_PIN,
 					   ENC_VOLUME_B_FLAGS);
-	rc = gpio_pin_interrupt_configure(enc_volume.port_b, ENC_VOLUME_B_PIN,
-					  GPIO_INT_EDGE_RISING);
 	if (rc != 0) {
 		LOG_ERR("Failed to configure interrupt of volume encoder B with rc %d",
 			rc);
@@ -275,13 +287,14 @@ static void scan_inputs(void)
 
 	enc_select.port_a = configure_port(ENC_SELECT_A_LABEL, ENC_SELECT_A_PIN,
 					   ENC_SELECT_A_FLAGS);
+	gpio_init_callback(&select_encoder_callback, select_encoder_cb,
+			   ENC_VOLUME_A_PIN);
 	rc = gpio_pin_interrupt_configure(enc_select.port_a, ENC_SELECT_A_PIN,
 					  GPIO_INT_EDGE_RISING);
 	if (rc != 0) {
 		LOG_ERR("Failed to configure interrupt of select encoder A with rc %d",
 			rc);
 	}
-
 	enc_select.port_b = configure_port(ENC_SELECT_B_LABEL, ENC_SELECT_B_PIN,
 					   ENC_SELECT_B_FLAGS);
 	rc = gpio_pin_interrupt_configure(enc_select.port_b, ENC_SELECT_B_PIN,
