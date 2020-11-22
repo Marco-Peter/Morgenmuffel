@@ -243,6 +243,8 @@ static void scan_encoders(void)
 
 static void scan_inputs(void)
 {
+	int rc;
+
 	btn_POWER_port = configure_port(BTN_CNF(POWER));
 	btn_SELECT_port = configure_port(BTN_CNF(SELECT));
 	btn_BACK_port = configure_port(BTN_CNF(BACK));
@@ -252,14 +254,42 @@ static void scan_inputs(void)
 	btn_ALARM1_port = configure_port(BTN_CNF(ALARM1));
 	btn_ALARM2_port = configure_port(BTN_CNF(ALARM2));
 	btn_ALARM3_port = configure_port(BTN_CNF(ALARM3));
+
 	enc_volume.port_a = configure_port(ENC_VOLUME_A_LABEL, ENC_VOLUME_A_PIN,
 					   ENC_VOLUME_A_FLAGS);
+	rc = gpio_pin_interrupt_configure(enc_volume.port_a, ENC_VOLUME_A_PIN,
+					  GPIO_INT_EDGE_RISING);
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of volume encoder A with rc %d",
+			rc);
+	}
+
 	enc_volume.port_b = configure_port(ENC_VOLUME_B_LABEL, ENC_VOLUME_B_PIN,
 					   ENC_VOLUME_B_FLAGS);
+	rc = gpio_pin_interrupt_configure(enc_volume.port_b, ENC_VOLUME_B_PIN,
+					  GPIO_INT_EDGE_RISING);
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of volume encoder B with rc %d",
+			rc);
+	}
+
 	enc_select.port_a = configure_port(ENC_SELECT_A_LABEL, ENC_SELECT_A_PIN,
 					   ENC_SELECT_A_FLAGS);
+	rc = gpio_pin_interrupt_configure(enc_select.port_a, ENC_SELECT_A_PIN,
+					  GPIO_INT_EDGE_RISING);
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of select encoder A with rc %d",
+			rc);
+	}
+
 	enc_select.port_b = configure_port(ENC_SELECT_B_LABEL, ENC_SELECT_B_PIN,
 					   ENC_SELECT_B_FLAGS);
+	rc = gpio_pin_interrupt_configure(enc_select.port_b, ENC_SELECT_B_PIN,
+					  GPIO_INT_EDGE_RISING);
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of select encoder B with rc %d",
+			rc);
+	}
 
 	enc_select.current_state_a =
 		gpio_pin_get(enc_select.port_a, ENC_SELECT_A_PIN);

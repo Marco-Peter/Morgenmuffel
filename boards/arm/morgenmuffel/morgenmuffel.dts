@@ -65,19 +65,19 @@
 		};
 		enc_volume_a: encoder_volume_a {
 			label = "EncVolA";
-			gpios = <&gpioa 8 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpioa 8 (GPIO_PULL_UP)>;
 		};
 		enc_volume_b: encoder_volume_b {
 			label = "EncVolB";
-			gpios = <&gpioe 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpioe 11 (GPIO_PULL_UP)>;
 		};
 		enc_select_a: encoder_select_a {
 			label = "EncSelA";
-			gpios = <&gpiob 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpiob 4 (GPIO_PULL_UP)>;
 		};
 		enc_select_b: encoder_select_b {
 			label = "EncSelB";
-			gpios = <&gpioc 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			gpios = <&gpioc 7 (GPIO_PULL_UP)>;
 		};
 	};
 
