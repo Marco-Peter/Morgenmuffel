@@ -129,7 +129,7 @@ void main(void)
 	for (;;) {
 		int event;
 		event = wait_for_user_event();
-		LOG_DBG("Got user input %d", event);
+		LOG_DBG("Got user input 0x%08X", event);
 /*
 		k_sleep(K_SECONDS(1));
 		display_command(show_sht21);
