@@ -121,11 +121,12 @@ void main(void)
 	if (rc != 0) {
 		LOG_ERR("Initialisation of USB failed");
 	}
-	*/
+	
 	rc = usb_enable(NULL);
 	if (rc != 0) {
 		LOG_ERR("Failed to enable USB with rc %d", rc);
 	}
+	*/
 	for (;;) {
 		int event;
 		event = wait_for_user_event();

@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../zephyr"
+		},
+		{
+			"path": "../../modules/hal/stm32"
 		}
 	],
 	"settings": {

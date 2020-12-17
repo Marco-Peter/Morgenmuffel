@@ -14,6 +14,7 @@
 #include <drivers/gpio.h>
 #include "events.h"
 #include "logging/log.h"
+#include "stm32f2xx_ll_tim.h"
 
 LOG_MODULE_REGISTER(userinput, LOG_LEVEL_ERR);
 
@@ -94,7 +95,10 @@ LOG_MODULE_REGISTER(userinput, LOG_LEVEL_ERR);
 struct encoder {
 	const struct device *port_a;
 	const struct device *port_b;
-	bool current_state_a;
+	struct gpio_callback callback_a;
+	struct gpio_callback callback_b;
+	const gpio_pin_t pin_a;
+	const gpio_pin_t pin_b;
 };
 
 static const struct device *btn_POWER_port;
@@ -107,20 +111,64 @@ static const struct device *btn_ALARM1_port;
 static const struct device *btn_ALARM2_port;
 static const struct device *btn_ALARM3_port;
 
-static struct encoder enc_select;
-static struct encoder enc_volume;
+static struct encoder enc_select = {
+	.pin_a = ENC_SELECT_A_PIN,
+	.pin_b = ENC_SELECT_B_PIN
+};
+static struct encoder enc_volume = {
+	.pin_a = ENC_VOLUME_A_PIN,
+	.pin_b = ENC_VOLUME_B_PIN
+};
 
-struct gpio_callback select_encoder_callback;
-struct gpio_callback volume_encoder_callback;
-
-void select_encoder_cb(const struct device *port, struct gpio_callback_t *cb,
-		       gpio_port_pins_t pins)
+static void encoder_cb_a(const struct device *port,
+				struct gpio_callback *cb, gpio_port_pins_t pins)
 {
+	const struct encoder *encoder =
+		CONTAINER_OF(cb, struct encoder, callback_a);
+	int rc;
+	int state_enc_a;
+	int state_enc_b;
+
+	rc = gpio_pin_interrupt_configure(encoder->port_a, encoder->pin_a,
+					  GPIO_INT_DISABLE);
+	if (rc != 0) {
+		LOG_ERR("Failed to disable interrupt of %s.%d with status %d",
+			encoder->port_a->name, encoder->pin_a, rc);
+	}
+	rc = gpio_pin_interrupt_configure(encoder->port_b, encoder->pin_b,
+					  GPIO_INT_EDGE_BOTH);
+	if (rc != 0) {
+		LOG_ERR("Failed to enable interrupt of %s.%d with status %d",
+			encoder->port_b->name, encoder->pin_b, rc);
+	}
+	state_enc_a = gpio_pin_get(encoder->port_a, encoder->pin_a);
+	state_enc_b = gpio_pin_get(encoder->port_b, encoder->pin_b);
+	if (state_enc_a != state_enc_b) {
+		k_poll_signal_raise(&buttonEvents, EVT_ENC_SELECT_UP);
+	} else {
+		k_poll_signal_raise(&buttonEvents, EVT_ENC_SELECT_DN);
+	}
 }
 
-void volume_encoder_cb(const struct device *port, struct gpio_callback_t *cb,
-		       gpio_port_pins_t pins)
+static void encoder_cb_b(const struct device *port,
+				struct gpio_callback *cb, gpio_port_pins_t pins)
 {
+	const struct encoder *encoder =
+		CONTAINER_OF(cb, struct encoder, callback_b);
+	int rc;
+
+	rc = gpio_pin_interrupt_configure(encoder->port_b, encoder->pin_b,
+					  GPIO_INT_DISABLE);
+	if (rc != 0) {
+		LOG_ERR("Failed to disable interrupt of %s.%d with status %d",
+			encoder->port_b->name, encoder->pin_b, rc);
+	}
+	rc = gpio_pin_interrupt_configure(encoder->port_a, encoder->pin_a,
+					  GPIO_INT_EDGE_BOTH);
+	if (rc != 0) {
+		LOG_ERR("Failed to enable interrupt of %s.%d with status %d",
+			encoder->port_a->name, encoder->pin_a, rc);
+	}
 }
 
 static const struct device *configure_port(const char *label, gpio_pin_t pin,
@@ -138,6 +186,69 @@ static const struct device *configure_port(const char *label, gpio_pin_t pin,
 		LOG_ERR("Failed to configure %s", label);
 	}
 	return port;
+}
+
+static void init_encoders(void)
+{
+	LL_TIM_InitTypeDef init = {
+		.Prescaler = 0U,
+		.CounterMode = LL_TIM_COUNTERMODE_UP,
+		.Autoreload = 100,
+		.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1,
+		.RepetitionCounter = 0
+	};
+	int rc;
+
+	enc_volume.port_a = configure_port(ENC_VOLUME_A_LABEL, ENC_VOLUME_A_PIN,
+					   ENC_VOLUME_A_FLAGS);
+	enc_volume.port_b = configure_port(ENC_VOLUME_B_LABEL, ENC_VOLUME_B_PIN,
+					   ENC_VOLUME_B_FLAGS);
+	enc_select.port_a = configure_port(ENC_SELECT_A_LABEL, ENC_SELECT_A_PIN,
+					   ENC_SELECT_A_FLAGS);
+	enc_select.port_b = configure_port(ENC_SELECT_B_LABEL, ENC_SELECT_B_PIN,
+					   ENC_SELECT_B_FLAGS);
+
+	rc = gpio_pin_interrupt_configure(enc_volume.port_a, enc_volume.pin_a,
+					  GPIO_INT_EDGE_BOTH);
+
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of volume encoder A with rc %d",
+			rc);
+	}
+	rc = gpio_pin_interrupt_configure(enc_select.port_a, enc_select.pin_a,
+					  GPIO_INT_EDGE_BOTH);
+	if (rc != 0) {
+		LOG_ERR("Failed to configure interrupt of select encoder A with rc %d",
+			rc);
+	}
+	gpio_init_callback(&enc_volume.callback_a, encoder_cb_a,
+			   BIT(ENC_VOLUME_A_PIN));
+	gpio_init_callback(&enc_volume.callback_b, encoder_cb_b,
+			   BIT(ENC_VOLUME_B_PIN));
+	gpio_init_callback(&enc_select.callback_a, encoder_cb_a,
+			   BIT(ENC_SELECT_A_PIN));
+	gpio_init_callback(&enc_select.callback_b, encoder_cb_b,
+			   BIT(ENC_SELECT_B_PIN));
+	rc = gpio_add_callback(enc_volume.port_a, &enc_volume.callback_a);
+	if (rc != 0) {
+		LOG_ERR("Failed to add interrupt callback to volume encoder with rc %d",
+			rc);
+	}
+	rc = gpio_add_callback(enc_volume.port_b, &enc_volume.callback_b);
+	if (rc != 0) {
+		LOG_ERR("Failed to add interrupt callback to volume encoder with rc %d",
+			rc);
+	}
+	rc = gpio_add_callback(enc_select.port_a, &enc_select.callback_a);
+	if (rc != 0) {
+		LOG_ERR("Failed to add interrupt callback to select encoder with rc %d",
+			rc);
+	}
+	rc = gpio_add_callback(enc_select.port_b, &enc_select.callback_b);
+	if (rc != 0) {
+		LOG_ERR("Failed to add interrupt callback to select encoder with rc %d",
+			rc);
+	}
 }
 
 static void scan_buttons(void)
@@ -224,40 +335,8 @@ static void scan_buttons(void)
 	oldBtnStates = newBtnStates;
 }
 
-static void scan_encoders(void)
-{
-	bool current_state_vol_a;
-	bool current_state_vol_b;
-	bool current_state_sel_a;
-	bool current_state_sel_b;
-
-	current_state_vol_a = gpio_pin_get(enc_volume.port_a, ENC_VOLUME_A_PIN);
-	current_state_vol_b = gpio_pin_get(enc_volume.port_b, ENC_VOLUME_B_PIN);
-	current_state_sel_a = gpio_pin_get(enc_select.port_a, ENC_SELECT_A_PIN);
-	current_state_sel_b = gpio_pin_get(enc_select.port_b, ENC_SELECT_B_PIN);
-
-	if (current_state_vol_a != enc_volume.current_state_a) {
-		if (current_state_vol_a != current_state_vol_b) {
-			k_poll_signal_raise(&buttonEvents, EVT_ENC_VOLUME_UP);
-		} else {
-			k_poll_signal_raise(&buttonEvents, EVT_ENC_VOLUME_DN);
-		}
-	}
-	if (current_state_sel_a != enc_select.current_state_a) {
-		if (current_state_sel_a != current_state_sel_b) {
-			k_poll_signal_raise(&buttonEvents, EVT_ENC_SELECT_UP);
-		} else {
-			k_poll_signal_raise(&buttonEvents, EVT_ENC_SELECT_DN);
-		}
-	}
-	enc_volume.current_state_a = current_state_vol_a;
-	enc_select.current_state_a = current_state_sel_a;
-}
-
 static void scan_inputs(void)
 {
-	int rc;
-
 	btn_POWER_port = configure_port(BTN_CNF(POWER));
 	btn_SELECT_port = configure_port(BTN_CNF(SELECT));
 	btn_BACK_port = configure_port(BTN_CNF(BACK));
@@ -268,51 +347,11 @@ static void scan_inputs(void)
 	btn_ALARM2_port = configure_port(BTN_CNF(ALARM2));
 	btn_ALARM3_port = configure_port(BTN_CNF(ALARM3));
 
-	enc_volume.port_a = configure_port(ENC_VOLUME_A_LABEL, ENC_VOLUME_A_PIN,
-					   ENC_VOLUME_A_FLAGS);
-	gpio_init_callback(&volume_encoder_callback, volume_encoder_cb,
-			   ENC_VOLUME_A_PIN);
-	rc = gpio_pin_interrupt_configure(enc_volume.port_a, ENC_VOLUME_A_PIN,
-					  GPIO_INT_EDGE_RISING);
-	if (rc != 0) {
-		LOG_ERR("Failed to configure interrupt of volume encoder A with rc %d",
-			rc);
-	}
-	enc_volume.port_b = configure_port(ENC_VOLUME_B_LABEL, ENC_VOLUME_B_PIN,
-					   ENC_VOLUME_B_FLAGS);
-	if (rc != 0) {
-		LOG_ERR("Failed to configure interrupt of volume encoder B with rc %d",
-			rc);
-	}
-
-	enc_select.port_a = configure_port(ENC_SELECT_A_LABEL, ENC_SELECT_A_PIN,
-					   ENC_SELECT_A_FLAGS);
-	gpio_init_callback(&select_encoder_callback, select_encoder_cb,
-			   ENC_VOLUME_A_PIN);
-	rc = gpio_pin_interrupt_configure(enc_select.port_a, ENC_SELECT_A_PIN,
-					  GPIO_INT_EDGE_RISING);
-	if (rc != 0) {
-		LOG_ERR("Failed to configure interrupt of select encoder A with rc %d",
-			rc);
-	}
-	enc_select.port_b = configure_port(ENC_SELECT_B_LABEL, ENC_SELECT_B_PIN,
-					   ENC_SELECT_B_FLAGS);
-	rc = gpio_pin_interrupt_configure(enc_select.port_b, ENC_SELECT_B_PIN,
-					  GPIO_INT_EDGE_RISING);
-	if (rc != 0) {
-		LOG_ERR("Failed to configure interrupt of select encoder B with rc %d",
-			rc);
-	}
-
-	enc_select.current_state_a =
-		gpio_pin_get(enc_select.port_a, ENC_SELECT_A_PIN);
-	enc_volume.current_state_a =
-		gpio_pin_get(enc_volume.port_a, ENC_VOLUME_A_PIN);
+	init_encoders();
 
 	while (true) {
 		k_msleep(CYCLE_PERIOD_MS);
 		scan_buttons();
-		scan_encoders();
 	}
 }
 

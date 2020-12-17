@@ -434,7 +434,7 @@ int si468x_dab_play_service(const struct device *dev, uint16_t service_id)
 	} else if (rc == 0) {
 		LOG_ERR("No valid station found on channel %d",
 			service->channel);
-		return -ENOLINK;
+		return -ECANCELED;
 	}
 	rc = si468x_cmd_dab_start_service(dev, service->id,
 					  service->primary_comp_id);
