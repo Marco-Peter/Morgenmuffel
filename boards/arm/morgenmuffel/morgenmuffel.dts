@@ -104,7 +104,7 @@
 &usart2 {
 	pinctrl-0 = <&usart2_tx_pd5 &usart2_rx_pd6>;
 	current-speed = <115200>;
-	parity = <0>;
+	parity = "none";
 	status = "okay";
 	
 	esp8266 {

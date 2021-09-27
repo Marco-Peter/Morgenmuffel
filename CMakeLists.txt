@@ -14,7 +14,7 @@ list(APPEND ZEPHYR_EXTRA_MODULES
     ${CMAKE_CURRENT_LIST_DIR}/drivers/vs1053
 )
 
-find_package(Zephyr)
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(MorgenMuffel)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
