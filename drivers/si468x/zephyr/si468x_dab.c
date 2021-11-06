@@ -189,7 +189,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
 
-	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+	if (gpio_pin_get(config->int_gpio, config->int_gpio_pin) == 1) {
 		LOG_DBG("Interrupt pin already active on tuning");
 	}
 
@@ -197,7 +197,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
 		if (rc == -EAGAIN) {
 			LOG_ERR("waiting for tuning timed out. Pin state: %d",
-				gpio_pin_get(data->int_gpio,
+				gpio_pin_get(config->int_gpio,
 					     config->int_gpio_pin));
 			return rc;
 		} else if (rc != 0) {
@@ -212,7 +212,7 @@ static int dab_wait_for_tune_complete(const struct device *dev)
 		}
 		return rc;
 	} while (events.stcint == false);
-	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+	if (gpio_pin_get(config->int_gpio, config->int_gpio_pin) == 1) {
 		LOG_DBG("other interrupts active");
 		k_sem_give(&data->sem);
 	}
@@ -240,7 +240,7 @@ static int dab_wait_for_service_list(const struct device *dev)
 	struct si468x_config *config = (struct si468x_config *)dev->config;
 	struct si468x_events events = { 0 };
 
-	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+	if (gpio_pin_get(config->int_gpio, config->int_gpio_pin) == 1) {
 		LOG_DBG("Interrupt pin already active when waiting for service list");
 	}
 
@@ -248,7 +248,7 @@ static int dab_wait_for_service_list(const struct device *dev)
 		rc = k_sem_take(&data->sem, K_SECONDS(10));
 		if (rc != -EAGAIN) {
 			LOG_ERR("waiting for service list timed out. Pin state: %d",
-				gpio_pin_get(data->int_gpio,
+				gpio_pin_get(config->int_gpio,
 					     config->int_gpio_pin));
 			return rc;
 		} else if (rc != 0) {
@@ -263,7 +263,7 @@ static int dab_wait_for_service_list(const struct device *dev)
 		}
 		return rc;
 	} while (events.devntint == false);
-	if (gpio_pin_get(data->int_gpio, config->int_gpio_pin) == 1) {
+	if (gpio_pin_get(config->int_gpio, config->int_gpio_pin) == 1) {
 		k_sem_give(&data->sem);
 	}
 	return 0;

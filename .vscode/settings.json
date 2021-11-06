@@ -14,6 +14,7 @@
         "errno-base.h": "c",
         "littlefs.h": "c",
         "storage.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "i2c.h": "c"
     }
 }

@@ -48,12 +48,11 @@ LOG_MODULE_REGISTER(MS5637, LOG_LEVEL_ERR);
 #define MS5637_CONV_TIMER_OSR256_MS 2
 
 struct ms5637_config {
-	char *i2c_bus_label;
+	const struct device *i2c_bus;
 	uint8_t i2c_addr;
 };
 
 struct ms5637_data {
-	const struct device *i2c;
 	uint16_t sens_t1;
 	uint16_t off_t1;
 	uint16_t tcs;
@@ -70,9 +69,9 @@ struct ms5637_data {
 
 static inline const struct device *i2c_device(const struct device *dev)
 {
-	struct ms5637_data *data = dev->data;
+	struct ms5637_config *cnf = dev->config;
 
-	return data->i2c;
+	return cnf->i2c_bus;
 }
 
 static inline const uint16_t i2c_address(const struct device *dev)
@@ -133,12 +132,6 @@ static int init(const struct device *dev)
 	data->conv_time_temp = MS5637_CONV_TIMER_OSR8192_MS;
 	data->conv_time_press = MS5637_CONV_TIMER_OSR8192_MS;
 
-	data->i2c = device_get_binding(config->i2c_bus_label);
-	if (data->i2c == NULL) {
-		LOG_ERR("%s: device %s not found", dev->name,
-			config->i2c_bus_label);
-		return -ENODEV;
-	}
 	rc = send_command(dev, MS5637_CMD_RESET);
 	if (rc != 0) {
 		rc = send_command(dev, MS5637_CMD_RESET);
@@ -307,17 +300,16 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 	return rc;
 }
 
-#define MS5637_DEVICE(id)                                                      \
-	static struct ms5637_config ms5637_config_##id = {                     \
-		.i2c_bus_label = DT_INST_BUS_LABEL(id),                        \
-		.i2c_addr = DT_INST_REG_ADDR(id)                               \
+#define MS5637_DEVICE(inst)                                                    \
+	static const struct ms5637_config ms5637_config_##inst = {             \
+		.i2c_bus = DEVICE_DT_GET(DT_INST_BUS(inst)),                   \
+		.i2c_addr = DT_INST_REG_ADDR(inst)                             \
 	};                                                                     \
-	static struct ms5637_data ms5637_data_##id;                            \
+	static struct ms5637_data ms5637_data_##inst;                          \
                                                                                \
-	DEVICE_AND_API_INIT(                                                   \
-		ms5637_##id, DT_INST_LABEL(id), init, &ms5637_data_##id,       \
-		&ms5637_config_##id, POST_KERNEL,                              \
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
+	DEVICE_DT_INST_DEFINE(                                                 \
+		inst, init, NULL, &ms5637_data_##inst, &ms5637_config_##inst,  \
+		POST_KERNEL, CONFIG_SENSOR_INIT_PRIORITY,                      \
 		&((struct sensor_driver_api){ .attr_set = NULL,                \
 					      .attr_get = NULL,                \
 					      .trigger_set = NULL,             \

@@ -32,24 +32,14 @@ static int init(const struct device *dev)
 	const struct si468x_config *config = dev->config;
 	int rc;
 
-	data->spi = device_get_binding(config->spi_bus_label);
-
-	data->reset_gpio = device_get_binding(config->reset_gpio_label);
-	if (data->reset_gpio == NULL) {
-		LOG_ERR("failed to bind the reset gpio driver");
-	}
-	rc = gpio_pin_configure(data->reset_gpio, config->reset_gpio_pin,
+	rc = gpio_pin_configure(config->reset_gpio, config->reset_gpio_pin,
 				GPIO_OUTPUT_ACTIVE | config->reset_gpio_flags);
 	if (rc != 0) {
 		LOG_ERR("failed to configure reset gpio with rc %d", rc);
 		return rc;
 	}
-	if (config->cs_gpio_label != NULL) {
-		data->cs_gpio = device_get_binding(config->cs_gpio_label);
-		if (data->cs_gpio == NULL) {
-			LOG_ERR("failed to bind the cs gpio driver");
-		}
-		rc = gpio_pin_configure(data->cs_gpio, config->cs_gpio_pin,
+	if (config->cs_gpio != NULL) {
+		rc = gpio_pin_configure(config->cs_gpio, config->cs_gpio_pin,
 					GPIO_OUTPUT | config->cs_gpio_flags);
 		if (rc != 0) {
 			LOG_ERR("failed to configure chip select gpio with rc %d",
@@ -57,11 +47,7 @@ static int init(const struct device *dev)
 			return rc;
 		}
 	}
-	data->int_gpio = device_get_binding(config->int_gpio_label);
-	if (data->int_gpio == NULL) {
-		LOG_ERR("failed to bind the int gpio driver");
-	}
-	rc = gpio_pin_configure(data->int_gpio, config->int_gpio_pin,
+	rc = gpio_pin_configure(config->int_gpio, config->int_gpio_pin,
 				GPIO_INPUT | config->int_gpio_flags);
 	if (rc != 0) {
 		LOG_ERR("failed to configure gpio pin interrupt with rc %d",
@@ -70,7 +56,7 @@ static int init(const struct device *dev)
 	}
 	gpio_init_callback(&data->gpio_callback, gpio_callback_handler,
 			   BIT(config->int_gpio_pin));
-	rc = gpio_add_callback(data->int_gpio, &data->gpio_callback);
+	rc = gpio_add_callback(config->int_gpio, &data->gpio_callback);
 	if (rc != 0) {
 		LOG_ERR("failed to add gpio interrupt callback with rc %d", rc);
 		return rc;
@@ -91,7 +77,7 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 		return rc;
 	}
 	k_sleep(K_MSEC(1));
-	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 0);
+	rc = gpio_pin_set(config->reset_gpio, config->reset_gpio_pin, 0);
 	if (rc != 0) {
 		LOG_ERR("failed to release the reset line with rc %d", rc);
 		return rc;
@@ -193,7 +179,8 @@ static int startup(const struct device *dev, enum si468x_mode mode)
 	if (rc == 0) {
 		data->current_mode = mode;
 	}
-	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+	rc = gpio_pin_interrupt_configure(config->int_gpio,
+					  config->int_gpio_pin,
 					  GPIO_INT_EDGE_TO_ACTIVE);
 	if (rc != 0) {
 		LOG_ERR("failed to configure interrupt pin with rc %d", rc);
@@ -209,13 +196,13 @@ static int powerdown(const struct device *dev)
 	const struct si468x_config *config =
 		(struct si468x_config *)dev->config;
 
-	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
-					  GPIO_INT_DISABLE);
+	rc = gpio_pin_interrupt_configure(
+		config->int_gpio, config->int_gpio_pin, GPIO_INT_DISABLE);
 	if (rc != 0) {
 		LOG_ERR("failed to disable interrupt pin with rc %d", rc);
 		return rc;
 	}
-	rc = gpio_pin_set(data->reset_gpio, config->reset_gpio_pin, 1);
+	rc = gpio_pin_set(config->reset_gpio, config->reset_gpio_pin, 1);
 	if (rc != 0) {
 		LOG_ERR("failed to pull the reset line with rc %d", rc);
 		return rc;
@@ -382,26 +369,27 @@ static uint16_t get_service_id(const struct device *dev, uint16_t index)
 	return service_id;
 }
 
-#define SI468X_DEVICE(id)                                                      \
-	static struct si468x_config si468x_config_##id = {                     \
-		.int_gpio_flags = DT_INST_GPIO_FLAGS(id, int_gpios),           \
-		.reset_gpio_flags = DT_INST_GPIO_FLAGS(id, reset_gpios),       \
-		.cs_gpio_flags = DT_INST_SPI_DEV_CS_GPIOS_FLAGS(id),           \
-		.spi_slave_number = DT_INST_REG_ADDR(id),                      \
-		.spi_bus_label = DT_INST_BUS_LABEL(id),                        \
-		.int_gpio_label = DT_INST_GPIO_LABEL(id, int_gpios),           \
-		.reset_gpio_label = DT_INST_GPIO_LABEL(id, reset_gpios),       \
-		.cs_gpio_label = DT_INST_SPI_DEV_CS_GPIOS_LABEL(id),           \
-		.int_gpio_pin = DT_INST_GPIO_PIN(id, int_gpios),               \
-		.reset_gpio_pin = DT_INST_GPIO_PIN(id, reset_gpios),           \
-		.cs_gpio_pin = DT_INST_SPI_DEV_CS_GPIOS_PIN(id)                \
+#define SI468X_DEVICE(inst)                                                    \
+	static const struct si468x_config si468x_config_##inst = {             \
+		.spi_bus = DEVICE_DT_GET(DT_INST_BUS(inst)),                   \
+		.int_gpio = DEVICE_DT_GET(                                     \
+			DT_GPIO_CTLR(DT_DRV_INST(inst), int_gpios)),           \
+		.reset_gpio = DEVICE_DT_GET(                                   \
+			DT_GPIO_CTLR(DT_DRV_INST(inst), reset_gpios)),         \
+		.cs_gpio = DEVICE_DT_GET(DT_INST_SPI_DEV_CS_GPIOS_CTLR(inst)), \
+		.int_gpio_flags = DT_INST_GPIO_FLAGS(inst, int_gpios),         \
+		.reset_gpio_flags = DT_INST_GPIO_FLAGS(inst, reset_gpios),     \
+		.cs_gpio_flags = DT_INST_SPI_DEV_CS_GPIOS_FLAGS(inst),         \
+		.spi_slave_number = DT_INST_REG_ADDR(inst),                    \
+		.int_gpio_pin = DT_INST_GPIO_PIN(inst, int_gpios),             \
+		.reset_gpio_pin = DT_INST_GPIO_PIN(inst, reset_gpios),         \
+		.cs_gpio_pin = DT_INST_SPI_DEV_CS_GPIOS_PIN(inst)              \
 	};                                                                     \
-	static struct si468x_data si468x_data_##id;                            \
+	static struct si468x_data si468x_data_##inst;                          \
                                                                                \
-	DEVICE_AND_API_INIT(                                                   \
-		si468x_##id, DT_INST_LABEL(id), init, &si468x_data_##id,       \
-		&si468x_config_##id, POST_KERNEL,                              \
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
+	DEVICE_DT_INST_DEFINE(                                                 \
+		inst, init, NULL, &si468x_data_##inst, &si468x_config_##inst,  \
+		POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,               \
 		&((struct si468x_api){ .powerdown = powerdown,                 \
 				       .play_service = play_service,           \
 				       .process_events = process_events,       \

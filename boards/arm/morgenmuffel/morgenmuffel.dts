@@ -95,6 +95,33 @@
 	};
 };
 
+&clk_hse {
+	clock-frequency = <DT_FREQ_M(25)>;
+	status = "okay";
+};
+
+&clk_lse {
+	status = "okay";
+};
+
+&pll {
+	/* produce 120MHz clock at PLL output */
+	clocks = <&clk_hse>;
+	div-m = <25>;
+	mul-n = <240>;
+	div-p = <2>;
+	div-q = <5>;
+	status = "okay";
+};
+
+&rcc {
+	clocks = <&pll>;
+	clock-frequency = <DT_FREQ_M(120)>;
+	ahb-prescaler = <1>;
+	apb1-prescaler = <4>;
+	apb2-prescaler = <2>;
+};
+
 &usart1 {
 	pinctrl-0 = <&usart1_tx_pb6 &usart1_rx_pb7>;
 	current-speed = <38400>;
@@ -128,6 +155,13 @@
 	status = "okay";
 };
 
+&pinctrl {
+	mco2_pc9: mco2_pc9 {
+		pinmux = <STM32_PINMUX('C', 9, AF0)>;
+		slew-rate = "very-high-speed";
+	};
+};
+
 &mac {
 	pinctrl-0 = <&eth_mdc_pc1
 		     &eth_rxd0_pc4
@@ -137,7 +171,8 @@
 		     &eth_crs_dv_pa7
 		     &eth_tx_en_pb11
 		     &eth_txd0_pb12
-		     &eth_txd1_pb13>;
+		     &eth_txd1_pb13
+		     &mco2_pc9>;
 	status = "okay";
 };
 

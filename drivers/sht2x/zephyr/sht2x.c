@@ -22,21 +22,20 @@ LOG_MODULE_REGISTER(SHT2X, LOG_LEVEL_ERR);
 #define SHT2X_WAIT_TIME_RH_MS 30
 
 struct sht2x_config {
-	char *i2c_bus_label;
+	const struct device *i2c_bus;
 	uint8_t i2c_addr;
 };
 
 struct sht2x_data {
-	const struct device *i2c;
 	int32_t rh;
 	int32_t temp;
 };
 
 static inline const struct device *i2c_device(const struct device *dev)
 {
-	struct sht2x_data *data = dev->data;
+	struct sht2x_config *config = dev->config;
 
-	return data->i2c;
+	return config->i2c_bus;
 }
 
 static inline const uint16_t i2c_address(const struct device *dev)
@@ -63,12 +62,6 @@ static int init(const struct device *dev)
 	struct sht2x_data *data = dev->data;
 	int rc;
 
-	data->i2c = device_get_binding(config->i2c_bus_label);
-	if (data->i2c == NULL) {
-		LOG_ERR("%s: device %s not found", dev->name,
-			config->i2c_bus_label);
-		return -ENODEV;
-	}
 	rc = send_command(dev, SHT2X_CMD_SOFT_RESET);
 	if (rc != 0) {
 		LOG_ERR("%s: reset failed with error %d", dev->name, rc);
@@ -200,17 +193,16 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 	return rc;
 }
 
-#define SHT32_DEVICE(id)                                                       \
-	static struct sht2x_config sht2x_config_##id = {                       \
-		.i2c_bus_label = DT_INST_BUS_LABEL(id),                        \
-		.i2c_addr = DT_INST_REG_ADDR(id)                               \
+#define SHT32_DEVICE(inst)                                                     \
+	static const struct sht2x_config sht2x_config_##inst = {               \
+		.i2c_bus = DEVICE_DT_GET(DT_INST_BUS(inst)),                   \
+		.i2c_addr = DT_INST_REG_ADDR(inst)                             \
 	};                                                                     \
-	static struct sht2x_data sht2x_data_##id;                              \
+	static struct sht2x_data sht2x_data_##inst;                            \
                                                                                \
-	DEVICE_AND_API_INIT(                                                   \
-		sht2x_##id, DT_INST_LABEL(id), init, &sht2x_data_##id,         \
-		&sht2x_config_##id, POST_KERNEL,                               \
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
+	DEVICE_DT_INST_DEFINE(                                                 \
+		inst, init, NULL, &sht2x_data_##inst, &sht2x_config_##inst,    \
+		POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE,               \
 		&((struct sensor_driver_api){ .attr_set = NULL,                \
 					      .attr_get = NULL,                \
 					      .trigger_set = NULL,             \

@@ -143,7 +143,7 @@ int si468x_send_command(const struct device *dev,
 	struct si468x_data *data = dev->data;
 	const struct si468x_config *config = dev->config;
 	struct spi_cs_control spi_cs_control = {
-		.gpio_dev = data->cs_gpio,
+		.gpio_dev = config->cs_gpio,
 		.delay = 0,
 		.gpio_pin = config->cs_gpio_pin,
 		.gpio_dt_flags = config->cs_gpio_flags
@@ -153,9 +153,9 @@ int si468x_send_command(const struct device *dev,
 		.operation = SPI_OP_MODE_MASTER | SPI_TRANSFER_MSB |
 			     SPI_WORD_SET(8) | SPI_LINES_SINGLE,
 		.slave = config->spi_slave_number,
-		.cs = data->cs_gpio != NULL ? &spi_cs_control : NULL
+		.cs = config->cs_gpio != NULL ? &spi_cs_control : NULL
 	};
-	rc = spi_write(data->spi, &spi_config, spi_buf_set);
+	rc = spi_write(config->spi_bus, &spi_config, spi_buf_set);
 	return rc;
 }
 
@@ -171,7 +171,7 @@ int si468x_cmd_rd_reply(const struct device *dev,
 	struct si468x_data *data = dev->data;
 	const struct si468x_config *config = dev->config;
 	struct spi_cs_control spi_cs_control = {
-		.gpio_dev = data->cs_gpio,
+		.gpio_dev = config->cs_gpio,
 		.delay = 0,
 		.gpio_pin = config->cs_gpio_pin,
 		.gpio_dt_flags = config->cs_gpio_flags
@@ -181,7 +181,7 @@ int si468x_cmd_rd_reply(const struct device *dev,
 		.operation = SPI_OP_MODE_MASTER | SPI_TRANSFER_MSB |
 			     SPI_WORD_SET(8) | SPI_LINES_SINGLE,
 		.slave = config->spi_slave_number,
-		.cs = data->cs_gpio != NULL ? &spi_cs_control : NULL
+		.cs = config->cs_gpio != NULL ? &spi_cs_control : NULL
 	};
 
 	if (spi_buf_set != NULL) {
@@ -202,7 +202,7 @@ int si468x_cmd_rd_reply(const struct device *dev,
 	struct spi_buf_set buf_set = { .buffers = buf, .count = count };
 
 	do {
-		rc = spi_read(data->spi, &spi_config, &buf_set);
+		rc = spi_read(config->spi_bus, &spi_config, &buf_set);
 		if (rc != 0) {
 			LOG_ERR("failed to read response with rc %d", rc);
 			return rc;

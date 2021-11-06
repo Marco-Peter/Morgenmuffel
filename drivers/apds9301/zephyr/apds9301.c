@@ -72,17 +72,15 @@ LOG_MODULE_REGISTER(apds9301, LOG_LEVEL_ERR);
 enum apds9301_gain { gain_low, gain_high };
 
 struct apds9301_config {
+	const struct device *i2c_bus;
+	const struct device *int_gpio;
 	gpio_flags_t int_gpio_flags;
-	char *i2c_bus_label;
-	char *int_gpio_label;
 	uint8_t i2c_addr;
 	gpio_pin_t int_gpio_pin;
 };
 
 struct apds9301_data {
 	sensor_trigger_handler_t threshold_handler;
-	const struct device *i2c;
-	const struct device *int_gpio;
 	struct gpio_callback gpio_callback;
 	uint32_t vis;
 	uint32_t ir;
@@ -91,9 +89,9 @@ struct apds9301_data {
 
 static inline const struct device *i2c_device(const struct device *dev)
 {
-	struct apds9301_data *data = dev->data;
+	const struct apds9301_config *config = dev->config;
 
-	return data->i2c;
+	return config->i2c_bus;
 }
 
 static inline const uint16_t i2c_address(const struct device *dev)
@@ -151,19 +149,18 @@ static inline int read(const struct device *dev, uint8_t addr, uint16_t *data,
 
 static inline int interrupt_enable(const struct device *dev)
 {
-	struct apds9301_data *data = dev->data;
 	const struct apds9301_config *config = dev->config;
 	int rc;
 
-	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
+	rc = gpio_pin_interrupt_configure(config->int_gpio,
+					  config->int_gpio_pin,
 					  GPIO_INT_EDGE_TO_ACTIVE);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to enable interrupt with rc %d", dev->name,
 			rc);
 		return rc;
 	}
-	rc = write(dev, REGISTER_INTERRUPT, MASK_INTERRUPT_LEVEL, false,
-		   true);
+	rc = write(dev, REGISTER_INTERRUPT, MASK_INTERRUPT_LEVEL, false, true);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to write interrupt register with rc %d",
 			dev->name, rc);
@@ -173,12 +170,11 @@ static inline int interrupt_enable(const struct device *dev)
 
 static inline int interrupt_disable(const struct device *dev)
 {
-	struct apds9301_data *data = dev->data;
 	const struct apds9301_config *config = dev->config;
 	int rc;
 
-	rc = gpio_pin_interrupt_configure(data->int_gpio, config->int_gpio_pin,
-				     GPIO_INT_DISABLE);
+	rc = gpio_pin_interrupt_configure(
+		config->int_gpio, config->int_gpio_pin, GPIO_INT_DISABLE);
 	if (rc != 0) {
 		LOG_ERR("%s: failed to disable interrupt with rc %d", dev->name,
 			rc);
@@ -199,7 +195,7 @@ static void gpio_callback(const struct device *port, struct gpio_callback *cb,
 		CONTAINER_OF(cb, struct apds9301_data, gpio_callback);
 	const struct device *dev =
 		CONTAINER_OF(data, const struct device, data);
-	
+
 	LOG_DBG("%s: gpio_callback", dev->name);
 
 	if (data->threshold_handler != NULL) {
@@ -217,29 +213,18 @@ static int init(const struct device *dev)
 	int rc = 0;
 	uint16_t reg_data;
 
-	data->i2c = device_get_binding(config->i2c_bus_label);
-	if (data->i2c == NULL) {
-		LOG_ERR("%s: device %s not found", dev->name,
-			config->i2c_bus_label);
-		return -ENODEV;
-	}
 	data->gain = gain_low;
-	if (config->int_gpio_label) {
+	if (config->int_gpio) {
 		LOG_DBG("%s: configuring debug pin", dev->name);
-		data->int_gpio = device_get_binding(config->int_gpio_label);
-		if (data->int_gpio == NULL) {
-			LOG_ERR("%s: device %s not found", dev->name,
-				config->int_gpio_label);
-		}
-		rc = gpio_pin_configure(data->int_gpio, config->int_gpio_pin,
+		rc = gpio_pin_configure(config->int_gpio, config->int_gpio_pin,
 					GPIO_INPUT | config->int_gpio_flags);
 		if (rc != 0) {
 			LOG_ERR("%s: configuration of %s failed with rc %d",
-				dev->name, config->int_gpio_label, rc);
+				dev->name, config->int_gpio->name, rc);
 		}
 		gpio_init_callback(&data->gpio_callback, gpio_callback,
 				   config->int_gpio_pin);
-		rc = gpio_add_callback(data->int_gpio, &data->gpio_callback);
+		rc = gpio_add_callback(config->int_gpio, &data->gpio_callback);
 		if (rc != 0) {
 			LOG_ERR("%s: adding callback failed with rc %d",
 				dev->name, rc);
@@ -405,20 +390,21 @@ static int channel_get(const struct device *dev, enum sensor_channel chan,
 	return rc;
 }
 
-#define APDS9301_DEVICE(id)                                                    \
-	static struct apds9301_config apds9301_config_##id = {                 \
-		.int_gpio_flags = DT_INST_GPIO_FLAGS(id, int_gpios),           \
-		.i2c_bus_label = DT_INST_BUS_LABEL(id),                        \
-		.int_gpio_label = DT_INST_GPIO_LABEL(id, int_gpios),           \
-		.i2c_addr = DT_INST_REG_ADDR(id),                              \
-		.int_gpio_pin = DT_INST_GPIO_PIN(id, int_gpios),               \
+#define APDS9301_DEVICE(inst)                                                  \
+	static const struct apds9301_config apds9301_config_##inst = {         \
+		.i2c_bus = DEVICE_DT_GET(DT_INST_BUS(inst)),                   \
+		.int_gpio = DEVICE_DT_GET(                                     \
+			DT_GPIO_CTLR(DT_DRV_INST(inst), int_gpios)),           \
+		.int_gpio_flags = DT_INST_GPIO_FLAGS(inst, int_gpios),         \
+		.i2c_addr = DT_INST_REG_ADDR(inst),                            \
+		.int_gpio_pin = DT_INST_GPIO_PIN(inst, int_gpios),             \
 	};                                                                     \
-	static struct apds9301_data apds9301_data_##id;                        \
+	static struct apds9301_data apds9301_data_##inst;                      \
                                                                                \
-	DEVICE_AND_API_INIT(                                                   \
-		apds9301_##id, DT_INST_LABEL(id), init, &apds9301_data_##id,   \
-		&apds9301_config_##id, POST_KERNEL,                            \
-		CONFIG_KERNEL_INIT_PRIORITY_DEVICE,                            \
+	DEVICE_DT_INST_DEFINE(                                                 \
+		inst, init, NULL, &apds9301_data_##inst,                       \
+		&apds9301_config_##inst, POST_KERNEL,                          \
+		CONFIG_SENSOR_INIT_PRIORITY,                                   \
 		&((struct sensor_driver_api){ .attr_set = attr_set,            \
 					      .attr_get = attr_get,            \
 					      .trigger_set = trigger_set,      \
