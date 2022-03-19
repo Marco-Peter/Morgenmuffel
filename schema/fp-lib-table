@@ -1,0 +1,7 @@
+(fp_lib_table
+  (lib (name Modules_various)(type KiCad)(uri "$(KIPRJMOD)/Modules_various.pretty")(options "")(descr ""))
+  (lib (name Olimex)(type KiCad)(uri "$(KIPRJMOD)/Olimex.pretty")(options "")(descr ""))
+  (lib (name QFN)(type KiCad)(uri "$(KIPRJMOD)/QFN.pretty")(options "")(descr ""))
+  (lib (name TSOP)(type KiCad)(uri "$(KIPRJMOD)/TSOP.pretty")(options "")(descr ""))
+  (lib (name Various)(type KiCad)(uri "$(KIPRJMOD)/Various.pretty")(options "")(descr ""))
+)

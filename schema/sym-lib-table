@@ -1,0 +1,8 @@
+(sym_lib_table
+  (lib (name "d_pack")(type "KiCad")(uri "${KIPRJMOD}/d_pack.kicad_sym")(options "")(descr ""))
+  (lib (name "vs10xx")(type "KiCad")(uri "${KIPRJMOD}/vs10xx.kicad_sym")(options "")(descr ""))
+  (lib (name "si468x")(type "KiCad")(uri "${KIPRJMOD}/si468x.kicad_sym")(options "")(descr ""))
+  (lib (name "stm32f2")(type "KiCad")(uri "${KIPRJMOD}/stm32f2.kicad_sym")(options "")(descr ""))
+  (lib (name "Mainboard")(type "KiCad")(uri "${KIPRJMOD}/Mainboard.kicad_sym")(options "")(descr ""))
+  (lib (name "Mainboard-rescue")(type "KiCad")(uri "${KIPRJMOD}/Mainboard-rescue.kicad_sym")(options "")(descr ""))
+)
